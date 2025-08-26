@@ -558,6 +558,169 @@ function App() {
     }
   };
 
+  const processDrivingLicenceData = (licenceData: any) => {
+    // Create detailed extraction report
+    const extractedFields = Object.entries(licenceData)
+      .filter(([key, value]) => value && value !== '')
+      .map(([key, value]) => `• ${key}: ${value}`)
+      .join('\n');
+
+    addChatMessage('bot', `🔍 **Document Processing Complete**\n\n📄 **Extracted Fields:**\n${extractedFields}`);
+
+    // Enhanced matching logic: try name + date of birth first, then name only
+    let existingDriverIndex = -1;
+    let matchType = '';
+    
+    // First, try to match by name AND date of birth (most precise)
+    if (licenceData.DateOfBirth) {
+      existingDriverIndex = session.drivers.findIndex(driver => {
+        const driverFullName = `${driver.firstName} ${driver.lastName}`;
+        const licenceFullName = `${licenceData.GivenNames} ${licenceData.Surname}`;
+        const nameMatch = namesMatch(driverFullName, licenceFullName);
+        const dobMatch = driver.dateOfBirth === licenceData.DateOfBirth;
+        return nameMatch && dobMatch;
+      });
+      
+      if (existingDriverIndex >= 0) {
+        matchType = 'name_and_dob';
+      }
+    }
+    
+    // If no match by name + DOB, try name only
+    if (existingDriverIndex === -1) {
+      existingDriverIndex = session.drivers.findIndex(driver => {
+        const driverFullName = `${driver.firstName} ${driver.lastName}`;
+        const licenceFullName = `${licenceData.GivenNames} ${licenceData.Surname}`;
+        return namesMatch(driverFullName, licenceFullName);
+      });
+      
+      if (existingDriverIndex >= 0) {
+        matchType = 'name_only';
+      }
+    }
+
+    if (existingDriverIndex >= 0) {
+      // Update existing driver with missing fields
+      const updatedDriver = { ...session.drivers[existingDriverIndex] };
+      const updatedFields: string[] = [];
+      
+      if (!updatedDriver.dateOfBirth && licenceData.DateOfBirth) {
+        updatedDriver.dateOfBirth = licenceData.DateOfBirth;
+        updatedFields.push('Date of Birth');
+      }
+      if (!updatedDriver.firstName && licenceData.GivenNames) {
+        updatedDriver.firstName = licenceData.GivenNames;
+        updatedFields.push('First Name');
+      }
+      if (!updatedDriver.lastName && licenceData.Surname) {
+        updatedDriver.lastName = licenceData.Surname;
+        updatedFields.push('Last Name');
+      }
+      
+      // Add driving licence-specific fields
+      updatedDriver.licenceNumber = licenceData.LicenceNumber;
+      updatedDriver.licenceType = determineLicenceType(licenceData);
+      updatedDriver.yearsHeld = licenceData.YearsHeld || 0;
+      updatedDriver.licenceIssueDate = licenceData.DateOfIssue;
+      updatedDriver.licenceExpiryDate = licenceData.DateOfExpiry;
+      updatedDriver.licenceAuthority = licenceData.Authority;
+      updatedDriver.licenceRestrictions = licenceData.Restrictions;
+      updatedDriver.licenceEndorsements = licenceData.Endorsements;
+
+      setSession(prev => {
+        const updatedDrivers = prev.drivers.map((driver, index) => 
+          index === existingDriverIndex ? updatedDriver : driver
+        );
+        console.log('Updated drivers:', updatedDrivers);
+        return {
+          ...prev,
+          drivers: updatedDrivers
+        };
+      });
+
+      const matchTypeText = matchType === 'name_and_dob' 
+        ? '✅ **Exact Match Found:** Name + Date of Birth'
+        : '⚠️ **Name Match Found:** Date of Birth differs or missing';
+        
+      const updateMessage = updatedFields.length > 0 
+        ? `${matchTypeText}\n\n👤 **Driver Updated:** "${licenceData.GivenNames} ${licenceData.Surname}"\n\n📝 **Fields Updated:**\n${updatedFields.map(field => `• ${field}`).join('\n')}\n\n📋 **Driving Licence Info Added:**\n• Licence Number, Issue/Expiry Dates\n• Licence Type, Years Held\n• Restrictions, Endorsements\n• Issuing Authority`
+        : `${matchTypeText}\n\n👤 **Driver Enhanced:** "${licenceData.GivenNames} ${licenceData.Surname}"\n\n📋 **Driving Licence Information Added:**\n• Licence Number, Issue/Expiry Dates\n• Licence Type, Years Held\n• Restrictions, Endorsements\n• Issuing Authority`;
+
+      addChatMessage('bot', updateMessage);
+      
+      // Force UI update and show success notification
+      setTimeout(() => {
+        addChatMessage('bot', `✅ **UI Updated:** Driver form has been refreshed with the new data. You can now see the updated information in the driver section.`);
+        setNotification({ type: 'success', message: `Driver "${licenceData.GivenNames} ${licenceData.Surname}" updated with driving licence data!` });
+        // Switch to drivers tab to show the updated driver
+        setActiveCategory(0);
+      }, 500);
+    } else {
+      // Create new driver
+      const newDriver: Driver = {
+        id: `driver_${Date.now()}`,
+        classification: session.drivers.length === 0 ? 'MAIN' : 'NAMED',
+        firstName: licenceData.GivenNames || '',
+        lastName: licenceData.Surname || '',
+        dateOfBirth: licenceData.DateOfBirth || '',
+        email: '',
+        phone: '',
+        address: '',
+        postcode: '',
+        licenceType: determineLicenceType(licenceData),
+        licenceNumber: licenceData.LicenceNumber || '',
+        yearsHeld: licenceData.YearsHeld || 0,
+        relationship: '',
+        sameAddress: true,
+        // Driving licence-specific fields
+        licenceIssueDate: licenceData.DateOfIssue,
+        licenceExpiryDate: licenceData.DateOfExpiry,
+        licenceAuthority: licenceData.Authority,
+        licenceRestrictions: licenceData.Restrictions,
+        licenceEndorsements: licenceData.Endorsements
+      };
+
+      setSession(prev => {
+        const updatedDrivers = [...prev.drivers, newDriver];
+        console.log('Added new driver:', newDriver);
+        console.log('All drivers now:', updatedDrivers);
+        return {
+          ...prev,
+          drivers: updatedDrivers
+        };
+      });
+
+      // Show existing drivers for reference
+      const existingDriversList = session.drivers.length > 0 
+        ? session.drivers.map(driver => `• ${driver.firstName} ${driver.lastName}${driver.dateOfBirth ? ` (DOB: ${driver.dateOfBirth})` : ''}`).join('\n')
+        : 'No drivers currently in the system';
+
+      addChatMessage('bot', `🆕 **New Driver Created:** "${licenceData.GivenNames} ${licenceData.Surname}"\n\n🔍 **Matching Result:** No existing driver found with this name\n\n👥 **Existing Drivers:**\n${existingDriversList}\n\n📋 **Insurance Fields:**\n• First Name, Last Name, Date of Birth\n\n📋 **Driving Licence Information:**\n• Licence Number, Issue/Expiry Dates\n• Licence Type, Years Held\n• Restrictions, Endorsements\n• Issuing Authority\n\n💡 **Next Steps:**\nPlease complete the remaining insurance fields (email, phone, address, etc.)`);
+      
+      // Force UI update and show success notification
+      setTimeout(() => {
+        addChatMessage('bot', `✅ **UI Updated:** New driver has been added to the form. You can now see the new driver in the driver section.`);
+        setNotification({ type: 'success', message: `New driver "${licenceData.GivenNames} ${licenceData.Surname}" created from driving licence data!` });
+        // Switch to drivers tab to show the new driver
+        setActiveCategory(0);
+      }, 500);
+    }
+  };
+
+  const determineLicenceType = (licenceData: any): string => {
+    // Determine licence type based on available categories
+    const categories = [];
+    if (licenceData.CategoryA) categories.push('A');
+    if (licenceData.CategoryB) categories.push('B');
+    if (licenceData.CategoryC) categories.push('C');
+    if (licenceData.CategoryD) categories.push('D');
+    if (licenceData.CategoryBE) categories.push('BE');
+    if (licenceData.CategoryCE) categories.push('CE');
+    if (licenceData.CategoryDE) categories.push('DE');
+    
+    return categories.length > 0 ? categories.join(', ') : 'B'; // Default to B if no categories found
+  };
+
   const removeFile = (index: number) => {
     setUploadedFiles(prev => prev.filter((_, i) => i !== index));
   };
