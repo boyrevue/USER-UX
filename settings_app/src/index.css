@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-900 text-white;
+  }
+}
+
+@layer components {
+  .status-badge {
+    @apply px-2 py-1 text-xs font-medium rounded-full;
+  }
+  
+  .status-required {
+    @apply bg-green-500 text-black;
+  }
+  
+  .status-optional {
+    @apply bg-yellow-500 text-black;
+  }
+  
+  .status-missing {
+    @apply bg-red-500 text-white;
+  }
+}

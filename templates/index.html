@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Insurance Quote</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="/static/css/styles.css"/>
+</head>
+<body>
+  <header class="topbar">
+    <h1 id="app-title">Insurance Quote Dashboard</h1>
+    <div class="lang">
+      <label for="langSel">🌐</label>
+      <select id="langSel">
+        <option value="en">EN</option>
+        <option value="de">DE</option>
+      </select>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="bar">
+      <p id="welcome"></p>
+      <button id="newSession">New Session</button>
+      <button id="exportSession">Export</button>
+      <input id="importFile" type="file" accept="application/json"/>
+      <span id="status"></span>
+    </section>
+
+    <!-- Tabs -->
+    <nav id="catTabs" class="tabs" role="tablist" aria-label="Categories"></nav>
+
+    <!-- Active category form -->
+    <section class="mt">
+      <h2 id="formTitle" class="mt-0">Form</h2>
+      <div id="formWrap" class="card"></div>
+    </section>
+  </main>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
+

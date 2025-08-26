@@ -1,0 +1,50 @@
+{
+  "app_title":"Insurance Quote Dashboard","language":"Language","english":"English","german":"Deutsch",
+  "welcome":"Welcome! I'll help you complete your insurance application.","progress":"Progress","complete":"Complete",
+  "save_continue":"Save & Continue","add_driver":"Add Driver","main_driver":"Main Driver","named_driver":"Named Driver",
+  "remove":"Remove","remove_driver":"Remove Driver","maximum_drivers":"Maximum 4 drivers allowed",
+  "export_session":"Export Session","import_session":"Import Session","new_session":"New Session","manage_sessions":"Manage Sessions",
+  "validation_error":"Please correct the errors below","session_saved":"Session saved successfully",
+  "categories": {
+    "drivers":{"title":"Driver Details","description":"Add up to 4 drivers including yourself"},
+    "vehicle":{"title":"Vehicle Details","description":"Your vehicle information and modifications"},
+    "policy":{"title":"Policy Details","description":"Coverage type and policy options"},
+    "claims":{"title":"Claims History","description":"Claims and convictions in last 5 years"},
+    "payment":{"title":"Payment & Start Date","description":"Payment method and schedule"},
+    "extras":{"title":"Optional Extras","description":"Additional coverage options"},
+    "marketing":{"title":"Marketing Preferences","description":"Communication preferences"}
+  },
+  "fields": {
+    "firstName":"First Name","lastName":"Last Name","dateOfBirth":"Date of Birth","email":"Email Address","phone":"Mobile Phone",
+    "address":"Address","postcode":"Postcode","licenceType":"Licence Type","licenceNumber":"Licence Number",
+    "yearsHeld":"Years Licence Held","relationshipToMainDriver":"Relationship to Main Driver","livingAtSameAddress":"Lives at Same Address?",
+    "registrationNumber":"Registration Number","vehicleMake":"Make","vehicleModel":"Model","vehicleYear":"Year",
+    "annualMileage":"Annual Mileage","vehicleValue":"Current Market Value (£)","overnightLocation":"Overnight Parking",
+    "hasModifications":"Has the vehicle been modified?","modificationType":"Modification Category","modificationDetails":"Modification Details",
+    "coverType":"Type of Cover","startDate":"Policy Start Date","voluntaryExcess":"Voluntary Excess (£)","ncdYears":"No Claims Discount (Years)",
+    "protectNCD":"Protect NCD?","hasClaimsOrAccidents":"Any claims or accidents in the last 5 years?","claimType":"Claim Type",
+    "claimDate":"Claim Date","claimAmount":"Claim Amount (£)","hasConvictions":"Any driving convictions?","convictionType":"Conviction Type",
+    "convictionDate":"Conviction Date","paymentFrequency":"Payment Frequency","paymentMethod":"Payment Method",
+    "breakdownCover":"Breakdown Cover","legalExpenses":"Legal Expenses Cover","courtesyCar":"Courtesy Car",
+    "emailMarketing":"Email Marketing","smsMarketing":"SMS Marketing","postMarketing":"Postal Marketing"
+  },
+  "options": {
+    "yes":"Yes","no":"No","select":"Select","self":"Self","spouse":"Spouse/Partner","child":"Child","parent":"Parent","sibling":"Brother/Sister",
+    "employee":"Employee","employer":"Employer","friend":"Friend","other":"Other","comprehensive":"Comprehensive",
+    "thirdPartyFireTheft":"Third Party, Fire & Theft","thirdParty":"Third Party Only","garage":"Garage","driveway":"Driveway","street":"Street",
+    "carPark":"Car Park","fullUK":"Full UK","provisional":"Provisional","international":"International","annual":"Annual","monthly":"Monthly",
+    "creditCard":"Credit Card","debitCard":"Debit Card","directDebit":"Direct Debit","none":"None","roadside":"Roadside",
+    "national":"National Recovery","european":"European Cover"
+  },
+  "helpText": {
+    "driverAge":"Driver must be 17-99 years old","ukMobile":"UK mobile number (07xxx xxxxxx)","ukRegistration":"UK vehicle registration number",
+    "annualMileageEstimate":"Estimate total miles driven per year","modifications":"ANY change from manufacturer's standard specification",
+    "modificationWarning":"ALL modifications must be declared. Failure to declare voids your insurance!",
+    "ncdInfo":"Enter your no claims discount years (0-9+)","excessInfo":"Higher excess reduces premium"
+  },
+  "errors": {
+    "required":"This field is required","invalidEmail":"Please enter a valid email address","invalidPhone":"Please enter a valid UK phone number",
+    "invalidRegistration":"Please enter a valid UK registration number","invalidAge":"Driver must be between 17 and 99 years old",
+    "invalidPostcode":"Please enter a valid UK postcode","sessionNotFound":"Session not found","maxDriversReached":"Maximum 4 drivers allowed"
+  }
+}

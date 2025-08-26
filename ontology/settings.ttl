@@ -1,0 +1,1088 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix autoins: <http://www.autoins.com/ontology#> .
+@prefix settings: <http://www.autoins.com/settings#> .
+@prefix comms: <http://www.autoins.com/communications#> .
+@prefix banking: <http://www.autoins.com/banking#> .
+@prefix security: <http://www.autoins.com/security#> .
+@prefix monitoring: <http://www.autoins.com/monitoring#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+############################################################
+## SETTINGS ONTOLOGY - COMPREHENSIVE CONFIGURATION MANAGEMENT
+############################################################
+
+# SETTINGS BASE CLASSES
+settings:Settings a owl:Class ;
+  rdfs:label "Settings" ;
+  rdfs:label "Einstellungen"@de ;
+  rdfs:comment "Base class for all application settings and configurations" ;
+  security:encryptionRequired "true"^^xsd:boolean ;
+  security:pciCompliant "true"^^xsd:boolean ;
+  security:auditLogging "required" .
+
+settings:BankAccount a owl:Class ;
+  rdfs:subClassOf settings:Settings ;
+  rdfs:label "Bank Account" ;
+  rdfs:label "Bankkonto"@de ;
+  rdfs:comment "Bank account configuration for Open Banking integration" ;
+  banking:openBankingEnabled "true"^^xsd:boolean ;
+  security:requires2FA "true"^^xsd:boolean ;
+  monitoring:healthCheckRequired "true"^^xsd:boolean .
+
+settings:CreditCard a owl:Class ;
+  rdfs:subClassOf settings:Settings ;
+  rdfs:label "Credit Card" ;
+  rdfs:label "Kreditkarte"@de ;
+  rdfs:comment "Credit card configuration for payment processing" ;
+  security:pciCompliant "true"^^xsd:boolean ;
+  security:tokenizationRequired "true"^^xsd:boolean ;
+  monitoring:fraudDetection "enabled" .
+
+settings:CommunicationChannel a owl:Class ;
+  rdfs:subClassOf settings:Settings ;
+  rdfs:label "Communication Channel" ;
+  rdfs:label "Kommunikationskanal"@de ;
+  rdfs:comment "Communication channel configuration for notifications" ;
+  comms:deliveryConfirmation "required" ;
+  comms:retryPolicy "exponential_backoff" .
+
+# Email Integration properties moved to CommunicationChannel
+# settings:EmailIntegration class removed - email is now part of CommunicationChannel
+
+# BANK ACCOUNT PROPERTIES
+banking:bankName a owl:DatatypeProperty ;
+  rdfs:domain settings:BankAccount ;
+  rdfs:range xsd:string ;
+  rdfs:label "bank name" ;
+  rdfs:label "Bankname"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Name of the bank (e.g., NatWest, Barclays, HSBC)" ;
+  autoins:formHelpText "Name der Bank (z.B. NatWest, Barclays, HSBC)"@de ;
+  autoins:validationPattern "^[A-Za-z\\s]+$" ;
+  autoins:errorMessage "Bank name must contain only letters and spaces" ;
+  autoins:errorMessage "Bankname darf nur Buchstaben und Leerzeichen enthalten"@de ;
+  autoins:enumerationValues ("NatWest" "Barclays" "HSBC" "Lloyds" "Santander" "RBS" "Nationwide" "TSB" "Co-op" "Metro Bank" "Other") ;
+  monitoring:healthCheckEndpoint "https://api.{bank}.com/health" .
+
+banking:accountNumber a owl:DatatypeProperty ;
+  rdfs:domain settings:BankAccount ;
+  rdfs:range xsd:string ;
+  rdfs:label "account number" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Bank account number (8 digits)" ;
+  autoins:validationPattern "^[0-9]{8}$" ;
+  autoins:errorMessage "Account number must be exactly 8 digits" ;
+  security:encryptionRequired "true"^^xsd:boolean ;
+  security:encryptionAlgorithm "AES-256-GCM" .
+
+banking:sortCode a owl:DatatypeProperty ;
+  rdfs:domain settings:BankAccount ;
+  rdfs:range xsd:string ;
+  rdfs:label "sort code" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Bank sort code (6 digits, format: XX-XX-XX)" ;
+  autoins:validationPattern "^[0-9]{2}-[0-9]{2}-[0-9]{2}$" ;
+  autoins:errorMessage "Sort code must be in format XX-XX-XX" ;
+  security:encryptionRequired "true"^^xsd:boolean .
+
+banking:accountHolderName a owl:DatatypeProperty ;
+  rdfs:domain settings:BankAccount ;
+  rdfs:range xsd:string ;
+  rdfs:label "account holder name" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Name on the bank account" ;
+  autoins:validationPattern "^[A-Za-z\\s]+$" ;
+  autoins:errorMessage "Account holder name must contain only letters and spaces" .
+
+banking:openBankingClientId a owl:DatatypeProperty ;
+  rdfs:domain settings:BankAccount ;
+  rdfs:range xsd:string ;
+  rdfs:label "Open Banking client ID" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Open Banking client ID from your bank" ;
+  security:encryptionRequired "true"^^xsd:boolean ;
+  security:encryptionAlgorithm "AES-256-GCM" .
+
+banking:openBankingClientSecret a owl:DatatypeProperty ;
+  rdfs:domain settings:BankAccount ;
+  rdfs:range xsd:string ;
+  rdfs:label "Open Banking client secret" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Open Banking client secret from your bank" ;
+  security:encryptionRequired "true"^^xsd:boolean ;
+  security:encryptionAlgorithm "AES-256-GCM" ;
+  security:keyDerivation "PBKDF2" .
+
+banking:openBankingRedirectUri a owl:DatatypeProperty ;
+  rdfs:domain settings:BankAccount ;
+  rdfs:range xsd:string ;
+  rdfs:label "Open Banking redirect URI" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Redirect URI for Open Banking authentication" ;
+  autoins:validationPattern "^https://[a-zA-Z0-9.-]+/callback$" ;
+  autoins:errorMessage "Redirect URI must be a valid HTTPS URL ending with /callback" .
+
+banking:requires2FA a owl:DatatypeProperty ;
+  rdfs:domain settings:BankAccount ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "requires 2FA" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Whether this bank account requires 2FA authentication" ;
+  autoins:defaultValue "true"^^xsd:boolean .
+
+banking:twoFAMethod a owl:DatatypeProperty ;
+  rdfs:domain settings:BankAccount ;
+  rdfs:range xsd:string ;
+  rdfs:label "2FA method" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Method used for 2FA (SMS, Authenticator App, Hardware Token)" ;
+  autoins:enumerationValues ("SMS" "Authenticator App" "Hardware Token" "Email" "None") ;
+  autoins:conditionalRequirement "Required if requires2FA is true" .
+
+banking:credentialRenewalDate a owl:DatatypeProperty ;
+  rdfs:domain settings:BankAccount ;
+  rdfs:range xsd:date ;
+  rdfs:label "credential renewal date" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Date when credentials need to be renewed" ;
+  monitoring:alertDaysBefore "30" ;
+  monitoring:autoRenewal "enabled" .
+
+banking:lastAccessDate a owl:DatatypeProperty ;
+  rdfs:domain settings:BankAccount ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "last access date" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Last successful access to this bank account" ;
+  monitoring:healthCheck "enabled" .
+
+banking:accessStatus a owl:DatatypeProperty ;
+  rdfs:domain settings:BankAccount ;
+  rdfs:range xsd:string ;
+  rdfs:label "access status" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Current access status of the bank account" ;
+  autoins:enumerationValues ("Active" "Inactive" "Error" "Expired" "Suspended" "Pending") ;
+  monitoring:alertOnChange "true"^^xsd:boolean .
+
+# CREDIT CARD PROPERTIES
+banking:cardProvider a owl:DatatypeProperty ;
+  rdfs:domain settings:CreditCard ;
+  rdfs:range xsd:string ;
+  rdfs:label "card provider" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Credit card provider (Visa, Mastercard, Amex, etc.)" ;
+  autoins:enumerationValues ("Visa" "Mastercard" "American Express" "Discover" "JCB" "UnionPay" "Other") .
+
+banking:cardType a owl:DatatypeProperty ;
+  rdfs:domain settings:CreditCard ;
+  rdfs:range xsd:string ;
+  rdfs:label "card type" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Type of credit card" ;
+  autoins:enumerationValues ("Credit" "Debit" "Prepaid" "Charge" "Business" "Student") .
+
+banking:cardNumber a owl:DatatypeProperty ;
+  rdfs:domain settings:CreditCard ;
+  rdfs:range xsd:string ;
+  rdfs:label "card number" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Credit card number (will be tokenized)" ;
+  autoins:validationPattern "^[0-9]{13,19}$" ;
+  autoins:errorMessage "Card number must be 13-19 digits" ;
+  security:tokenizationRequired "true"^^xsd:boolean ;
+  security:encryptionRequired "true"^^xsd:boolean ;
+  security:pciCompliant "true"^^xsd:boolean .
+
+banking:expiryDate a owl:DatatypeProperty ;
+  rdfs:domain settings:CreditCard ;
+  rdfs:range xsd:date ;
+  rdfs:label "expiry date" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Card expiry date (MM/YYYY)" ;
+  autoins:validationPattern "^[0-9]{2}/[0-9]{4}$" ;
+  autoins:errorMessage "Expiry date must be in MM/YYYY format" ;
+  monitoring:alertDaysBefore "60" .
+
+banking:securityCode a owl:DatatypeProperty ;
+  rdfs:domain settings:CreditCard ;
+  rdfs:range xsd:string ;
+  rdfs:label "security code" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Card security code (CVV/CVC)" ;
+  autoins:validationPattern "^[0-9]{3,4}$" ;
+  autoins:errorMessage "Security code must be 3-4 digits" ;
+  security:encryptionRequired "true"^^xsd:boolean ;
+  security:neverStored "true"^^xsd:boolean .
+
+banking:cardholderName a owl:DatatypeProperty ;
+  rdfs:domain settings:CreditCard ;
+  rdfs:range xsd:string ;
+  rdfs:label "cardholder name" ;
+  rdfs:label "Karteninhaber Name"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Name on the credit card" ;
+  autoins:formHelpText "Name auf der Kreditkarte"@de ;
+  autoins:validationPattern "^[A-Za-z\\s]+$" ;
+  autoins:errorMessage "Cardholder name must contain only letters and spaces" ;
+  autoins:errorMessage "Karteninhaber Name darf nur Buchstaben und Leerzeichen enthalten"@de .
+
+banking:cardholderAddress a owl:DatatypeProperty ;
+  rdfs:domain settings:CreditCard ;
+  rdfs:range xsd:string ;
+  rdfs:label "cardholder address" ;
+  rdfs:label "Karteninhaber Adresse"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Billing address for the credit card" ;
+  autoins:formHelpText "Rechnungsadresse für die Kreditkarte"@de ;
+  autoins:validationPattern "^[A-Za-z0-9\\s,\\.-]+$" ;
+  autoins:errorMessage "Address must contain only letters, numbers, spaces, commas, dots, and hyphens" ;
+  autoins:errorMessage "Adresse darf nur Buchstaben, Zahlen, Leerzeichen, Kommas, Punkte und Bindestriche enthalten"@de ;
+  security:encryptionRequired "true"^^xsd:boolean .
+
+# EMAIL CONFIGURATION PROPERTIES
+comms:emailProvider a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "email provider" ;
+  rdfs:label "E-Mail Anbieter"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Select your email provider" ;
+  autoins:formHelpText "Wählen Sie Ihren E-Mail-Anbieter"@de ;
+  autoins:enumerationValues ("gmail" "outlook" "yahoo" "custom") ;
+  autoins:defaultValue "" ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:emailAddress a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "email address" ;
+  rdfs:label "E-Mail Adresse"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Enter your email address" ;
+  autoins:formHelpText "Geben Sie Ihre E-Mail-Adresse ein"@de ;
+  autoins:validationPattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+  autoins:errorMessage "Please enter a valid email address" ;
+  autoins:errorMessage "Bitte geben Sie eine gültige E-Mail-Adresse ein"@de ;
+  autoins:placeholder "user@example.com" ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:oauth2Enabled a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "OAuth2 enabled" ;
+  rdfs:label "OAuth2 aktiviert"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Enable OAuth2 authentication" ;
+  autoins:formHelpText "OAuth2-Authentifizierung aktivieren"@de ;
+  autoins:enumerationValues ("yes" "no") ;
+  autoins:defaultValue "yes" ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:oauth2ClientId a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "OAuth2 client ID" ;
+  rdfs:label "OAuth2 Client ID"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Enter your OAuth2 client ID" ;
+  autoins:formHelpText "Geben Sie Ihre OAuth2 Client ID ein"@de ;
+  autoins:placeholder "your-client-id.apps.googleusercontent.com" ;
+  autoins:conditionalRequirement "Required if oauth2Enabled is yes" ;
+  security:encryptionRequired "true"^^xsd:boolean ;
+  security:keyDerivation "PBKDF2" .
+
+comms:oauth2ClientSecret a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "OAuth2 client secret" ;
+  rdfs:label "OAuth2 Client Secret"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Enter your OAuth2 client secret" ;
+  autoins:formHelpText "Geben Sie Ihr OAuth2 Client Secret ein"@de ;
+  autoins:placeholder "your-client-secret" ;
+  autoins:conditionalRequirement "Required if oauth2Enabled is yes" ;
+  security:encryptionRequired "true"^^xsd:boolean ;
+  security:keyDerivation "PBKDF2" ;
+  security:neverStored "true"^^xsd:boolean .
+
+comms:autoSyncEnabled a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "auto sync enabled" ;
+  rdfs:label "Auto-Sync aktiviert"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Enable automatic email synchronization" ;
+  autoins:formHelpText "Automatische E-Mail-Synchronisation aktivieren"@de ;
+  autoins:enumerationValues ("yes" "no") ;
+  autoins:defaultValue "yes" ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:syncFrequency a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "sync frequency" ;
+  rdfs:label "Sync-Frequenz"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "How often to sync emails" ;
+  autoins:formHelpText "Wie oft E-Mails synchronisiert werden sollen"@de ;
+  autoins:conditionalRequirement "Required if autoSyncEnabled is yes" ;
+  autoins:enumerationValues ("15" "30" "60") ;
+  autoins:enumerationLabels ("Every 15 minutes" "Every 30 minutes" "Every hour") ;
+  autoins:defaultValue "15" ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:imapServer a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "IMAP server" ;
+  rdfs:label "IMAP Server"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Enter your IMAP server address" ;
+  autoins:formHelpText "Geben Sie Ihre IMAP-Server-Adresse ein"@de ;
+  autoins:placeholder "imap.example.com" ;
+  autoins:conditionalRequirement "Required if emailProvider is custom" ;
+  autoins:validationPattern "^[a-zA-Z0-9.-]+$" ;
+  autoins:errorMessage "Please enter a valid server address" ;
+  autoins:errorMessage "Bitte geben Sie eine gültige Server-Adresse ein"@de ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:imapPort a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:integer ;
+  rdfs:label "IMAP port" ;
+  rdfs:label "IMAP Port"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Enter your IMAP port (usually 993 for SSL)" ;
+  autoins:formHelpText "Geben Sie Ihren IMAP-Port ein (normalerweise 993 für SSL)"@de ;
+  autoins:placeholder "993" ;
+  autoins:conditionalRequirement "Required if emailProvider is custom" ;
+  autoins:defaultValue "993" ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+# SECURE MESSENGER CONFIGURATION
+comms:telegramBotToken a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "Telegram bot token" ;
+  rdfs:label "Telegram Bot Token"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Your Telegram bot token" ;
+  autoins:formHelpText "Ihr Telegram Bot Token"@de ;
+  autoins:placeholder "123456789:ABCdefGHIjklMNOpqrsTUVwxyz" ;
+  security:encryptionRequired "true"^^xsd:boolean ;
+  security:encryptionAlgorithm "AES-256-GCM" .
+
+comms:telegramChatId a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "Telegram chat ID" ;
+  rdfs:label "Telegram Chat ID"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Your Telegram chat ID" ;
+  autoins:formHelpText "Ihre Telegram Chat ID"@de ;
+  autoins:placeholder "123456789" ;
+  autoins:validationPattern "^-[0-9]+$" ;
+  autoins:errorMessage "Telegram chat ID must be a negative number" ;
+  autoins:errorMessage "Telegram Chat ID muss eine negative Zahl sein"@de ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:signalNumber a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "Signal number" ;
+  rdfs:label "Signal Nummer"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Your Signal phone number" ;
+  autoins:formHelpText "Ihre Signal Telefonnummer"@de ;
+  autoins:placeholder "+44 123 456 7890" ;
+  autoins:validationPattern "^\\+44[0-9]{10}$" ;
+  autoins:errorMessage "Signal number must be in UK format (+44XXXXXXXXXX)" ;
+  autoins:errorMessage "Signal Nummer muss im UK-Format sein (+44XXXXXXXXXX)"@de ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+# SMS CONFIGURATION
+comms:mobileNumber a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "mobile number" ;
+  rdfs:label "Mobilnummer"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Enter your mobile number for SMS notifications" ;
+  autoins:formHelpText "Geben Sie Ihre Mobilnummer für SMS-Benachrichtigungen ein"@de ;
+  autoins:placeholder "+44 123 456 7890" ;
+  autoins:validationPattern "^\\+44[0-9]{10}$" ;
+  autoins:errorMessage "Mobile number must be in UK format (+44XXXXXXXXXX)" ;
+  autoins:errorMessage "Mobilnummer muss im UK-Format sein (+44XXXXXXXXXX)"@de ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:smsProvider a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "SMS provider" ;
+  rdfs:label "SMS Anbieter"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Select your SMS service provider" ;
+  autoins:formHelpText "Wählen Sie Ihren SMS-Dienstanbieter"@de ;
+  autoins:enumerationValues ("twilio" "nexmo" "custom") ;
+  autoins:defaultValue "" ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+# VOICE CONFIGURATION PROPERTIES
+comms:alexaSkillName a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "Alexa skill name" ;
+  rdfs:label "Alexa Skill Name"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Name of your Alexa skill" ;
+  autoins:formHelpText "Name Ihrer Alexa Skill"@de ;
+  autoins:placeholder "Insurance Assistant" ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:alexaAccount a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "Alexa account" ;
+  rdfs:label "Alexa Konto"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Your Amazon Alexa account email" ;
+  autoins:formHelpText "Ihre Amazon Alexa Konto-E-Mail"@de ;
+  autoins:placeholder "your-alexa@amazon.com" ;
+  autoins:validationPattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+  autoins:errorMessage "Please enter a valid email address" ;
+  autoins:errorMessage "Bitte geben Sie eine gültige E-Mail-Adresse ein"@de ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:googleAssistantProject a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "Google Assistant project" ;
+  rdfs:label "Google Assistant Projekt"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Your Google Assistant project ID" ;
+  autoins:formHelpText "Ihre Google Assistant Projekt-ID"@de ;
+  autoins:placeholder "insurance-assistant" ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:phoneNumber a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "phone number" ;
+  rdfs:label "Telefonnummer"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Phone number for voice calls" ;
+  autoins:formHelpText "Telefonnummer für Sprachanrufe"@de ;
+  autoins:placeholder "+44 123 456 7890" ;
+  autoins:validationPattern "^\\+44[0-9]{10}$" ;
+  autoins:errorMessage "Phone number must be in UK format (+44XXXXXXXXXX)" ;
+  autoins:errorMessage "Telefonnummer muss im UK-Format sein (+44XXXXXXXXXX)"@de ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:siriShortcuts a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "Siri shortcuts" ;
+  rdfs:label "Siri Kurzbefehle"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Siri shortcut phrase" ;
+  autoins:formHelpText "Siri Kurzbefehl-Phrase"@de ;
+  autoins:placeholder "Check Insurance" ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:cortanaSkill a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "Cortana skill" ;
+  rdfs:label "Cortana Skill"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Your Cortana skill name" ;
+  autoins:formHelpText "Ihr Cortana Skill Name"@de ;
+  autoins:placeholder "Insurance Helper" ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+# EMAIL INTEGRATION PROPERTIES (Moved to CommunicationChannel)
+comms:emailProvider a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "email provider" ;
+  rdfs:label "E-Mail Anbieter"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Email service provider (Gmail, Outlook, Yahoo, etc.)" ;
+  autoins:formHelpText "E-Mail-Dienstanbieter (Gmail, Outlook, Yahoo, etc.)"@de ;
+  autoins:enumerationValues ("Gmail" "Outlook" "Yahoo" "ProtonMail" "Custom IMAP" "Other") ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:emailAddress a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "email address" ;
+  rdfs:label "E-Mail Adresse"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Primary email address for notifications and communications" ;
+  autoins:formHelpText "Primäre E-Mail-Adresse für Benachrichtigungen und Kommunikation"@de ;
+  autoins:validationPattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+  autoins:errorMessage "Please enter a valid email address" ;
+  autoins:errorMessage "Bitte geben Sie eine gültige E-Mail-Adresse ein"@de ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:oauth2Enabled a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "OAuth2 enabled" ;
+  rdfs:label "OAuth2 aktiviert"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Whether OAuth2 authentication is enabled for this email provider" ;
+  autoins:formHelpText "Ob OAuth2-Authentifizierung für diesen E-Mail-Anbieter aktiviert ist"@de ;
+  autoins:defaultValue "true"^^xsd:boolean ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:emailPassword a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "email password" ;
+  rdfs:label "E-Mail Passwort"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Email account password (for non-OAuth2 authentication)" ;
+  autoins:formHelpText "E-Mail-Kontopasswort (für nicht-OAuth2-Authentifizierung)"@de ;
+  autoins:conditionalRequirement "Required if oauth2Enabled is false" ;
+  security:encryptionRequired "true"^^xsd:boolean ;
+  security:keyDerivation "PBKDF2" ;
+  security:neverStored "true"^^xsd:boolean .
+
+comms:appPassword a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "app password" ;
+  rdfs:label "App Passwort"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "App-specific password for email access (Gmail, Outlook)" ;
+  autoins:formHelpText "App-spezifisches Passwort für E-Mail-Zugriff (Gmail, Outlook)"@de ;
+  autoins:conditionalRequirement "Required for Gmail/Outlook with 2FA enabled" ;
+  security:encryptionRequired "true"^^xsd:boolean ;
+  security:keyDerivation "PBKDF2" ;
+  security:neverStored "true"^^xsd:boolean .
+
+comms:oauth2ClientId a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "OAuth2 client ID" ;
+  rdfs:label "OAuth2 Client ID"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "OAuth2 client ID for email integration (from Google/Microsoft developer console)" ;
+  autoins:formHelpText "OAuth2 Client ID für E-Mail-Integration (aus Google/Microsoft Developer Console)"@de ;
+  autoins:conditionalRequirement "Required if oauth2Enabled is true" ;
+  security:encryptionRequired "true"^^xsd:boolean ;
+  security:keyDerivation "PBKDF2" .
+
+comms:oauth2ClientSecret a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "OAuth2 client secret" ;
+  rdfs:label "OAuth2 Client Secret"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "OAuth2 client secret for email integration (from Google/Microsoft developer console)" ;
+  autoins:formHelpText "OAuth2 Client Secret für E-Mail-Integration (aus Google/Microsoft Developer Console)"@de ;
+  autoins:conditionalRequirement "Required if oauth2Enabled is true" ;
+  security:encryptionRequired "true"^^xsd:boolean ;
+  security:keyDerivation "PBKDF2" ;
+  security:neverStored "true"^^xsd:boolean .
+
+comms:refreshToken a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "refresh token" ;
+  rdfs:label "Refresh Token"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "OAuth2 refresh token for automatic token renewal" ;
+  autoins:formHelpText "OAuth2 Refresh Token für automatische Token-Erneuerung"@de ;
+  autoins:conditionalRequirement "Required if oauth2Enabled is true" ;
+  security:encryptionRequired "true"^^xsd:boolean ;
+  security:keyDerivation "PBKDF2" ;
+  security:neverStored "true"^^xsd:boolean .
+
+comms:accessToken a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "access token" ;
+  rdfs:label "Access Token"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "OAuth2 access token for email API access" ;
+  autoins:formHelpText "OAuth2 Access Token für E-Mail-API-Zugriff"@de ;
+  autoins:conditionalRequirement "Required if oauth2Enabled is true" ;
+  security:encryptionRequired "true"^^xsd:boolean ;
+  security:keyDerivation "PBKDF2" ;
+  security:neverStored "true"^^xsd:boolean ;
+  security:sessionTimeout "3600" .
+
+comms:autoSyncEnabled a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "auto sync enabled" ;
+  rdfs:label "Auto-Sync aktiviert"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Whether to automatically sync emails from this account" ;
+  autoins:formHelpText "Ob E-Mails von diesem Konto automatisch synchronisiert werden sollen"@de ;
+  autoins:defaultValue "true"^^xsd:boolean ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:syncFrequency a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "sync frequency" ;
+  rdfs:label "Sync-Frequenz"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "How often to sync emails from this account" ;
+  autoins:formHelpText "Wie oft E-Mails von diesem Konto synchronisiert werden sollen"@de ;
+  autoins:conditionalRequirement "Required if autoSyncEnabled is true" ;
+  autoins:enumerationValues ("Every 5 minutes" "Every 15 minutes" "Every hour" "Every 4 hours" "Daily" "Weekly") ;
+  autoins:defaultValue "Every 15 minutes" ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:imapServer a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "IMAP server" ;
+  rdfs:label "IMAP Server"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "IMAP server address for email access" ;
+  autoins:formHelpText "IMAP-Server-Adresse für E-Mail-Zugriff"@de ;
+  autoins:conditionalRequirement "Required for custom IMAP providers" ;
+  autoins:validationPattern "^[a-zA-Z0-9.-]+$" ;
+  autoins:errorMessage "Please enter a valid server address" ;
+  autoins:errorMessage "Bitte geben Sie eine gültige Server-Adresse ein"@de ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:imapPort a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:integer ;
+  rdfs:label "IMAP port" ;
+  rdfs:label "IMAP Port"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "IMAP server port (usually 993 for SSL, 143 for non-SSL)" ;
+  autoins:formHelpText "IMAP-Server-Port (normalerweise 993 für SSL, 143 für nicht-SSL)"@de ;
+  autoins:conditionalRequirement "Required for custom IMAP providers" ;
+  autoins:defaultValue "993" ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:imapUseSSL a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "IMAP use SSL" ;
+  rdfs:label "IMAP SSL verwenden"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Whether to use SSL/TLS for IMAP connection" ;
+  autoins:formHelpText "Ob SSL/TLS für IMAP-Verbindung verwendet werden soll"@de ;
+  autoins:conditionalRequirement "Required for custom IMAP providers" ;
+  autoins:defaultValue "true"^^xsd:boolean ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:smtpServer a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:string ;
+  rdfs:label "SMTP server" ;
+  rdfs:label "SMTP Server"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "SMTP server address for sending emails" ;
+  autoins:formHelpText "SMTP-Server-Adresse für das Senden von E-Mails"@de ;
+  autoins:conditionalRequirement "Required for custom SMTP providers" ;
+  autoins:validationPattern "^[a-zA-Z0-9.-]+$" ;
+  autoins:errorMessage "Please enter a valid server address" ;
+  autoins:errorMessage "Bitte geben Sie eine gültige Server-Adresse ein"@de ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:smtpPort a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:integer ;
+  rdfs:label "SMTP port" ;
+  rdfs:label "SMTP Port"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "SMTP server port (usually 587 for TLS, 465 for SSL)" ;
+  autoins:formHelpText "SMTP-Server-Port (normalerweise 587 für TLS, 465 für SSL)"@de ;
+  autoins:conditionalRequirement "Required for custom SMTP providers" ;
+  autoins:defaultValue "587" ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:smtpUseTLS a owl:DatatypeProperty ;
+  rdfs:domain settings:CommunicationChannel ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "SMTP use TLS" ;
+  rdfs:label "SMTP TLS verwenden"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Whether to use TLS for SMTP connection" ;
+  autoins:formHelpText "Ob TLS für SMTP-Verbindung verwendet werden soll"@de ;
+  autoins:conditionalRequirement "Required for custom SMTP providers" ;
+  autoins:defaultValue "true"^^xsd:boolean ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+comms:syncFrequency a owl:DatatypeProperty ;
+  rdfs:domain settings:EmailIntegration ;
+  rdfs:range xsd:string ;
+  rdfs:label "sync frequency" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "How often to sync emails" ;
+  autoins:conditionalRequirement "Required if autoSyncEnabled is true" ;
+  autoins:enumerationValues ("Every 5 minutes" "Every 15 minutes" "Every hour" "Every 4 hours" "Daily" "Weekly") ;
+  autoins:defaultValue "Every 15 minutes" .
+
+# MONITORING PROPERTIES
+monitoring:healthCheckEnabled a owl:DatatypeProperty ;
+  rdfs:domain settings:Settings ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "health check enabled" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Whether to enable health checks for this setting" ;
+  autoins:defaultValue "true"^^xsd:boolean .
+
+monitoring:healthCheckFrequency a owl:DatatypeProperty ;
+  rdfs:domain settings:Settings ;
+  rdfs:range xsd:string ;
+  rdfs:label "health check frequency" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "How often to perform health checks" ;
+  autoins:conditionalRequirement "Required if healthCheckEnabled is true" ;
+  autoins:enumerationValues ("Every 5 minutes" "Every 15 minutes" "Every hour" "Every 4 hours" "Daily") ;
+  autoins:defaultValue "Every hour" .
+
+monitoring:alertOnFailure a owl:DatatypeProperty ;
+  rdfs:domain settings:Settings ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "alert on failure" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Whether to send alerts on health check failures" ;
+  autoins:defaultValue "true"^^xsd:boolean .
+
+monitoring:retryAttempts a owl:DatatypeProperty ;
+  rdfs:domain settings:Settings ;
+  rdfs:range xsd:integer ;
+  rdfs:label "retry attempts" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Number of retry attempts before marking as failed" ;
+  autoins:defaultValue "3" ;
+  autoins:min "1" ;
+  autoins:max "10" .
+
+monitoring:lastHealthCheck a owl:DatatypeProperty ;
+  rdfs:domain settings:Settings ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "last health check" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Timestamp of last health check" ;
+  monitoring:readOnly "true"^^xsd:boolean .
+
+monitoring:healthStatus a owl:DatatypeProperty ;
+  rdfs:domain settings:Settings ;
+  rdfs:range xsd:string ;
+  rdfs:label "health status" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Current health status" ;
+  autoins:enumerationValues ("Healthy" "Warning" "Error" "Unknown" "Maintenance") ;
+  monitoring:readOnly "true"^^xsd:boolean ;
+  monitoring:alertOnChange "true"^^xsd:boolean .
+
+# SECURITY PROPERTIES
+security:encryptionAlgorithm a owl:DatatypeProperty ;
+  rdfs:domain settings:Settings ;
+  rdfs:range xsd:string ;
+  rdfs:label "encryption algorithm" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Encryption algorithm used for sensitive data" ;
+  autoins:enumerationValues ("AES-256-GCM" "AES-256-CBC" "ChaCha20-Poly1305" "RSA-4096") ;
+  autoins:defaultValue "AES-256-GCM" ;
+  security:readOnly "true"^^xsd:boolean .
+
+security:keyDerivation a owl:DatatypeProperty ;
+  rdfs:domain settings:Settings ;
+  rdfs:range xsd:string ;
+  rdfs:label "key derivation" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Key derivation function used" ;
+  autoins:enumerationValues ("PBKDF2" "Argon2" "bcrypt" "scrypt") ;
+  autoins:defaultValue "PBKDF2" ;
+  security:readOnly "true"^^xsd:boolean .
+
+security:sessionTimeout a owl:DatatypeProperty ;
+  rdfs:domain settings:Settings ;
+  rdfs:range xsd:integer ;
+  rdfs:label "session timeout" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Session timeout in minutes" ;
+  autoins:defaultValue "30" ;
+  autoins:min "5" ;
+  autoins:max "480" .
+
+security:accessLogging a owl:DatatypeProperty ;
+  rdfs:domain settings:Settings ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "access logging" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Whether to log all access attempts" ;
+  autoins:defaultValue "true"^^xsd:boolean .
+
+security:auditTrail a owl:DatatypeProperty ;
+  rdfs:domain settings:Settings ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "audit trail" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Whether to maintain audit trail for changes" ;
+  autoins:defaultValue "true"^^xsd:boolean .
+
+############################################################
+## SHACL VALIDATION SHAPES FOR SETTINGS
+############################################################
+
+# Bank Account Validation
+settings:BankAccountShape a sh:NodeShape ;
+  sh:targetClass settings:BankAccount ;
+  sh:property [
+    sh:path banking:bankName ;
+    sh:minCount 1 ;
+    sh:message "Bank name is required" ;
+  ] ;
+  sh:property [
+    sh:path banking:accountNumber ;
+    sh:minCount 1 ;
+    sh:pattern "^[0-9]{8}$" ;
+    sh:message "Account number must be exactly 8 digits" ;
+  ] ;
+  sh:property [
+    sh:path banking:sortCode ;
+    sh:minCount 1 ;
+    sh:pattern "^[0-9]{2}-[0-9]{2}-[0-9]{2}$" ;
+    sh:message "Sort code must be in format XX-XX-XX" ;
+  ] ;
+  sh:property [
+    sh:path banking:openBankingClientId ;
+    sh:minCount 1 ;
+    sh:message "Open Banking client ID is required" ;
+  ] ;
+  sh:property [
+    sh:path banking:openBankingClientSecret ;
+    sh:minCount 1 ;
+    sh:message "Open Banking client secret is required" ;
+  ] ;
+  sh:property [
+    sh:path banking:credentialRenewalDate ;
+    sh:minCount 1 ;
+    sh:datatype xsd:date ;
+    sh:message "Credential renewal date is required" ;
+  ] .
+
+# Credit Card Validation
+settings:CreditCardShape a sh:NodeShape ;
+  sh:targetClass settings:CreditCard ;
+  sh:property [
+    sh:path banking:cardProvider ;
+    sh:minCount 1 ;
+    sh:in ("Visa" "Mastercard" "American Express" "Discover" "JCB" "UnionPay" "Other") ;
+    sh:message "Valid card provider is required" ;
+  ] ;
+  sh:property [
+    sh:path banking:cardNumber ;
+    sh:minCount 1 ;
+    sh:pattern "^[0-9]{13,19}$" ;
+    sh:message "Card number must be 13-19 digits" ;
+  ] ;
+  sh:property [
+    sh:path banking:expiryDate ;
+    sh:minCount 1 ;
+    sh:pattern "^[0-9]{2}/[0-9]{4}$" ;
+    sh:message "Expiry date must be in MM/YYYY format" ;
+  ] ;
+  sh:property [
+    sh:path banking:securityCode ;
+    sh:minCount 1 ;
+    sh:pattern "^[0-9]{3,4}$" ;
+    sh:message "Security code must be 3-4 digits" ;
+  ] .
+
+# Communication Channel Validation
+settings:CommunicationChannelShape a sh:NodeShape ;
+  sh:targetClass settings:CommunicationChannel ;
+  sh:property [
+    sh:path comms:channelType ;
+    sh:minCount 1 ;
+    sh:in ("Email" "SMS" "Telegram" "WhatsApp" "Push Notification" "Phone Call" "Postal Mail") ;
+    sh:message "Valid channel type is required" ;
+  ] ;
+  sh:property [
+    sh:path comms:isEnabled ;
+    sh:datatype xsd:boolean ;
+    sh:message "Enabled status must be boolean" ;
+  ] .
+
+# Telegram Channel Validation
+settings:TelegramChannelShape a sh:NodeShape ;
+  sh:targetClass settings:CommunicationChannel ;
+  sh:property [
+    sh:path comms:channelType ;
+    sh:hasValue "Telegram" ;
+  ] ;
+  sh:property [
+    sh:path comms:telegramBotToken ;
+    sh:minCount 1 ;
+    sh:message "Telegram bot token is required for Telegram channels" ;
+  ] ;
+  sh:property [
+    sh:path comms:telegramChatId ;
+    sh:minCount 1 ;
+    sh:pattern "^-[0-9]+$" ;
+    sh:message "Telegram chat ID must be a negative number" ;
+  ] .
+
+# SMS Channel Validation
+settings:SMSChannelShape a sh:NodeShape ;
+  sh:targetClass settings:CommunicationChannel ;
+  sh:property [
+    sh:path comms:channelType ;
+    sh:hasValue "SMS" ;
+  ] ;
+  sh:property [
+    sh:path comms:smsProvider ;
+    sh:minCount 1 ;
+    sh:in ("Twilio" "Vonage" "AWS SNS" "MessageBird" "Other") ;
+    sh:message "Valid SMS provider is required" ;
+  ] ;
+  sh:property [
+    sh:path comms:smsApiKey ;
+    sh:minCount 1 ;
+    sh:message "SMS API key is required" ;
+  ] ;
+  sh:property [
+    sh:path comms:smsApiSecret ;
+    sh:minCount 1 ;
+    sh:message "SMS API secret is required" ;
+  ] ;
+  sh:property [
+    sh:path comms:mobileNumber ;
+    sh:minCount 1 ;
+    sh:pattern "^\\+44[0-9]{10}$" ;
+    sh:message "Valid UK mobile number is required" ;
+  ] .
+
+# Email Integration Validation
+settings:EmailIntegrationShape a sh:NodeShape ;
+  sh:targetClass settings:EmailIntegration ;
+  sh:property [
+    sh:path comms:emailProvider ;
+    sh:minCount 1 ;
+    sh:in ("Gmail" "Outlook" "Yahoo" "ProtonMail" "Custom IMAP" "Other") ;
+    sh:message "Valid email provider is required" ;
+  ] ;
+  sh:property [
+    sh:path comms:emailAddress ;
+    sh:minCount 1 ;
+    sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+    sh:message "Valid email address is required" ;
+  ] ;
+  sh:property [
+    sh:path comms:oauth2Enabled ;
+    sh:datatype xsd:boolean ;
+    sh:message "OAuth2 enabled must be boolean" ;
+  ] .
+
+# OAuth2 Email Integration Validation
+settings:OAuth2EmailShape a sh:NodeShape ;
+  sh:targetClass settings:EmailIntegration ;
+  sh:property [
+    sh:path comms:oauth2Enabled ;
+    sh:hasValue "true"^^xsd:boolean ;
+  ] ;
+  sh:property [
+    sh:path comms:oauth2ClientId ;
+    sh:minCount 1 ;
+    sh:message "OAuth2 client ID is required when OAuth2 is enabled" ;
+  ] ;
+  sh:property [
+    sh:path comms:oauth2ClientSecret ;
+    sh:minCount 1 ;
+    sh:message "OAuth2 client secret is required when OAuth2 is enabled" ;
+  ] ;
+  sh:property [
+    sh:path comms:refreshToken ;
+    sh:minCount 1 ;
+    sh:message "Refresh token is required when OAuth2 is enabled" ;
+  ] .
+
+# Security Validation
+settings:SecurityShape a sh:NodeShape ;
+  sh:targetClass settings:Settings ;
+  sh:property [
+    sh:path security:sessionTimeout ;
+    sh:minCount 1 ;
+    sh:minInclusive 5 ;
+    sh:maxInclusive 480 ;
+    sh:message "Session timeout must be between 5 and 480 minutes" ;
+  ] ;
+  sh:property [
+    sh:path security:accessLogging ;
+    sh:datatype xsd:boolean ;
+    sh:message "Access logging must be boolean" ;
+  ] ;
+  sh:property [
+    sh:path security:auditTrail ;
+    sh:datatype xsd:boolean ;
+    sh:message "Audit trail must be boolean" ;
+  ] .
+
+# Monitoring Validation
+settings:MonitoringShape a sh:NodeShape ;
+  sh:targetClass settings:Settings ;
+  sh:property [
+    sh:path monitoring:healthCheckEnabled ;
+    sh:datatype xsd:boolean ;
+    sh:message "Health check enabled must be boolean" ;
+  ] ;
+  sh:property [
+    sh:path monitoring:healthCheckFrequency ;
+    sh:minCount 1 ;
+    sh:in ("Every 5 minutes" "Every 15 minutes" "Every hour" "Every 4 hours" "Daily") ;
+    sh:message "Valid health check frequency is required" ;
+  ] ;
+  sh:property [
+    sh:path monitoring:retryAttempts ;
+    sh:minCount 1 ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 10 ;
+    sh:message "Retry attempts must be between 1 and 10" ;
+  ] .
+
+# PCI Compliance Validation
+settings:PCIComplianceShape a sh:NodeShape ;
+  sh:targetClass settings:Settings ;
+  sh:property [
+    sh:path security:encryptionRequired ;
+    sh:hasValue "true"^^xsd:boolean ;
+    sh:message "Encryption is required for PCI compliance" ;
+  ] ;
+  sh:property [
+    sh:path security:pciCompliant ;
+    sh:hasValue "true"^^xsd:boolean ;
+    sh:message "PCI compliance must be enabled" ;
+  ] ;
+  sh:property [
+    sh:path security:auditLogging ;
+    sh:hasValue "required" ;
+    sh:message "Audit logging is required for PCI compliance" ;
+  ] .
+
+# Credential Renewal Alert Shape
+settings:CredentialRenewalAlertShape a sh:NodeShape ;
+  sh:targetClass settings:BankAccount ;
+  sh:property [
+    sh:path banking:credentialRenewalDate ;
+    sh:maxExclusive "P30D"^^xsd:duration ;
+    sh:message "Credentials expire within 30 days - renewal required" ;
+  ] .
+
+# Health Check Failure Alert Shape
+settings:HealthCheckFailureShape a sh:NodeShape ;
+  sh:targetClass settings:Settings ;
+  sh:property [
+    sh:path monitoring:healthStatus ;
+    sh:in ("Error" "Unknown") ;
+    sh:message "Health check failure detected - immediate attention required" ;
+  ] .

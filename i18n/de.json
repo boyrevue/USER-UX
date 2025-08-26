@@ -1,0 +1,51 @@
+{
+  "app_title":"Versicherungsangebot Dashboard","language":"Sprache","english":"English","german":"Deutsch",
+  "welcome":"Willkommen! Ich helfe Ihnen bei Ihrem Versicherungsantrag.","progress":"Fortschritt","complete":"Abgeschlossen",
+  "save_continue":"Speichern & Fortfahren","add_driver":"Fahrer hinzufügen","main_driver":"Hauptfahrer","named_driver":"Benannter Fahrer",
+  "remove":"Entfernen","remove_driver":"Fahrer entfernen","maximum_drivers":"Maximal 4 Fahrer erlaubt","export_session":"Sitzung exportieren",
+  "import_session":"Sitzung importieren","new_session":"Neue Sitzung","manage_sessions":"Sitzungen verwalten",
+  "validation_error":"Bitte korrigieren Sie die folgenden Fehler","session_saved":"Sitzung erfolgreich gespeichert",
+  "categories": {
+    "drivers":{"title":"Fahrerdetails","description":"Fügen Sie bis zu 4 Fahrer hinzu"},
+    "vehicle":{"title":"Fahrzeugdetails","description":"Fahrzeuginformationen und Modifikationen"},
+    "policy":{"title":"Policendetails","description":"Deckungsart und Policenoptionen"},
+    "claims":{"title":"Schadenverlauf","description":"Schäden in den letzten 5 Jahren"},
+    "payment":{"title":"Zahlung & Startdatum","description":"Zahlungsmethode und Zeitplan"},
+    "extras":{"title":"Optionale Extras","description":"Zusätzliche Deckungsoptionen"},
+    "marketing":{"title":"Marketing-Einstellungen","description":"Kommunikationseinstellungen"}
+  },
+  "fields": {
+    "firstName":"Vorname","lastName":"Nachname","dateOfBirth":"Geburtsdatum","email":"E-Mail-Adresse","phone":"Mobiltelefon","address":"Adresse",
+    "postcode":"Postleitzahl","licenceType":"Führerscheintyp","licenceNumber":"Führerscheinnummer","yearsHeld":"Jahre Führerschein",
+    "relationshipToMainDriver":"Beziehung zum Hauptfahrer","livingAtSameAddress":"Wohnt an derselben Adresse?","registrationNumber":"Kennzeichen",
+    "vehicleMake":"Marke","vehicleModel":"Modell","vehicleYear":"Jahr","annualMileage":"Jährliche Laufleistung",
+    "vehicleValue":"Aktueller Marktwert (€)","overnightLocation":"Nachtparkplatz","hasModifications":"Wurde das Fahrzeug modifiziert?",
+    "modificationType":"Modifikationskategorie","modificationDetails":"Modifikationsdetails","coverType":"Art der Deckung",
+    "startDate":"Policen-Startdatum","voluntaryExcess":"Freiwillige Selbstbeteiligung (€)","ncdYears":"Schadenfreiheitsrabatt (Jahre)",
+    "protectNCD":"SFR schützen?","hasClaimsOrAccidents":"Schäden in den letzten 5 Jahren?","claimType":"Schadenart",
+    "claimDate":"Schadendatum","claimAmount":"Schadenhöhe (€)","hasConvictions":"Fahrverurteilungen?","convictionType":"Verurteilungsart",
+    "convictionDate":"Verurteilungsdatum","paymentFrequency":"Zahlungshäufigkeit","paymentMethod":"Zahlungsmethode",
+    "breakdownCover":"Pannenhilfe","legalExpenses":"Rechtsschutz","courtesyCar":"Ersatzwagen","emailMarketing":"E-Mail-Marketing",
+    "smsMarketing":"SMS-Marketing","postMarketing":"Post-Marketing"
+  },
+  "options": {
+    "yes":"Ja","no":"Nein","select":"Auswählen","self":"Selbst","spouse":"Ehepartner/Partner","child":"Kind","parent":"Elternteil","sibling":"Bruder/Schwester",
+    "employee":"Angestellter","employer":"Arbeitgeber","friend":"Freund","other":"Andere","comprehensive":"Vollkasko","thirdPartyFireTheft":"Teilkasko",
+    "thirdParty":"Haftpflicht","garage":"Garage","driveway":"Einfahrt","street":"Straße","carPark":"Parkplatz","fullUK":"Vollständig UK",
+    "provisional":"Vorläufig","international":"International","annual":"Jährlich","monthly":"Monatlich","creditCard":"Kreditkarte",
+    "debitCard":"EC-Karte","directDebit":"Lastschrift","none":"Keine","roadside":"Pannenhilfe","national":"Nationale Bergung",
+    "european":"Europäische Deckung"
+  },
+  "helpText": {
+    "driverAge":"Fahrer muss zwischen 17-99 Jahre alt sein","ukMobile":"UK Mobilnummer (07xxx xxxxxx)","ukRegistration":"UK Fahrzeugkennzeichen",
+    "annualMileageEstimate":"Schätzen Sie die jährlichen Gesamtmeilen","modifications":"JEDE Änderung von der Herstellerspezifikation",
+    "modificationWarning":"ALLE Modifikationen müssen deklariert werden!","ncdInfo":"Geben Sie Ihre schadenfreien Jahre ein (0-9+)",
+    "excessInfo":"Höhere Selbstbeteiligung reduziert die Prämie"
+  },
+  "errors": {
+    "required":"Dieses Feld ist erforderlich","invalidEmail":"Bitte geben Sie eine gültige E-Mail-Adresse ein",
+    "invalidPhone":"Bitte geben Sie eine gültige UK-Telefonnummer ein","invalidRegistration":"Bitte geben Sie ein gültiges UK-Kennzeichen ein",
+    "invalidAge":"Fahrer muss zwischen 17 und 99 Jahre alt sein","invalidPostcode":"Bitte geben Sie eine gültige UK-Postleitzahl ein",
+    "sessionNotFound":"Sitzung nicht gefunden","maxDriversReached":"Maximal 4 Fahrer erlaubt"
+  }
+}
