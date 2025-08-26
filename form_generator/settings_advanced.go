@@ -1150,21 +1150,21 @@ func main() {
                     </div>
 
                     <div id="bankTab1" class="instance-tab-content active">
-                        <div class="form-group">
+                    <div class="form-group">
                             <label class="form-label">
                                 Bank Name
                                 <span class="status required">REQ</span>
                             </label>
                             <select class="form-select" name="bankName1">
-                                <option value="">Select Bank</option>
+                            <option value="">Select Bank</option>
                                 <option value="allied_irish_bank">Allied Irish Bank (GB)</option>
                                 <option value="bank_of_ireland">Bank of Ireland (UK)</option>
                                 <option value="bank_of_scotland">Bank of Scotland</option>
-                                <option value="barclays">Barclays</option>
+                            <option value="barclays">Barclays</option>
                                 <option value="co_operative_bank">Co-operative Bank</option>
                                 <option value="first_direct">First Direct</option>
                                 <option value="halifax">Halifax</option>
-                                <option value="hsbc">HSBC</option>
+                            <option value="hsbc">HSBC</option>
                                 <option value="lloyds_bank">Lloyds Bank</option>
                                 <option value="metrobank">Metro Bank</option>
                                 <option value="monzo">Monzo</option>
@@ -1177,44 +1177,44 @@ func main() {
                                 <option value="ulster_bank">Ulster Bank</option>
                                 <option value="virgin_money">Virgin Money</option>
                                 <option value="yorkshire_bank">Yorkshire Bank</option>
-                            </select>
+                        </select>
                             <div class="help-text">Select your bank from the TrueLayer Open Banking supported list</div>
-                        </div>
-                        <div class="form-group">
+                    </div>
+                    <div class="form-group">
                             <label class="form-label">
                                 Account Number
                                 <span class="status required">REQ</span>
                             </label>
                             <input type="text" class="form-input" name="accountNumber1" placeholder="12345678" maxlength="8">
-                            <div class="help-text">Enter your 8-digit account number</div>
-                        </div>
-                        <div class="form-group">
+                        <div class="help-text">Enter your 8-digit account number</div>
+                    </div>
+                    <div class="form-group">
                             <label class="form-label">
                                 Sort Code
                                 <span class="status required">REQ</span>
                             </label>
                             <input type="text" class="form-input" name="sortCode1" placeholder="12-34-56" maxlength="8">
-                            <div class="help-text">Enter your sort code in XX-XX-XX format</div>
-                        </div>
-                        <div class="form-group">
+                        <div class="help-text">Enter your sort code in XX-XX-XX format</div>
+                    </div>
+                    <div class="form-group">
                             <label class="form-label">
                                 Account Holder Name
                                 <span class="status required">REQ</span>
                             </label>
                             <input type="text" class="form-input" name="accountHolderName1" placeholder="John Doe">
-                            <div class="help-text">Enter the account holder's full name</div>
-                        </div>
-                        <div class="form-group">
+                        <div class="help-text">Enter the account holder's full name</div>
+                    </div>
+                    <div class="form-group">
                             <label class="form-label">
                                 Open Banking Enabled
                                 <span class="status optional">Optional</span>
                             </label>
                             <select class="form-select" name="openBankingEnabled1" onchange="toggleOpenBankingConfig(this.value, 1)">
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
-                            </select>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
                             <div class="help-text">Enable TrueLayer Open Banking for this account</div>
-                        </div>
+                    </div>
                         
                         <div class="open-banking-config" id="openBankingConfig1" style="display: none;">
                             <h4 style="color: var(--fg); margin-bottom: 15px; font-size: 14px;">TrueLayer Open Banking Configuration</h4>
@@ -1321,49 +1321,49 @@ func main() {
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Card Provider</label>
+                    <div class="form-group">
+                        <label class="form-label">Card Provider</label>
                             <select class="form-select" name="cardProvider1" onchange="updateCardLogo(this.value, 1)">
-                                <option value="">Select Provider</option>
-                                <option value="visa">Visa</option>
-                                <option value="mastercard">Mastercard</option>
-                                <option value="amex">American Express</option>
+                            <option value="">Select Provider</option>
+                            <option value="visa">Visa</option>
+                            <option value="mastercard">Mastercard</option>
+                            <option value="amex">American Express</option>
                                 <option value="discover">Discover</option>
-                            </select>
-                            <div class="help-text">Select your card provider</div>
-                        </div>
-                        <div class="form-group">
+                        </select>
+                        <div class="help-text">Select your card provider</div>
+                    </div>
+                    <div class="form-group">
                             <label class="form-label">
                                 Card Number
                                 <span class="status required">REQ</span>
                             </label>
                             <input type="text" class="form-input" name="cardNumber1" id="cardNumber1" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCardNumber(this.value, 1)">
-                            <div class="help-text">Enter your 16-digit card number</div>
-                        </div>
-                        <div class="form-group">
+                        <div class="help-text">Enter your 16-digit card number</div>
+                    </div>
+                    <div class="form-group">
                             <label class="form-label">
                                 Expiry Date
                                 <span class="status required">REQ</span>
                             </label>
                             <input type="text" class="form-input" name="expiryDate1" id="expiryDate1" placeholder="MM/YY" maxlength="5" oninput="formatExpiryDate(this.value, 1)">
-                            <div class="help-text">Enter expiry date in MM/YY format</div>
-                        </div>
-                        <div class="form-group">
+                        <div class="help-text">Enter expiry date in MM/YY format</div>
+                    </div>
+                    <div class="form-group">
                             <label class="form-label">
                                 CVV
                                 <span class="status required">REQ</span>
                             </label>
                             <input type="text" class="form-input" name="cvv1" id="cvv1" placeholder="123" maxlength="4" oninput="updateCVVDisplay(this.value, 1)">
-                            <div class="help-text">Enter the 3 or 4 digit security code</div>
-                        </div>
-                        <div class="form-group">
+                        <div class="help-text">Enter the 3 or 4 digit security code</div>
+                    </div>
+                    <div class="form-group">
                             <label class="form-label">
                                 Cardholder Name
                                 <span class="status required">REQ</span>
                             </label>
                             <input type="text" class="form-input" name="cardholderName1" id="cardholderName1" placeholder="John Doe" oninput="updateCardholderDisplay(this.value, 1)">
-                            <div class="help-text">Enter the name as it appears on the card</div>
-                        </div>
+                        <div class="help-text">Enter the name as it appears on the card</div>
+                    </div>
                         <div class="form-group">
                             <label class="form-label">
                                 Billing Address
@@ -1487,41 +1487,41 @@ func main() {
 
                 <!-- Email Configuration -->
                 <div id="emailContent" class="comm-content active">
-                    <div class="form-section">
-                        <h3 class="form-section-title">Email Configuration</h3>
+                <div class="form-section">
+                    <h3 class="form-section-title">Email Configuration</h3>
                         
-                        <div class="form-group">
-                            <label class="form-label">Email Provider</label>
+                    <div class="form-group">
+                        <label class="form-label">Email Provider</label>
                             <select class="form-select" onchange="handleEmailProviderChange(this.value)">
-                                <option value="">Select Provider</option>
-                                <option value="gmail">Gmail</option>
-                                <option value="outlook">Outlook</option>
-                                <option value="yahoo">Yahoo</option>
+                            <option value="">Select Provider</option>
+                            <option value="gmail">Gmail</option>
+                            <option value="outlook">Outlook</option>
+                            <option value="yahoo">Yahoo</option>
                                 <option value="custom">Custom Server</option>
-                            </select>
-                            <div class="help-text">Select your email provider</div>
-                        </div>
+                        </select>
+                        <div class="help-text">Select your email provider</div>
+                    </div>
                         
-                        <div class="form-group">
-                            <label class="form-label">Email Address</label>
-                            <input type="email" class="form-input" placeholder="user@example.com">
-                            <div class="help-text">Enter your email address</div>
-                        </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-input" placeholder="user@example.com">
+                        <div class="help-text">Enter your email address</div>
+                    </div>
                         
-                        <div class="form-group">
-                            <label class="form-label">OAuth2 Enabled</label>
+                    <div class="form-group">
+                        <label class="form-label">OAuth2 Enabled</label>
                             <select class="form-select" onchange="handleOAuth2Toggle(this.value)">
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
-                            </select>
-                            <div class="help-text">Enable OAuth2 authentication</div>
-                        </div>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                        <div class="help-text">Enable OAuth2 authentication</div>
+                    </div>
                         
                         <div class="form-group oauth2-section">
                             <label class="form-label">OAuth2 Client ID</label>
-                            <input type="text" class="form-input" placeholder="your-client-id.apps.googleusercontent.com">
-                            <div class="help-text">Enter your OAuth2 client ID</div>
-                        </div>
+                        <input type="text" class="form-input" placeholder="your-client-id.apps.googleusercontent.com">
+                        <div class="help-text">Enter your OAuth2 client ID</div>
+                    </div>
                         
                         <div class="form-group oauth2-section">
                             <label class="form-label">OAuth2 Client Secret</label>
@@ -1758,27 +1758,27 @@ func main() {
             </div>
             
             <div id="uploadTab" class="upload-tab-content active">
-                <div class="upload-instructions">
+            <div class="upload-instructions">
                     <h4>Supported Documents for Configuration</h4>
-                    <div class="document-types">
-                        <div class="doc-type">
-                            <div class="doc-icon">🏦</div>
-                            <div class="doc-info">
-                                <strong>Bank Statements</strong>
+                <div class="document-types">
+                    <div class="doc-type">
+                        <div class="doc-icon">🏦</div>
+                        <div class="doc-info">
+                            <strong>Bank Statements</strong>
                                 <p>Extract account numbers, sort codes, bank names, and account holder details</p>
-                            </div>
                         </div>
-                        <div class="doc-type">
-                            <div class="doc-icon">💳</div>
-                            <div class="doc-info">
+                    </div>
+                    <div class="doc-type">
+                        <div class="doc-icon">💳</div>
+                        <div class="doc-info">
                                 <strong>Credit Card Photos/Statements</strong>
                                 <p>Extract card numbers, expiry dates, cardholder names, and provider info</p>
-                            </div>
                         </div>
-                        <div class="doc-type">
-                            <div class="doc-icon">📧</div>
-                            <div class="doc-info">
-                                <strong>Email Configuration Screenshots</strong>
+                    </div>
+                    <div class="doc-type">
+                        <div class="doc-icon">📧</div>
+                        <div class="doc-info">
+                            <strong>Email Configuration Screenshots</strong>
                                 <p>Extract server settings, ports, authentication details, and OAuth2 config</p>
                             </div>
                         </div>
@@ -1794,18 +1794,18 @@ func main() {
                             <div class="doc-info">
                                 <strong>Security Setup Screenshots</strong>
                                 <p>Extract 2FA settings, security questions, and authentication methods</p>
-                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="upload-zone" id="uploadZone">
-                    <div style="text-align: center; padding: 40px;">
-                        <div style="font-size: 48px; margin-bottom: 16px;">📁</div>
-                        <div style="color: #e0e0e0; margin-bottom: 8px;">Drag & drop documents here</div>
-                        <div style="color: #808080; font-size: 12px;">or click to browse files</div>
-                        <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png,.txt,.doc,.docx" style="display: none;" onchange="handleFileUpload(this.files)">
-                    </div>
+            </div>
+            <div class="upload-zone" id="uploadZone">
+                <div style="text-align: center; padding: 40px;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">📁</div>
+                    <div style="color: #e0e0e0; margin-bottom: 8px;">Drag & drop documents here</div>
+                    <div style="color: #808080; font-size: 12px;">or click to browse files</div>
+                    <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png,.txt,.doc,.docx" style="display: none;" onchange="handleFileUpload(this.files)">
                 </div>
+            </div>
             </div>
             
             <div id="historyTab" class="upload-tab-content">

@@ -143,7 +143,7 @@ func (p *SettingsParser) parseSettingsTriple(triple string) {
 			category = "bankaccounts"
 		}
 	} else if strings.HasPrefix(subject, "comms:") {
-		category = "communicationchannels"
+			category = "communicationchannels"
 	} else if strings.HasPrefix(subject, "security:") {
 		category = "security"
 	} else if strings.HasPrefix(subject, "monitoring:") {
@@ -1444,7 +1444,7 @@ func (p *SettingsParser) GenerateSettingsHTML() (string, error) {
                     </div>
                     {{end}}
                 </div>
-            </div>
+        </div>
 
             <div class="right-panel">
                 <!-- Category Contents -->
@@ -1576,18 +1576,18 @@ func (p *SettingsParser) GenerateSettingsHTML() (string, error) {
                                 <div class="checkout-container">
                                     <div class="card-visual">
                                         <div class="card-front">
-                                            <div class="card-header">
+                <div class="card-header">
                                                 <div class="card-logo">CREDIT CARD</div>
                                                 <div class="card-chip"></div>
-                                            </div>
+                    </div>
                                             <div class="card-number-display" id="cardNumberDisplay0">•••• •••• •••• ••••</div>
                                             <div class="card-details">
                                                 <div class="cardholder-name" id="cardholderNameDisplay0">CARDHOLDER NAME</div>
                                                 <div class="card-expiry" id="cardExpiryDisplay0">MM/YY</div>
                                             </div>
                                         </div>
-                                    </div>
-                                    
+                </div>
+
                                     <div class="checkout-form">
                                         <div class="form-section-title">Card Information</div>
                                         
@@ -2264,101 +2264,101 @@ func (p *SettingsParser) GenerateSettingsHTML() (string, error) {
                     <!-- Standard Category Content -->
                     <div class="form-section">
                         <h3>{{$category.Label}}</h3>
-                        <div class="form-grid">
-                            {{range $field := $category.Fields}}
-                            <div class="form-field {{if eq $field.Type "textarea"}}full-width{{end}}">
-                                <label class="form-label">
-                                    {{$field.Label}}
-                                    {{if $field.Required}}<span class="required">*</span>{{end}}
-                                    {{if $field.EncryptionRequired}}<span class="security-badge encryption-badge">🔐 Encrypted</span>{{end}}
-                                    {{if $field.PCICompliant}}<span class="security-badge pci-badge">PCI</span>{{end}}
-                                    {{if $field.Requires2FA}}<span class="security-badge">2FA</span>{{end}}
-                                </label>
-                                
-                                {{if eq $field.Type "text"}}
-                                <input type="text" 
-                                       class="form-input" 
-                                       name="{{$category.Name}}_{{$field.Property}}" 
-                                       placeholder="{{$field.Label}}"
-                                       {{if $field.Pattern}}pattern="{{$field.Pattern}}"{{end}}
-                                       {{if $field.Required}}required{{end}}
-                                       {{if $field.ReadOnly}}readonly{{end}}>
-                                
-                                {{else if eq $field.Type "number"}}
-                                <input type="number" 
-                                       class="form-input" 
-                                       name="{{$category.Name}}_{{$field.Property}}"
-                                       {{if $field.Min}}min="{{$field.Min}}"{{end}}
-                                       {{if $field.Max}}max="{{$field.Max}}"{{end}}
-                                       {{if $field.Required}}required{{end}}
-                                       {{if $field.ReadOnly}}readonly{{end}}>
-                                
-                                {{else if eq $field.Type "date"}}
-                                <input type="date" 
-                                       class="form-input" 
-                                       name="{{$category.Name}}_{{$field.Property}}"
-                                       {{if $field.Required}}required{{end}}
-                                       {{if $field.ReadOnly}}readonly{{end}}>
-                                
-                                {{else if eq $field.Type "datetime-local"}}
-                                <input type="datetime-local" 
-                                       class="form-input" 
-                                       name="{{$category.Name}}_{{$field.Property}}"
-                                       {{if $field.Required}}required{{end}}
-                                       {{if $field.ReadOnly}}readonly{{end}}>
-                                
-                                {{else if eq $field.Type "email"}}
-                                <input type="email" 
-                                       class="form-input" 
-                                       name="{{$category.Name}}_{{$field.Property}}"
-                                       {{if $field.Required}}required{{end}}
-                                       {{if $field.ReadOnly}}readonly{{end}}>
-                                
-                                {{else if eq $field.Type "checkbox"}}
-                                <input type="checkbox" 
-                                       class="form-input" 
-                                       name="{{$category.Name}}_{{$field.Property}}"
-                                       {{if $field.Required}}required{{end}}
-                                       {{if $field.ReadOnly}}readonly{{end}}>
-                                
-                                {{else if eq $field.Type "select"}}
-                                <select class="form-select" 
-                                        name="{{$category.Name}}_{{$field.Property}}" 
-                                        {{if $field.Required}}required{{end}}
-                                        {{if $field.ReadOnly}}readonly{{end}}>
-                                    <option value="">Select {{$field.Label}}</option>
-                                    {{range $option := $field.Options}}
-                                    <option value="{{$option.Value}}">{{$option.Label}}</option>
-                                    {{end}}
-                                </select>
-                                
-                                {{else if eq $field.Type "textarea"}}
-                                <textarea class="form-textarea" 
-                                          name="{{$category.Name}}_{{$field.Property}}" 
-                                          rows="3" 
-                                          placeholder="{{$field.Label}}"
-                                          {{if $field.Required}}required{{end}}
-                                          {{if $field.ReadOnly}}readonly{{end}}></textarea>
-                                
-                                {{else}}
-                                <input type="text" 
-                                       class="form-input" 
-                                       name="{{$category.Name}}_{{$field.Property}}" 
-                                       placeholder="{{$field.Label}}"
-                                       {{if $field.Required}}required{{end}}
-                                       {{if $field.ReadOnly}}readonly{{end}}>
-                                {{end}}
-                                
-                                {{if $field.HelpText}}
-                                <div class="help-text">{{$field.HelpText}}</div>
-                                {{end}}
-                            </div>
+                <div class="form-grid">
+                    {{range $field := $category.Fields}}
+                    <div class="form-field {{if eq $field.Type "textarea"}}full-width{{end}}">
+                        <label class="form-label">
+                            {{$field.Label}}
+                            {{if $field.Required}}<span class="required">*</span>{{end}}
+                            {{if $field.EncryptionRequired}}<span class="security-badge encryption-badge">🔐 Encrypted</span>{{end}}
+                            {{if $field.PCICompliant}}<span class="security-badge pci-badge">PCI</span>{{end}}
+                            {{if $field.Requires2FA}}<span class="security-badge">2FA</span>{{end}}
+                        </label>
+                        
+                        {{if eq $field.Type "text"}}
+                        <input type="text" 
+                               class="form-input" 
+                               name="{{$category.Name}}_{{$field.Property}}" 
+                               placeholder="{{$field.Label}}"
+                               {{if $field.Pattern}}pattern="{{$field.Pattern}}"{{end}}
+                               {{if $field.Required}}required{{end}}
+                               {{if $field.ReadOnly}}readonly{{end}}>
+                        
+                        {{else if eq $field.Type "number"}}
+                        <input type="number" 
+                               class="form-input" 
+                               name="{{$category.Name}}_{{$field.Property}}"
+                               {{if $field.Min}}min="{{$field.Min}}"{{end}}
+                               {{if $field.Max}}max="{{$field.Max}}"{{end}}
+                               {{if $field.Required}}required{{end}}
+                               {{if $field.ReadOnly}}readonly{{end}}>
+                        
+                        {{else if eq $field.Type "date"}}
+                        <input type="date" 
+                               class="form-input" 
+                               name="{{$category.Name}}_{{$field.Property}}"
+                               {{if $field.Required}}required{{end}}
+                               {{if $field.ReadOnly}}readonly{{end}}>
+                        
+                        {{else if eq $field.Type "datetime-local"}}
+                        <input type="datetime-local" 
+                               class="form-input" 
+                               name="{{$category.Name}}_{{$field.Property}}"
+                               {{if $field.Required}}required{{end}}
+                               {{if $field.ReadOnly}}readonly{{end}}>
+                        
+                        {{else if eq $field.Type "email"}}
+                        <input type="email" 
+                               class="form-input" 
+                               name="{{$category.Name}}_{{$field.Property}}"
+                               {{if $field.Required}}required{{end}}
+                               {{if $field.ReadOnly}}readonly{{end}}>
+                        
+                        {{else if eq $field.Type "checkbox"}}
+                        <input type="checkbox" 
+                               class="form-input" 
+                               name="{{$category.Name}}_{{$field.Property}}"
+                               {{if $field.Required}}required{{end}}
+                               {{if $field.ReadOnly}}readonly{{end}}>
+                        
+                        {{else if eq $field.Type "select"}}
+                        <select class="form-select" 
+                                name="{{$category.Name}}_{{$field.Property}}" 
+                                {{if $field.Required}}required{{end}}
+                                {{if $field.ReadOnly}}readonly{{end}}>
+                            <option value="">Select {{$field.Label}}</option>
+                            {{range $option := $field.Options}}
+                            <option value="{{$option.Value}}">{{$option.Label}}</option>
                             {{end}}
-                        </div>
+                        </select>
+                        
+                        {{else if eq $field.Type "textarea"}}
+                        <textarea class="form-textarea" 
+                                  name="{{$category.Name}}_{{$field.Property}}" 
+                                  rows="3" 
+                                  placeholder="{{$field.Label}}"
+                                  {{if $field.Required}}required{{end}}
+                                  {{if $field.ReadOnly}}readonly{{end}}></textarea>
+                        
+                        {{else}}
+                        <input type="text" 
+                               class="form-input" 
+                               name="{{$category.Name}}_{{$field.Property}}" 
+                               placeholder="{{$field.Label}}"
+                               {{if $field.Required}}required{{end}}
+                               {{if $field.ReadOnly}}readonly{{end}}>
+                        {{end}}
+                        
+                        {{if $field.HelpText}}
+                        <div class="help-text">{{$field.HelpText}}</div>
+                        {{end}}
                     </div>
                     {{end}}
                 </div>
+                    </div>
                 {{end}}
+            </div>
+            {{end}}
             </div>
         </div>
 
@@ -2465,8 +2465,8 @@ func (p *SettingsParser) GenerateSettingsHTML() (string, error) {
             </button>
             <button onclick="toggleModal('chatModal')" class="action-btn help">
                 🤖 Get Help
-            </button>
-        </div>
+                </button>
+            </div>
     </div>
 
     <!-- Camera Scanning Modal -->
@@ -3506,7 +3506,7 @@ func (p *SettingsParser) GenerateSettingsHTML() (string, error) {
                 });
                 
                 uploadZone.addEventListener('dragover', function(e) {
-                    e.preventDefault();
+            e.preventDefault();
                     uploadZone.style.borderColor = '#505050';
                     uploadZone.style.background = '#2a2a2a';
                 });

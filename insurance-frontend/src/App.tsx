@@ -12,7 +12,9 @@ import {
   ChevronLeft,
   AlertCircle,
   HelpCircle,
-  Upload
+  Upload,
+  Mail,
+  CheckCircle
 } from 'lucide-react';
 import { 
   Card, 
@@ -43,6 +45,10 @@ interface Driver {
   licenceType: string;
   licenceNumber: string;
   yearsHeld: number;
+  pointsLost: number;
+  licenceIssueDate: string;
+  licenceExpiryDate: string;
+  licenceValidUntil: string;
   relationship: string;
   sameAddress: boolean;
   // Passport-specific fields (document-derived)
@@ -54,8 +60,6 @@ interface Driver {
   gender?: string;
   nationality?: string;
   // Driving Licence-specific fields (document-derived)
-  licenceIssueDate?: string;
-  licenceExpiryDate?: string;
   licenceAuthority?: string;
   entitlementA?: string;
   entitlementB?: string;
@@ -66,6 +70,24 @@ interface Driver {
   entitlementDE?: string;
   licenceRestrictions?: string;
   licenceEndorsements?: string;
+  // Disabilities and Restrictions
+  hasDisability: boolean;
+  disabilityTypes: string[];
+  requiresAdaptations: boolean;
+  adaptationTypes: string[];
+  automaticOnly: boolean;
+  // Licence Classes
+  licenceClassA: boolean;
+  licenceClassB: boolean;
+  licenceClassC: boolean;
+  licenceClassD: boolean;
+  licenceClassBE: boolean;
+  licenceClassCE: boolean;
+  licenceClassDE: boolean;
+  // Driver Communication
+  driverEmail: string;
+  emailSent: boolean;
+  emailSentDate: string;
 }
 
 interface Vehicle {
@@ -75,9 +97,10 @@ interface Vehicle {
   year: number;
   mileage: number;
   value: number;
+  daytimeLocation: string;
   overnightLocation: string;
   hasModifications: boolean;
-  modifications: Record<string, any>;
+  modifications: string[];
 }
 
 interface Policy {
@@ -88,11 +111,45 @@ interface Policy {
   protectNCD: boolean;
 }
 
+interface Claim {
+  id: string;
+  date: string;
+  type: string;
+  amount: number;
+  status: string;
+  faultStatus: string;
+  policeReported: boolean;
+  crimeReference?: string;
+  description?: string;
+}
+
+interface Conviction {
+  id: string;
+  date: string;
+  offenceCode: string;
+  description?: string;
+  penaltyPoints: number;
+  fine?: number;
+  disqualification?: number;
+  status: string;
+}
+
+interface Accident {
+  id: string;
+  date: string;
+  type: string;
+  severity: string;
+  claimMade: boolean;
+  description?: string;
+}
+
 interface ClaimsHistory {
   hasClaims: boolean;
-  claims: any[];
+  claims: Claim[];
   hasConvictions: boolean;
-  convictions: any[];
+  convictions: Conviction[];
+  hasAccidents: boolean;
+  accidents: Accident[];
 }
 
 interface Payment {
@@ -138,6 +195,158 @@ const categories = [
   { id: 'marketing', title: 'Marketing Preferences', icon: Settings, order: 6, description: 'Communication preferences' }
 ];
 
+// Language translations
+const translations = {
+  en: {
+    driverDetails: 'Driver Details',
+    vehicleDetails: 'Vehicle Details',
+    policyDetails: 'Policy Details',
+    claimsHistory: 'Claims History',
+    paymentExtras: 'Payment & Extras',
+    marketingPreferences: 'Marketing Preferences',
+    mainDriver: 'Main Driver',
+    additionalDriver: 'Additional Driver',
+    firstName: 'First Name',
+    lastName: 'Last Name',
+    dateOfBirth: 'Date of Birth',
+    email: 'Email',
+    phone: 'Phone',
+    address: 'Address',
+    postcode: 'Postcode',
+    licenceType: 'Licence Type',
+    licenceNumber: 'Licence Number',
+    yearsHeld: 'Years Held',
+    pointsLost: 'Points Lost',
+    licenceIssueDate: 'Licence Issue Date',
+    licenceExpiryDate: 'Licence Expiry Date',
+    licenceValidUntil: 'Licence Valid Until',
+    relationship: 'Relationship',
+    sameAddress: 'Same Address',
+    addDriver: 'Add Driver',
+    removeDriver: 'Remove Driver',
+    uploadDocuments: 'Upload Documents',
+    aiAssistant: 'AI Assistant',
+    language: 'Language',
+    // Claims and Convictions
+    convictions: 'Convictions',
+    accidents: 'Accidents',
+    addClaim: 'Add Claim',
+    addConviction: 'Add Conviction',
+    addAccident: 'Add Accident',
+    claimDate: 'Claim Date',
+    claimType: 'Claim Type',
+    claimAmount: 'Claim Amount',
+    claimStatus: 'Claim Status',
+    faultStatus: 'Fault Status',
+    policeReported: 'Police Reported',
+    crimeReference: 'Crime Reference',
+    convictionDate: 'Conviction Date',
+    offenceCode: 'Offence Code',
+    penaltyPoints: 'Penalty Points',
+    fine: 'Fine',
+    disqualification: 'Disqualification',
+    accidentDate: 'Accident Date',
+    accidentType: 'Accident Type',
+    accidentSeverity: 'Accident Severity',
+    claimMade: 'Claim Made',
+    // Disabilities and Restrictions
+    hasDisability: 'Has Disability',
+    disabilityType: 'Disability Type',
+    requiresAdaptations: 'Requires Adaptations',
+    adaptationType: 'Adaptation Type',
+    automaticOnly: 'Automatic Only',
+    // Licence Classes
+    licenceClasses: 'Licence Classes',
+    licenceClassA: 'Class A (Motorcycles)',
+    licenceClassB: 'Class B (Cars)',
+    licenceClassC: 'Class C (Large Vehicles)',
+    licenceClassD: 'Class D (Buses)',
+    licenceClassBE: 'Class BE (Car + Trailer)',
+    licenceClassCE: 'Class CE (Large Vehicle + Trailer)',
+    licenceClassDE: 'Class DE (Bus + Trailer)',
+    // Driver Communication
+    driverEmail: 'Driver Email',
+    emailSent: 'Email Sent',
+    emailSentDate: 'Email Sent Date',
+    sendEmailToDriver: 'Send Email to Driver',
+    emailDriverForm: 'Email Driver Form'
+  },
+  de: {
+    driverDetails: 'Fahrerdetails',
+    vehicleDetails: 'Fahrzeugdetails',
+    policyDetails: 'Policendetails',
+    claimsHistory: 'Schadenshistorie',
+    paymentExtras: 'Zahlung & Extras',
+    marketingPreferences: 'Marketing-Einstellungen',
+    mainDriver: 'Hauptfahrer',
+    additionalDriver: 'Zusatzfahrer',
+    firstName: 'Vorname',
+    lastName: 'Nachname',
+    dateOfBirth: 'Geburtsdatum',
+    email: 'E-Mail',
+    phone: 'Telefon',
+    address: 'Adresse',
+    postcode: 'Postleitzahl',
+    licenceType: 'Führerscheintyp',
+    licenceNumber: 'Führerscheinnummer',
+    yearsHeld: 'Jahre gehalten',
+    pointsLost: 'Punkte verloren',
+    licenceIssueDate: 'Führerschein Ausstellungsdatum',
+    licenceExpiryDate: 'Führerschein Ablaufdatum',
+    licenceValidUntil: 'Führerschein gültig bis',
+    relationship: 'Beziehung',
+    sameAddress: 'Gleiche Adresse',
+    addDriver: 'Fahrer hinzufügen',
+    removeDriver: 'Fahrer entfernen',
+    uploadDocuments: 'Dokumente hochladen',
+    aiAssistant: 'KI-Assistent',
+    language: 'Sprache',
+    // Claims and Convictions
+    convictions: 'Verurteilungen',
+    accidents: 'Unfälle',
+    addClaim: 'Schaden hinzufügen',
+    addConviction: 'Verurteilung hinzufügen',
+    addAccident: 'Unfall hinzufügen',
+    claimDate: 'Schadensdatum',
+    claimType: 'Schadenstyp',
+    claimAmount: 'Schadenshöhe',
+    claimStatus: 'Schadensstatus',
+    faultStatus: 'Verschuldensstatus',
+    policeReported: 'Polizei gemeldet',
+    crimeReference: 'Strafverfahrensnummer',
+    convictionDate: 'Verurteilungsdatum',
+    offenceCode: 'Verstoßcode',
+    penaltyPoints: 'Punkte',
+    fine: 'Bußgeld',
+    disqualification: 'Fahrverbot',
+    accidentDate: 'Unfalldatum',
+    accidentType: 'Unfalltyp',
+    accidentSeverity: 'Unfallschwere',
+    claimMade: 'Schaden gemeldet',
+    // Disabilities and Restrictions
+    hasDisability: 'Hat Behinderung',
+    disabilityType: 'Behinderungstyp',
+    requiresAdaptations: 'Benötigt Anpassungen',
+    adaptationType: 'Anpassungstyp',
+    automaticOnly: 'Nur Automatik',
+    // Licence Classes
+    licenceClasses: 'Führerscheinklassen',
+    licenceClassA: 'Klasse A (Motorräder)',
+    licenceClassB: 'Klasse B (Autos)',
+    licenceClassC: 'Klasse C (Großfahrzeuge)',
+    licenceClassD: 'Klasse D (Busse)',
+    licenceClassBE: 'Klasse BE (Auto + Anhänger)',
+    licenceClassCE: 'Klasse CE (Großfahrzeug + Anhänger)',
+    licenceClassDE: 'Klasse DE (Bus + Anhänger)',
+    // Driver Communication
+    driverEmail: 'Fahrer E-Mail',
+    emailSent: 'E-Mail gesendet',
+    emailSentDate: 'E-Mail gesendet am',
+    sendEmailToDriver: 'E-Mail an Fahrer senden',
+    emailDriverForm: 'Fahrerformular per E-Mail'
+  }
+};
+
 function App() {
   const [activeCategory, setActiveCategory] = useState(0);
   const [session, setSession] = useState<QuoteSession>({
@@ -157,8 +366,30 @@ function App() {
         licenceType: '',
         licenceNumber: '',
         yearsHeld: 0,
+        pointsLost: 0,
+        licenceIssueDate: '',
+        licenceExpiryDate: '',
+        licenceValidUntil: '',
         relationship: '',
-        sameAddress: true
+        sameAddress: true,
+        // Disabilities and Restrictions
+        hasDisability: false,
+        disabilityType: '',
+        requiresAdaptations: false,
+        adaptationType: '',
+        automaticOnly: false,
+        // Licence Classes
+        licenceClassA: false,
+        licenceClassB: true,
+        licenceClassC: false,
+        licenceClassD: false,
+        licenceClassBE: false,
+        licenceClassCE: false,
+        licenceClassDE: false,
+        // Driver Communication
+        driverEmail: '',
+        emailSent: false,
+        emailSentDate: ''
       }
     ],
     vehicle: {
@@ -168,9 +399,10 @@ function App() {
       year: new Date().getFullYear(),
       mileage: 0,
       value: 0,
+      daytimeLocation: '',
       overnightLocation: '',
       hasModifications: false,
-      modifications: {}
+      modifications: []
     },
     policy: {
       coverType: '',
@@ -183,7 +415,9 @@ function App() {
       hasClaims: false,
       claims: [],
       hasConvictions: false,
-      convictions: []
+      convictions: [],
+      hasAccidents: false,
+      accidents: []
     },
     payment: {
       frequency: '',
@@ -233,8 +467,30 @@ function App() {
       licenceType: '',
       licenceNumber: '',
       yearsHeld: 0,
+      pointsLost: 0,
+      licenceIssueDate: '',
+      licenceExpiryDate: '',
+      licenceValidUntil: '',
       relationship: '',
-      sameAddress: false
+      sameAddress: false,
+      // Disabilities and Restrictions
+      hasDisability: false,
+      disabilityType: '',
+      requiresAdaptations: false,
+      adaptationType: '',
+      automaticOnly: false,
+      // Licence Classes
+      licenceClassA: false,
+      licenceClassB: true,
+      licenceClassC: false,
+      licenceClassD: false,
+      licenceClassBE: false,
+      licenceClassCE: false,
+      licenceClassDE: false,
+      // Driver Communication
+      driverEmail: '',
+      emailSent: false,
+      emailSentDate: ''
     };
     setSession({ ...session, drivers: [...session.drivers, newDriver] });
   };
@@ -256,6 +512,231 @@ function App() {
 
   const updateClaims = (field: keyof ClaimsHistory, value: any) => {
     setSession({ ...session, claims: { ...session.claims, [field]: value } });
+  };
+
+  const addClaim = () => {
+    const newClaim: Claim = {
+      id: Date.now().toString(),
+      date: '',
+      type: '',
+      amount: 0,
+      status: 'Open',
+      faultStatus: '',
+      policeReported: false,
+      crimeReference: '',
+      description: ''
+    };
+    setSession({
+      ...session,
+      claims: { ...session.claims, claims: [...session.claims.claims, newClaim] }
+    });
+  };
+
+  const updateClaim = (index: number, field: keyof Claim, value: any) => {
+    const updatedClaims = [...session.claims.claims];
+    updatedClaims[index] = { ...updatedClaims[index], [field]: value };
+    setSession({
+      ...session,
+      claims: { ...session.claims, claims: updatedClaims }
+    });
+  };
+
+  const removeClaim = (index: number) => {
+    const updatedClaims = session.claims.claims.filter((_, i) => i !== index);
+    setSession({
+      ...session,
+      claims: { ...session.claims, claims: updatedClaims }
+    });
+  };
+
+  const addConviction = () => {
+    const newConviction: Conviction = {
+      id: Date.now().toString(),
+      date: '',
+      offenceCode: '',
+      description: '',
+      penaltyPoints: 0,
+      fine: 0,
+      disqualification: 0,
+      status: 'Active'
+    };
+    setSession({
+      ...session,
+      claims: { ...session.claims, convictions: [...session.claims.convictions, newConviction] }
+    });
+  };
+
+  const updateConviction = (index: number, field: keyof Conviction, value: any) => {
+    const updatedConvictions = [...session.claims.convictions];
+    updatedConvictions[index] = { ...updatedConvictions[index], [field]: value };
+    setSession({
+      ...session,
+      claims: { ...session.claims, convictions: updatedConvictions }
+    });
+  };
+
+  const removeConviction = (index: number) => {
+    const updatedConvictions = session.claims.convictions.filter((_, i) => i !== index);
+    setSession({
+      ...session,
+      claims: { ...session.claims, convictions: updatedConvictions }
+    });
+  };
+
+  const addAccident = () => {
+    const newAccident: Accident = {
+      id: Date.now().toString(),
+      date: '',
+      type: '',
+      severity: '',
+      claimMade: false,
+      description: ''
+    };
+    setSession({
+      ...session,
+      claims: { ...session.claims, accidents: [...session.claims.accidents, newAccident] }
+    });
+  };
+
+  const updateAccident = (index: number, field: keyof Accident, value: any) => {
+    const updatedAccidents = [...session.claims.accidents];
+    updatedAccidents[index] = { ...updatedAccidents[index], [field]: value };
+    setSession({
+      ...session,
+      claims: { ...session.claims, accidents: updatedAccidents }
+    });
+  };
+
+  const removeAccident = (index: number) => {
+    const updatedAccidents = session.claims.accidents.filter((_, i) => i !== index);
+    setSession({
+      ...session,
+      claims: { ...session.claims, accidents: updatedAccidents }
+    });
+  };
+
+  // Email functionality for additional drivers
+  const sendEmailToDriver = async (driverIndex: number) => {
+    const driver = session.drivers[driverIndex];
+    
+    if (!driver.driverEmail) {
+      setNotification({ type: 'info', message: 'Please enter the driver\'s email address first.' });
+      return;
+    }
+
+    try {
+      // In a real application, this would call your backend API
+      // For now, we'll simulate the email sending
+      const emailData = {
+        to: driver.driverEmail,
+        subject: 'Insurance Quote Form - Additional Driver Information Required',
+        body: generateDriverEmailContent(driver),
+        driverId: driver.id
+      };
+
+      // Simulate API call
+      console.log('Sending email:', emailData);
+      
+      // Update driver with email sent status
+      const updatedDrivers = [...session.drivers];
+      updatedDrivers[driverIndex] = {
+        ...updatedDrivers[driverIndex],
+        emailSent: true,
+        emailSentDate: new Date().toISOString()
+      };
+      
+      setSession({ ...session, drivers: updatedDrivers });
+      
+      setNotification({ 
+        type: 'success', 
+        message: `Email sent to ${driver.firstName} ${driver.lastName} at ${driver.driverEmail}` 
+      });
+      
+      addChatMessage('bot', `📧 **Email Sent:** Form has been emailed to ${driver.firstName} ${driver.lastName} (${driver.driverEmail})\n\n📋 **Email includes:**\n• Personal insurance form link\n• Instructions for completing their section\n• Contact information for support\n\n⏰ **Next Steps:**\n• Driver will receive email with form link\n• They can complete their details independently\n• You'll be notified when they submit`);
+      
+    } catch (error) {
+      console.error('Error sending email:', error);
+      setNotification({ 
+        type: 'info', 
+        message: 'Failed to send email. Please try again.' 
+      });
+    }
+  };
+
+  const generateDriverEmailContent = (driver: Driver) => {
+    const formLink = `${window.location.origin}/driver-form/${driver.id}`;
+    
+    return `
+Dear ${driver.firstName} ${driver.lastName},
+
+You have been added as an additional driver to an insurance quote application.
+
+Please complete your driver information by clicking the link below:
+${formLink}
+
+Required Information:
+• Personal details (name, date of birth, address)
+• Driving licence information
+• Medical conditions or disabilities
+• Claims and convictions history
+• Vehicle usage details
+
+If you have any questions, please contact the main policyholder.
+
+Best regards,
+Insurance Quote System
+    `;
+  };
+
+  // Calculate years held based on issue date
+  const calculateYearsHeld = (issueDate: string): number => {
+    if (!issueDate) return 0;
+    
+    const issue = new Date(issueDate);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - issue.getTime());
+    const diffYears = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 365.25));
+    
+    return diffYears;
+  };
+
+  // Update years held when issue date changes
+  const updateLicenceIssueDate = (driverIndex: number, issueDate: string) => {
+    const yearsHeld = calculateYearsHeld(issueDate);
+    updateDriver(driverIndex, 'licenceIssueDate', issueDate);
+    updateDriver(driverIndex, 'yearsHeld', yearsHeld);
+  };
+
+  // Check licence expiry status
+  const checkLicenceExpiry = (expiryDate: string): { status: 'valid' | 'expired' | 'expiring_soon', daysLeft: number } => {
+    if (!expiryDate) return { status: 'valid', daysLeft: 999 };
+    
+    const expiry = new Date(expiryDate);
+    const now = new Date();
+    const diffTime = expiry.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) {
+      return { status: 'expired', daysLeft: Math.abs(diffDays) };
+    } else if (diffDays <= 30) {
+      return { status: 'expiring_soon', daysLeft: diffDays };
+    } else {
+      return { status: 'valid', daysLeft: diffDays };
+    }
+  };
+
+  // Get expiry status badge
+  const getExpiryStatusBadge = (expiryDate: string) => {
+    const expiryStatus = checkLicenceExpiry(expiryDate);
+    
+    switch (expiryStatus.status) {
+      case 'expired':
+        return <Badge color="failure" className="ml-2 text-xs">Expired {expiryStatus.daysLeft} days ago</Badge>;
+      case 'expiring_soon':
+        return <Badge color="warning" className="ml-2 text-xs">Expires in {expiryStatus.daysLeft} days</Badge>;
+      default:
+        return <Badge color="success" className="ml-2 text-xs">Valid</Badge>;
+    }
   };
 
   const updatePayment = (field: keyof Payment, value: any) => {
@@ -519,6 +1000,10 @@ function App() {
         licenceType: '',
         licenceNumber: '',
         yearsHeld: 0,
+        pointsLost: 0,
+        licenceIssueDate: '',
+        licenceExpiryDate: '',
+        licenceValidUntil: '',
         relationship: '',
         sameAddress: true,
         // Passport-specific fields
@@ -528,7 +1013,25 @@ function App() {
         passportAuthority: passportData.Authority,
         placeOfBirth: passportData.PlaceOfBirth,
         gender: passportData.Gender,
-        nationality: passportData.Nationality
+        nationality: passportData.Nationality,
+        // Disabilities and Restrictions
+        hasDisability: false,
+        disabilityType: '',
+        requiresAdaptations: false,
+        adaptationType: '',
+        automaticOnly: false,
+        // Licence Classes
+        licenceClassA: false,
+        licenceClassB: true,
+        licenceClassC: false,
+        licenceClassD: false,
+        licenceClassBE: false,
+        licenceClassCE: false,
+        licenceClassDE: false,
+        // Driver Communication
+        driverEmail: '',
+        emailSent: false,
+        emailSentDate: ''
       };
 
       setSession(prev => {
@@ -621,11 +1124,27 @@ function App() {
       updatedDriver.licenceNumber = licenceData.LicenceNumber;
       updatedDriver.licenceType = determineLicenceType(licenceData);
       updatedDriver.yearsHeld = licenceData.YearsHeld || 0;
-      updatedDriver.licenceIssueDate = licenceData.DateOfIssue;
-      updatedDriver.licenceExpiryDate = licenceData.DateOfExpiry;
+      updatedDriver.pointsLost = licenceData.PointsLost || 0;
+      updatedDriver.licenceIssueDate = licenceData.DateOfIssue || licenceData.LicenceIssueDate;
+      updatedDriver.licenceExpiryDate = licenceData.DateOfExpiry || licenceData.LicenceExpiryDate;
+      updatedDriver.licenceValidUntil = licenceData.ValidUntil || licenceData.LicenceValidUntil || '';
       updatedDriver.licenceAuthority = licenceData.Authority;
       updatedDriver.licenceRestrictions = licenceData.Restrictions;
       updatedDriver.licenceEndorsements = licenceData.Endorsements;
+      
+      // Update licence classes from driving licence data
+      updatedDriver.licenceClassA = licenceData.CategoryA === 'Yes' || licenceData.CategoryA === true;
+      updatedDriver.licenceClassB = licenceData.CategoryB === 'Yes' || licenceData.CategoryB === true;
+      updatedDriver.licenceClassC = licenceData.CategoryC === 'Yes' || licenceData.CategoryC === true;
+      updatedDriver.licenceClassD = licenceData.CategoryD === 'Yes' || licenceData.CategoryD === true;
+      updatedDriver.licenceClassBE = licenceData.CategoryBE === 'Yes' || licenceData.CategoryBE === true;
+      updatedDriver.licenceClassCE = licenceData.CategoryCE === 'Yes' || licenceData.CategoryCE === true;
+      updatedDriver.licenceClassDE = licenceData.CategoryDE === 'Yes' || licenceData.CategoryDE === true;
+      
+      // Check for automatic-only restriction
+      if (licenceData.Restrictions && licenceData.Restrictions.toLowerCase().includes('automatic')) {
+        updatedDriver.automaticOnly = true;
+      }
 
       setSession(prev => {
         const updatedDrivers = prev.drivers.map((driver, index) => 
@@ -670,14 +1189,34 @@ function App() {
         licenceType: determineLicenceType(licenceData),
         licenceNumber: licenceData.LicenceNumber || '',
         yearsHeld: licenceData.YearsHeld || 0,
+        pointsLost: licenceData.PointsLost || 0,
+        licenceIssueDate: licenceData.DateOfIssue || licenceData.LicenceIssueDate || '',
+        licenceExpiryDate: licenceData.DateOfExpiry || licenceData.LicenceExpiryDate || '',
+        licenceValidUntil: licenceData.ValidUntil || licenceData.LicenceValidUntil || '',
         relationship: '',
         sameAddress: true,
         // Driving licence-specific fields
-        licenceIssueDate: licenceData.DateOfIssue,
-        licenceExpiryDate: licenceData.DateOfExpiry,
         licenceAuthority: licenceData.Authority,
         licenceRestrictions: licenceData.Restrictions,
-        licenceEndorsements: licenceData.Endorsements
+        licenceEndorsements: licenceData.Endorsements,
+        // Disabilities and Restrictions
+        hasDisability: false,
+        disabilityType: '',
+        requiresAdaptations: false,
+        adaptationType: '',
+        automaticOnly: false,
+        // Licence Classes
+        licenceClassA: false,
+        licenceClassB: true,
+        licenceClassC: false,
+        licenceClassD: false,
+        licenceClassBE: false,
+        licenceClassCE: false,
+        licenceClassDE: false,
+        // Driver Communication
+        driverEmail: '',
+        emailSent: false,
+        emailSentDate: ''
       };
 
       setSession(prev => {
@@ -766,7 +1305,7 @@ function App() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="form-group">
               <Label className="form-label">
-                First Name
+                {translations[session.language as keyof typeof translations].firstName}
                 {getStatusBadge(true, !!driver.firstName)}
                 {driver.firstName && (driver as any).passportNumber && (
                   <Badge color="info" className="ml-2 text-xs">Auto-filled</Badge>
@@ -782,7 +1321,7 @@ function App() {
 
             <div className="form-group">
               <Label className="form-label">
-                Last Name
+                {translations[session.language as keyof typeof translations].lastName}
                 {getStatusBadge(true, !!driver.lastName)}
                 {driver.lastName && (driver as any).passportNumber && (
                   <Badge color="info" className="ml-2 text-xs">Auto-filled</Badge>
@@ -798,7 +1337,7 @@ function App() {
 
             <div className="form-group">
               <Label className="form-label">
-                Date of Birth
+                {translations[session.language as keyof typeof translations].dateOfBirth}
                 {getStatusBadge(true, !!driver.dateOfBirth)}
                 {driver.dateOfBirth && (driver as any).passportNumber && (
                   <Badge color="info" className="ml-2 text-xs">Auto-filled</Badge>
@@ -814,7 +1353,7 @@ function App() {
 
             <div className="form-group">
               <Label className="form-label">
-                Email Address
+                {translations[session.language as keyof typeof translations].email}
                 {getStatusBadge(true, !!driver.email)}
               </Label>
               <TextInput
@@ -828,7 +1367,7 @@ function App() {
 
             <div className="form-group">
               <Label className="form-label">
-                Phone Number
+                {translations[session.language as keyof typeof translations].phone}
                 {getStatusBadge(true, !!driver.phone)}
               </Label>
               <TextInput
@@ -841,7 +1380,7 @@ function App() {
 
             <div className="form-group">
               <Label className="form-label">
-                Address
+                {translations[session.language as keyof typeof translations].address}
                 {getStatusBadge(true, !!driver.address)}
               </Label>
               <TextInput
@@ -854,7 +1393,7 @@ function App() {
 
             <div className="form-group">
               <Label className="form-label">
-                Postcode
+                {translations[session.language as keyof typeof translations].postcode}
                 {getStatusBadge(true, !!driver.postcode)}
               </Label>
               <TextInput
@@ -867,7 +1406,7 @@ function App() {
 
             <div className="form-group">
               <Label className="form-label">
-                Licence Type
+                {translations[session.language as keyof typeof translations].licenceType}
                 {getStatusBadge(true, !!driver.licenceType)}
               </Label>
               <Select
@@ -884,7 +1423,7 @@ function App() {
 
             <div className="form-group">
               <Label className="form-label">
-                Licence Number
+                {translations[session.language as keyof typeof translations].licenceNumber}
                 {getStatusBadge(true, !!driver.licenceNumber)}
               </Label>
               <TextInput
@@ -897,7 +1436,7 @@ function App() {
 
             <div className="form-group">
               <Label className="form-label">
-                Years Licence Held
+                {translations[session.language as keyof typeof translations].yearsHeld}
                 {getStatusBadge(true, driver.yearsHeld > 0)}
               </Label>
               <TextInput
@@ -905,6 +1444,62 @@ function App() {
                 value={driver.yearsHeld}
                 onChange={(e) => updateDriver(index, 'yearsHeld', parseInt(e.target.value) || 0)}
                 placeholder="0"
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <Label className="form-label">
+                {translations[session.language as keyof typeof translations].pointsLost}
+                {getStatusBadge(false, true)}
+              </Label>
+              <TextInput
+                type="number"
+                value={driver.pointsLost}
+                onChange={(e) => updateDriver(index, 'pointsLost', parseInt(e.target.value) || 0)}
+                placeholder="0"
+                min="0"
+                max="12"
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <Label className="form-label">
+                {translations[session.language as keyof typeof translations].licenceIssueDate}
+                {getStatusBadge(true, !!driver.licenceIssueDate)}
+              </Label>
+              <TextInput
+                type="date"
+                value={driver.licenceIssueDate}
+                onChange={(e) => updateLicenceIssueDate(index, e.target.value)}
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <Label className="form-label">
+                {translations[session.language as keyof typeof translations].licenceExpiryDate}
+                {getStatusBadge(true, !!driver.licenceExpiryDate)}
+                {driver.licenceExpiryDate && getExpiryStatusBadge(driver.licenceExpiryDate)}
+              </Label>
+              <TextInput
+                type="date"
+                value={driver.licenceExpiryDate}
+                onChange={(e) => updateDriver(index, 'licenceExpiryDate', e.target.value)}
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <Label className="form-label">
+                {translations[session.language as keyof typeof translations].licenceValidUntil}
+                {getStatusBadge(false, true)}
+              </Label>
+              <TextInput
+                type="date"
+                value={driver.licenceValidUntil}
+                onChange={(e) => updateDriver(index, 'licenceValidUntil', e.target.value)}
                 className="form-input"
               />
             </div>
@@ -1052,6 +1647,328 @@ function App() {
                 </div>
               </div>
             )}
+
+            {/* Driving Licence Information Section */}
+            {(driver.licenceIssueDate || driver.licenceExpiryDate || driver.licenceAuthority || driver.licenceRestrictions || driver.licenceEndorsements) && (
+              <div className="col-span-full mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+                <h4 className="text-sm font-semibold text-green-800 mb-3 flex items-center">
+                  <Car className="w-4 h-4 mr-2" />
+                  Driving Licence Information (Document-derived)
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {driver.licenceIssueDate && (
+                    <div className="form-group">
+                      <Label className="form-label text-sm text-green-700">
+                        Issue Date
+                        <Badge color="info" className="ml-2 text-xs">From Document</Badge>
+                      </Label>
+                      <TextInput
+                        value={driver.licenceIssueDate}
+                        readOnly
+                        className="form-input bg-gray-100"
+                      />
+                    </div>
+                  )}
+
+                  {driver.licenceExpiryDate && (
+                    <div className="form-group">
+                      <Label className="form-label text-sm text-green-700">
+                        Expiry Date
+                        <Badge color="info" className="ml-2 text-xs">From Document</Badge>
+                        {getExpiryStatusBadge(driver.licenceExpiryDate)}
+                      </Label>
+                      <TextInput
+                        value={driver.licenceExpiryDate}
+                        readOnly
+                        className="form-input bg-gray-100"
+                      />
+                    </div>
+                  )}
+
+                  {driver.licenceAuthority && (
+                    <div className="form-group">
+                      <Label className="form-label text-sm text-green-700">
+                        Issuing Authority
+                        <Badge color="info" className="ml-2 text-xs">From Document</Badge>
+                      </Label>
+                      <TextInput
+                        value={driver.licenceAuthority}
+                        readOnly
+                        className="form-input bg-gray-100"
+                      />
+                    </div>
+                  )}
+
+                  {driver.licenceRestrictions && (
+                    <div className="form-group">
+                      <Label className="form-label text-sm text-green-700">
+                        Restrictions
+                        <Badge color="info" className="ml-2 text-xs">From Document</Badge>
+                      </Label>
+                      <TextInput
+                        value={driver.licenceRestrictions}
+                        readOnly
+                        className="form-input bg-gray-100"
+                      />
+                    </div>
+                  )}
+
+                  {driver.licenceEndorsements && (
+                    <div className="form-group">
+                      <Label className="form-label text-sm text-green-700">
+                        Endorsements
+                        <Badge color="info" className="ml-2 text-xs">From Document</Badge>
+                      </Label>
+                      <TextInput
+                        value={driver.licenceEndorsements}
+                        readOnly
+                        className="form-input bg-gray-100"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Disabilities and Restrictions Section */}
+            <div className="col-span-full mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+              <h4 className="text-sm font-semibold text-yellow-800 mb-3 flex items-center">
+                <AlertCircle className="w-4 h-4 mr-2" />
+                Disabilities and Restrictions
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="form-group">
+                  <Label className="form-label">
+                    {translations[session.language as keyof typeof translations].hasDisability}
+                    {getStatusBadge(false, true)}
+                  </Label>
+                  <ToggleSwitch
+                    checked={driver.hasDisability}
+                    onChange={(checked) => updateDriver(index, 'hasDisability', checked)}
+                  />
+                </div>
+
+                {driver.hasDisability && (
+                  <>
+                    <div className="form-group">
+                      <Label className="form-label">
+                        {translations[session.language as keyof typeof translations].disabilityType}
+                        {getStatusBadge(true, !!driver.disabilityType)}
+                      </Label>
+                      <Select
+                        value={driver.disabilityType}
+                        onChange={(e) => updateDriver(index, 'disabilityType', e.target.value)}
+                        className="form-select"
+                      >
+                        <option value="">Select disability type</option>
+                        <option value="Visual impairment">Visual impairment</option>
+                        <option value="Hearing impairment">Hearing impairment</option>
+                        <option value="Mobility impairment">Mobility impairment</option>
+                        <option value="Cognitive impairment">Cognitive impairment</option>
+                        <option value="Neurological condition">Neurological condition</option>
+                        <option value="Cardiovascular condition">Cardiovascular condition</option>
+                        <option value="Respiratory condition">Respiratory condition</option>
+                        <option value="Diabetes">Diabetes</option>
+                        <option value="Epilepsy">Epilepsy</option>
+                        <option value="Mental health condition">Mental health condition</option>
+                        <option value="Other medical condition">Other medical condition</option>
+                      </Select>
+                    </div>
+
+                    <div className="form-group">
+                      <Label className="form-label">
+                        {translations[session.language as keyof typeof translations].requiresAdaptations}
+                        {getStatusBadge(false, true)}
+                      </Label>
+                      <ToggleSwitch
+                        checked={driver.requiresAdaptations}
+                        onChange={(checked) => updateDriver(index, 'requiresAdaptations', checked)}
+                      />
+                    </div>
+
+                    {driver.requiresAdaptations && (
+                      <div className="form-group">
+                        <Label className="form-label">
+                          {translations[session.language as keyof typeof translations].adaptationType}
+                          {getStatusBadge(true, !!driver.adaptationType)}
+                        </Label>
+                        <Select
+                          value={driver.adaptationType}
+                          onChange={(e) => updateDriver(index, 'adaptationType', e.target.value)}
+                          className="form-select"
+                        >
+                          <option value="">Select adaptation type</option>
+                          <option value="Hand controls">Hand controls</option>
+                          <option value="Foot controls">Foot controls</option>
+                          <option value="Steering wheel spinner">Steering wheel spinner</option>
+                          <option value="Pedal extensions">Pedal extensions</option>
+                          <option value="Seat modifications">Seat modifications</option>
+                          <option value="Mirror adaptations">Mirror adaptations</option>
+                          <option value="Brake modifications">Brake modifications</option>
+                          <option value="Accelerator modifications">Accelerator modifications</option>
+                          <option value="Gear lever modifications">Gear lever modifications</option>
+                          <option value="Other adaptation">Other adaptation</option>
+                        </Select>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                <div className="form-group">
+                  <Label className="form-label">
+                    {translations[session.language as keyof typeof translations].automaticOnly}
+                    {getStatusBadge(false, true)}
+                  </Label>
+                  <ToggleSwitch
+                    checked={driver.automaticOnly}
+                    onChange={(checked) => updateDriver(index, 'automaticOnly', checked)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Licence Classes Section */}
+            <div className="col-span-full mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+              <h4 className="text-sm font-semibold text-green-800 mb-3 flex items-center">
+                <Car className="w-4 h-4 mr-2" />
+                {translations[session.language as keyof typeof translations].licenceClasses}
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="form-group">
+                  <Label className="form-label">
+                    {translations[session.language as keyof typeof translations].licenceClassA}
+                    {getStatusBadge(false, true)}
+                  </Label>
+                  <ToggleSwitch
+                    checked={driver.licenceClassA}
+                    onChange={(checked) => updateDriver(index, 'licenceClassA', checked)}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <Label className="form-label">
+                    {translations[session.language as keyof typeof translations].licenceClassB}
+                    {getStatusBadge(false, true)}
+                  </Label>
+                  <ToggleSwitch
+                    checked={driver.licenceClassB}
+                    onChange={(checked) => updateDriver(index, 'licenceClassB', checked)}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <Label className="form-label">
+                    {translations[session.language as keyof typeof translations].licenceClassC}
+                    {getStatusBadge(false, true)}
+                  </Label>
+                  <ToggleSwitch
+                    checked={driver.licenceClassC}
+                    onChange={(checked) => updateDriver(index, 'licenceClassC', checked)}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <Label className="form-label">
+                    {translations[session.language as keyof typeof translations].licenceClassD}
+                    {getStatusBadge(false, true)}
+                  </Label>
+                  <ToggleSwitch
+                    checked={driver.licenceClassD}
+                    onChange={(checked) => updateDriver(index, 'licenceClassD', checked)}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <Label className="form-label">
+                    {translations[session.language as keyof typeof translations].licenceClassBE}
+                    {getStatusBadge(false, true)}
+                  </Label>
+                  <ToggleSwitch
+                    checked={driver.licenceClassBE}
+                    onChange={(checked) => updateDriver(index, 'licenceClassBE', checked)}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <Label className="form-label">
+                    {translations[session.language as keyof typeof translations].licenceClassCE}
+                    {getStatusBadge(false, true)}
+                  </Label>
+                  <ToggleSwitch
+                    checked={driver.licenceClassCE}
+                    onChange={(checked) => updateDriver(index, 'licenceClassCE', checked)}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <Label className="form-label">
+                    {translations[session.language as keyof typeof translations].licenceClassDE}
+                    {getStatusBadge(false, true)}
+                  </Label>
+                  <ToggleSwitch
+                    checked={driver.licenceClassDE}
+                    onChange={(checked) => updateDriver(index, 'licenceClassDE', checked)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Driver Email Section (for additional drivers) */}
+            {driver.classification !== 'MAIN' && (
+              <div className="col-span-full mt-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                <h4 className="text-sm font-semibold text-purple-800 mb-3 flex items-center">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Driver Communication
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="form-group">
+                    <Label className="form-label">
+                                              {translations[session.language as keyof typeof translations].driverEmail}
+                      {getStatusBadge(true, !!driver.driverEmail)}
+                    </Label>
+                    <TextInput
+                      type="email"
+                      value={driver.driverEmail}
+                      onChange={(e) => updateDriver(index, 'driverEmail', e.target.value)}
+                      placeholder="driver@email.com"
+                      className="form-input"
+                    />
+                  </div>
+
+                  <div className="form-group flex items-end">
+                    <Button
+                      color="purple"
+                      onClick={() => sendEmailToDriver(index)}
+                      disabled={!driver.driverEmail || driver.emailSent}
+                      className="w-full"
+                    >
+                      {driver.emailSent ? (
+                        <>
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Email Sent
+                        </>
+                      ) : (
+                        <>
+                          <Mail className="w-4 h-4 mr-2" />
+                          {translations[session.language as keyof typeof translations].sendEmailToDriver}
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  {driver.emailSent && (
+                    <div className="col-span-full">
+                      <Alert color="success" className="mt-2">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4" />
+                          <span>Email sent to {driver.driverEmail} on {new Date(driver.emailSentDate).toLocaleDateString()}</span>
+                        </div>
+                      </Alert>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </Card>
       ))}
@@ -1147,6 +2064,27 @@ function App() {
 
           <div className="form-group">
             <Label className="form-label">
+              Daytime Location
+              {getStatusBadge(false, !!session.vehicle.daytimeLocation)}
+            </Label>
+            <Select
+              value={session.vehicle.daytimeLocation}
+              onChange={(e) => updateVehicle('daytimeLocation', e.target.value)}
+              className="form-select"
+            >
+              <option value="">Select location</option>
+              <option value="driveway">Driveway</option>
+              <option value="garage">Garage</option>
+              <option value="street">Street</option>
+              <option value="car_park">Car Park</option>
+              <option value="work_car_park">Work Car Park</option>
+              <option value="public_car_park">Public Car Park</option>
+              <option value="private_car_park">Private Car Park</option>
+            </Select>
+          </div>
+
+          <div className="form-group">
+            <Label className="form-label">
               Overnight Location
               {getStatusBadge(true, !!session.vehicle.overnightLocation)}
             </Label>
@@ -1178,29 +2116,51 @@ function App() {
         {session.vehicle.hasModifications && (
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
             <h4 className="font-medium mb-4">Vehicle Modifications</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="form-group">
-                <Label className="form-label">Engine Modifications</Label>
-                <Select className="form-select">
-                  <option value="">Select modification</option>
-                  <option value="none">None</option>
-                  <option value="chip_tuning">Chip Tuning</option>
-                  <option value="turbo">Turbo/Supercharger</option>
-                  <option value="exhaust">Exhaust System</option>
-                </Select>
-              </div>
-
-              <div className="form-group">
-                <Label className="form-label">Body Modifications</Label>
-                <Select className="form-select">
-                  <option value="">Select modification</option>
-                  <option value="none">None</option>
-                  <option value="spoiler">Spoiler</option>
-                  <option value="body_kit">Body Kit</option>
-                  <option value="wheels">Alloy Wheels</option>
-                </Select>
-              </div>
+            <p className="text-sm text-gray-600 mb-4">
+              Select all modifications that apply to your vehicle. Multiple selections are allowed.
+            </p>
+            <div className="space-y-3">
+              {[
+                'None',
+                'Engine Tuning',
+                'Exhaust System', 
+                'Air Intake',
+                'Suspension',
+                'Wheels/Tyres',
+                'Body Kit',
+                'Interior',
+                'Audio System',
+                'Performance Chip',
+                'Turbo/Supercharger',
+                'Other'
+              ].map((modification) => (
+                <div key={modification} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id={`modification-${modification}`}
+                    checked={session.vehicle.modifications.includes(modification)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        updateVehicle('modifications', [...session.vehicle.modifications, modification]);
+                      } else {
+                        updateVehicle('modifications', session.vehicle.modifications.filter(m => m !== modification));
+                      }
+                    }}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor={`modification-${modification}`} className="ml-2 text-sm text-gray-700">
+                    {modification}
+                  </label>
+                </div>
+              ))}
             </div>
+            {session.vehicle.modifications.length > 0 && (
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  <strong>Selected Modifications:</strong> {session.vehicle.modifications.join(', ')}
+                </p>
+              </div>
+            )}
           </div>
         )}
       </Card>
@@ -1286,92 +2246,8 @@ function App() {
             />
           </div>
         </div>
-      </Card>
-    </div>
-  );
 
-  const renderClaimsSection = () => (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold">Claims History</h2>
-
-      <Card className="form-section">
-        <div className="space-y-4">
-          <div className="form-group">
-            <Label className="form-label">
-              Previous Claims (Last 5 Years)
-              {getStatusBadge(false, true)}
-            </Label>
-            <ToggleSwitch
-              checked={session.claims.hasClaims}
-              onChange={(checked) => updateClaims('hasClaims', checked)}
-            />
-          </div>
-
-          <div className="form-group">
-            <Label className="form-label">
-              Convictions (Last 5 Years)
-              {getStatusBadge(false, true)}
-            </Label>
-            <ToggleSwitch
-              checked={session.claims.hasConvictions}
-              onChange={(checked) => updateClaims('hasConvictions', checked)}
-            />
-          </div>
-
-          {(session.claims.hasClaims || session.claims.hasConvictions) && (
-            <Alert color="warning" className="mt-4">
-              <div className="flex items-center gap-2">
-                <AlertCircle className="w-5 h-5" />
-                <span>Please provide details of any claims or convictions when prompted.</span>
-              </div>
-            </Alert>
-          )}
-        </div>
-      </Card>
-    </div>
-  );
-
-  const renderPaymentSection = () => (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold">Payment & Extras</h2>
-
-      <Card className="form-section">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="form-group">
-            <Label className="form-label">
-              Payment Frequency
-              {getStatusBadge(true, !!session.payment.frequency)}
-            </Label>
-            <Select
-              value={session.payment.frequency}
-              onChange={(e) => updatePayment('frequency', e.target.value)}
-              className="form-select"
-            >
-              <option value="">Select frequency</option>
-              <option value="monthly">Monthly</option>
-              <option value="quarterly">Quarterly</option>
-              <option value="annually">Annually</option>
-            </Select>
-          </div>
-
-          <div className="form-group">
-            <Label className="form-label">
-              Payment Method
-              {getStatusBadge(true, !!session.payment.method)}
-            </Label>
-            <Select
-              value={session.payment.method}
-              onChange={(e) => updatePayment('method', e.target.value)}
-              className="form-select"
-            >
-              <option value="">Select method</option>
-              <option value="direct_debit">Direct Debit</option>
-              <option value="card">Credit/Debit Card</option>
-              <option value="bank_transfer">Bank Transfer</option>
-            </Select>
-          </div>
-        </div>
-
+        {/* Additional Cover Section */}
         <div className="mt-6">
           <h4 className="font-medium mb-4">Additional Cover</h4>
           <div className="space-y-4">
@@ -1409,6 +2285,367 @@ function App() {
                 <Label>Courtesy Car</Label>
               </div>
             </div>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+
+  const renderClaimsSection = () => (
+    <div className="space-y-6">
+      <h2 className="text-xl font-semibold">{translations[session.language as keyof typeof translations].claimsHistory}</h2>
+
+      <Card className="form-section">
+        <div className="space-y-6">
+          {/* Claims Toggle */}
+          <div className="form-group">
+            <Label className="form-label">
+              {translations[session.language as keyof typeof translations].claimsHistory} (Last 5 Years)
+              {getStatusBadge(false, true)}
+            </Label>
+            <ToggleSwitch
+              checked={session.claims.hasClaims}
+              onChange={(checked) => updateClaims('hasClaims', checked)}
+            />
+          </div>
+
+          {/* Convictions Toggle */}
+          <div className="form-group">
+            <Label className="form-label">
+              {translations[session.language as keyof typeof translations].convictions} (Last 5 Years)
+              {getStatusBadge(false, true)}
+            </Label>
+            <ToggleSwitch
+              checked={session.claims.hasConvictions}
+              onChange={(checked) => updateClaims('hasConvictions', checked)}
+            />
+          </div>
+
+          {/* Accidents Toggle */}
+          <div className="form-group">
+            <Label className="form-label">
+              {translations[session.language as keyof typeof translations].accidents} (Last 5 Years)
+              {getStatusBadge(false, true)}
+            </Label>
+            <ToggleSwitch
+              checked={session.claims.hasAccidents}
+              onChange={(checked) => updateClaims('hasAccidents', checked)}
+            />
+          </div>
+
+          {/* Claims Form */}
+          {session.claims.hasClaims && (
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-lg font-medium mb-4">{translations[session.language as keyof typeof translations].claimsHistory}</h3>
+              <div className="space-y-4">
+                {session.claims.claims.map((claim, index) => (
+                  <div key={claim.id} className="p-4 border border-gray-200 rounded-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="form-group">
+                        <Label className="form-label">{translations[session.language as keyof typeof translations].claimDate}</Label>
+                        <TextInput
+                          type="date"
+                          value={claim.date}
+                          onChange={(e) => updateClaim(index, 'date', e.target.value)}
+                          className="form-input"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <Label className="form-label">{translations[session.language as keyof typeof translations].claimType}</Label>
+                        <Select
+                          value={claim.type}
+                          onChange={(e) => updateClaim(index, 'type', e.target.value)}
+                          className="form-select"
+                        >
+                          <option value="">Select claim type</option>
+                          <option value="Accident - At Fault">Accident - At Fault</option>
+                          <option value="Accident - Not At Fault">Accident - Not At Fault</option>
+                          <option value="Accident - Split Liability">Accident - Split Liability</option>
+                          <option value="Theft - Vehicle">Theft - Vehicle</option>
+                          <option value="Theft - Parts/Accessories">Theft - Parts/Accessories</option>
+                          <option value="Fire Damage">Fire Damage</option>
+                          <option value="Flood Damage">Flood Damage</option>
+                          <option value="Storm Damage">Storm Damage</option>
+                          <option value="Vandalism">Vandalism</option>
+                          <option value="Windscreen Damage">Windscreen Damage</option>
+                          <option value="Animal Strike">Animal Strike</option>
+                          <option value="Medical Expenses">Medical Expenses</option>
+                          <option value="Personal Injury">Personal Injury</option>
+                          <option value="Legal Expenses">Legal Expenses</option>
+                          <option value="Recovery Costs">Recovery Costs</option>
+                          <option value="Other">Other</option>
+                        </Select>
+                      </div>
+                      <div className="form-group">
+                        <Label className="form-label">{translations[session.language as keyof typeof translations].claimAmount}</Label>
+                        <TextInput
+                          type="number"
+                          value={claim.amount}
+                          onChange={(e) => updateClaim(index, 'amount', parseFloat(e.target.value) || 0)}
+                          placeholder="0.00"
+                          className="form-input"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <Label className="form-label">{translations[session.language as keyof typeof translations].faultStatus}</Label>
+                        <Select
+                          value={claim.faultStatus}
+                          onChange={(e) => updateClaim(index, 'faultStatus', e.target.value)}
+                          className="form-select"
+                        >
+                          <option value="">Select fault status</option>
+                          <option value="At Fault">At Fault</option>
+                          <option value="Not At Fault">Not At Fault</option>
+                          <option value="Split Liability">Split Liability</option>
+                          <option value="Uncertain">Uncertain</option>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex justify-end">
+                      <Button
+                        color="failure"
+                        size="sm"
+                        onClick={() => removeClaim(index)}
+                      >
+                        Remove Claim
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                <Button
+                  color="gray"
+                  onClick={addClaim}
+                  className="w-full"
+                >
+                  {translations[session.language as keyof typeof translations].addClaim}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Convictions Form */}
+          {session.claims.hasConvictions && (
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-lg font-medium mb-4">{translations[session.language as keyof typeof translations].convictions}</h3>
+              <div className="space-y-4">
+                {session.claims.convictions.map((conviction, index) => (
+                  <div key={conviction.id} className="p-4 border border-gray-200 rounded-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="form-group">
+                        <Label className="form-label">{translations[session.language as keyof typeof translations].convictionDate}</Label>
+                        <TextInput
+                          type="date"
+                          value={conviction.date}
+                          onChange={(e) => updateConviction(index, 'date', e.target.value)}
+                          className="form-input"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <Label className="form-label">{translations[session.language as keyof typeof translations].offenceCode}</Label>
+                        <Select
+                          value={conviction.offenceCode}
+                          onChange={(e) => updateConviction(index, 'offenceCode', e.target.value)}
+                          className="form-select"
+                        >
+                          <option value="">Select offence code</option>
+                          <option value="AC10 - Failing to stop after an accident">AC10 - Failing to stop after an accident</option>
+                          <option value="AC20 - Failing to give particulars or to report an accident within 24 hours">AC20 - Failing to give particulars or to report an accident within 24 hours</option>
+                          <option value="CD10 - Driving without due care and attention">CD10 - Driving without due care and attention</option>
+                          <option value="CD20 - Driving without reasonable consideration for other road users">CD20 - Driving without reasonable consideration for other road users</option>
+                          <option value="DD10 - Causing death by dangerous driving">DD10 - Causing death by dangerous driving</option>
+                          <option value="DD20 - Dangerous driving">DD20 - Dangerous driving</option>
+                          <option value="DR10 - Driving or attempting to drive with alcohol level above limit">DR10 - Driving or attempting to drive with alcohol level above limit</option>
+                          <option value="DR20 - Driving or attempting to drive while unfit through drink">DR20 - Driving or attempting to drive while unfit through drink</option>
+                          <option value="IN10 - Using a vehicle uninsured against third party risks">IN10 - Using a vehicle uninsured against third party risks</option>
+                          <option value="LC20 - Driving otherwise than in accordance with a licence">LC20 - Driving otherwise than in accordance with a licence</option>
+                          <option value="SP10 - Exceeding goods vehicle speed limits">SP10 - Exceeding goods vehicle speed limits</option>
+                          <option value="SP20 - Exceeding speed limit for type of vehicle">SP20 - Exceeding speed limit for type of vehicle</option>
+                          <option value="SP30 - Exceeding statutory speed limit on a public road">SP30 - Exceeding statutory speed limit on a public road</option>
+                          <option value="SP40 - Exceeding passenger vehicle speed limit">SP40 - Exceeding passenger vehicle speed limit</option>
+                          <option value="SP50 - Exceeding speed limit on a motorway">SP50 - Exceeding speed limit on a motorway</option>
+                          <option value="TS10 - Failing to comply with traffic light signals">TS10 - Failing to comply with traffic light signals</option>
+                          <option value="TS20 - Failing to comply with double white lines">TS20 - Failing to comply with double white lines</option>
+                          <option value="TS30 - Failing to comply with 'stop' sign">TS30 - Failing to comply with 'stop' sign</option>
+                          <option value="Other - Other offence not listed">Other - Other offence not listed</option>
+                        </Select>
+                      </div>
+                      <div className="form-group">
+                        <Label className="form-label">{translations[session.language as keyof typeof translations].penaltyPoints}</Label>
+                        <TextInput
+                          type="number"
+                          value={conviction.penaltyPoints}
+                          onChange={(e) => updateConviction(index, 'penaltyPoints', parseInt(e.target.value) || 0)}
+                          min="0"
+                          max="12"
+                          className="form-input"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <Label className="form-label">{translations[session.language as keyof typeof translations].fine}</Label>
+                        <TextInput
+                          type="number"
+                          value={conviction.fine || ''}
+                          onChange={(e) => updateConviction(index, 'fine', parseFloat(e.target.value) || 0)}
+                          placeholder="0.00"
+                          className="form-input"
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-4 flex justify-end">
+                      <Button
+                        color="failure"
+                        size="sm"
+                        onClick={() => removeConviction(index)}
+                      >
+                        Remove Conviction
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                <Button
+                  color="gray"
+                  onClick={addConviction}
+                  className="w-full"
+                >
+                  {translations[session.language as keyof typeof translations].addConviction}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Accidents Form */}
+          {session.claims.hasAccidents && (
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-lg font-medium mb-4">{translations[session.language as keyof typeof translations].accidents}</h3>
+              <div className="space-y-4">
+                {session.claims.accidents.map((accident, index) => (
+                  <div key={accident.id} className="p-4 border border-gray-200 rounded-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="form-group">
+                        <Label className="form-label">{translations[session.language as keyof typeof translations].accidentDate}</Label>
+                        <TextInput
+                          type="date"
+                          value={accident.date}
+                          onChange={(e) => updateAccident(index, 'date', e.target.value)}
+                          className="form-input"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <Label className="form-label">{translations[session.language as keyof typeof translations].accidentType}</Label>
+                        <Select
+                          value={accident.type}
+                          onChange={(e) => updateAccident(index, 'type', e.target.value)}
+                          className="form-select"
+                        >
+                          <option value="">Select accident type</option>
+                          <option value="Collision with another vehicle">Collision with another vehicle</option>
+                          <option value="Collision with stationary object">Collision with stationary object</option>
+                          <option value="Collision with pedestrian">Collision with pedestrian</option>
+                          <option value="Collision with animal">Collision with animal</option>
+                          <option value="Rollover">Rollover</option>
+                          <option value="Fire">Fire</option>
+                          <option value="Flood damage">Flood damage</option>
+                          <option value="Storm damage">Storm damage</option>
+                          <option value="Vandalism">Vandalism</option>
+                          <option value="Theft">Theft</option>
+                          <option value="Other">Other</option>
+                        </Select>
+                      </div>
+                      <div className="form-group">
+                        <Label className="form-label">{translations[session.language as keyof typeof translations].accidentSeverity}</Label>
+                        <Select
+                          value={accident.severity}
+                          onChange={(e) => updateAccident(index, 'severity', e.target.value)}
+                          className="form-select"
+                        >
+                          <option value="">Select severity</option>
+                          <option value="Minor - No injuries, minor damage">Minor - No injuries, minor damage</option>
+                          <option value="Moderate - Minor injuries, moderate damage">Moderate - Minor injuries, moderate damage</option>
+                          <option value="Serious - Serious injuries, major damage">Serious - Serious injuries, major damage</option>
+                          <option value="Fatal - Fatal injuries">Fatal - Fatal injuries</option>
+                        </Select>
+                      </div>
+                      <div className="form-group">
+                        <Label className="form-label">{translations[session.language as keyof typeof translations].claimMade}</Label>
+                        <ToggleSwitch
+                          checked={accident.claimMade}
+                          onChange={(checked) => updateAccident(index, 'claimMade', checked)}
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-4 flex justify-end">
+                      <Button
+                        color="failure"
+                        size="sm"
+                        onClick={() => removeAccident(index)}
+                      >
+                        Remove Accident
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                <Button
+                  color="gray"
+                  onClick={addAccident}
+                  className="w-full"
+                >
+                  {translations[session.language as keyof typeof translations].addAccident}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {(session.claims.hasClaims || session.claims.hasConvictions || session.claims.hasAccidents) && (
+            <Alert color="warning" className="mt-4">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-5 h-5" />
+                <span>Please provide complete details of any claims, convictions, or accidents when prompted.</span>
+              </div>
+            </Alert>
+          )}
+        </div>
+      </Card>
+    </div>
+  );
+
+  const renderPaymentSection = () => (
+    <div className="space-y-6">
+      <h2 className="text-xl font-semibold">Payment Details</h2>
+
+      <Card className="form-section">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="form-group">
+            <Label className="form-label">
+              Payment Frequency
+              {getStatusBadge(true, !!session.payment.frequency)}
+            </Label>
+            <Select
+              value={session.payment.frequency}
+              onChange={(e) => updatePayment('frequency', e.target.value)}
+              className="form-select"
+            >
+              <option value="">Select frequency</option>
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="annually">Annually</option>
+            </Select>
+          </div>
+
+          <div className="form-group">
+            <Label className="form-label">
+              Payment Method
+              {getStatusBadge(true, !!session.payment.method)}
+            </Label>
+            <Select
+              value={session.payment.method}
+              onChange={(e) => updatePayment('method', e.target.value)}
+              className="form-select"
+            >
+              <option value="">Select method</option>
+              <option value="direct_debit">Direct Debit</option>
+              <option value="card">Credit/Debit Card</option>
+              <option value="bank_transfer">Bank Transfer</option>
+            </Select>
           </div>
         </div>
       </Card>
@@ -1484,10 +2721,10 @@ function App() {
                 Help
               </Button>
               <Button color="gray" onClick={() => setShowChatbot(true)}>
-                <HelpCircle className="w-4 h-4 mr-2" />
+                <AlertCircle className="w-4 h-4 mr-2" />
                 AI Assistant
               </Button>
-              <Button color="gray" onClick={() => setShowDocumentUpload(true)}>
+              <Button color="blue" onClick={() => setShowDocumentUpload(true)}>
                 <Upload className="w-4 h-4 mr-2" />
                 Upload Documents
               </Button>

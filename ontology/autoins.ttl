@@ -396,6 +396,30 @@ autoins:yearsHeld a owl:DatatypeProperty ;
   autoins:isRequired "true"^^xsd:boolean ;
   autoins:formHelpText "Full years since passing test" .
 
+autoins:licenceIssueDate a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:date ;
+  rdfs:label "licence issue date" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Date when driving licence was first issued" ;
+  autoins:helpPrompt "This is the date when you first passed your driving test and received your licence. It helps determine your driving experience." .
+
+autoins:licenceExpiryDate a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:date ;
+  rdfs:label "licence expiry date" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Date when driving licence expires" ;
+  autoins:helpPrompt "This is the date when your driving licence expires. You must renew before this date to continue driving legally." .
+
+autoins:licenceValidUntil a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:date ;
+  rdfs:label "licence valid until" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Date until which licence is valid (for medical conditions)" ;
+  autoins:helpPrompt "Some licences have medical review dates. This is when your licence needs medical review to remain valid." .
+
 autoins:additionalMonths a owl:DatatypeProperty ;
   rdfs:domain autoins:Driver ;
   rdfs:range xsd:integer ;
@@ -1235,13 +1259,477 @@ autoins:endorsementDescription a owl:DatatypeProperty ;
 ## 4. CLAIMS HISTORY (COMPLETE WITH 5-YEAR LOOKBACK)
 ############################################################
 
-# [Already complete from previous response - includes:]
-# - Claims History classes
-# - Claim properties (max 5 per driver)
-# - Conviction properties
-# - Medical conditions
-# - 5-year lookback validation
-# - All enumerations for claim types, conviction codes
+# Claims History Classes
+autoins:Claim a owl:Class ;
+  rdfs:label "Insurance Claim" ;
+  rdfs:comment "Individual insurance claim record" .
+
+autoins:Conviction a owl:Class ;
+  rdfs:label "Driving Conviction" ;
+  rdfs:comment "DVLA driving conviction or penalty" .
+
+autoins:Accident a owl:Class ;
+  rdfs:label "Accident Record" ;
+  rdfs:comment "Accident record (with or without claim)" .
+
+# Claims History Object Properties
+autoins:hasClaim a owl:ObjectProperty ;
+  rdfs:domain autoins:ClaimsHistory ;
+  rdfs:range autoins:Claim ;
+  rdfs:label "has claim" .
+
+autoins:hasConviction a owl:ObjectProperty ;
+  rdfs:domain autoins:ClaimsHistory ;
+  rdfs:range autoins:Conviction ;
+  rdfs:label "has conviction" .
+
+autoins:hasAccident a owl:ObjectProperty ;
+  rdfs:domain autoins:ClaimsHistory ;
+  rdfs:range autoins:Accident ;
+  rdfs:label "has accident" .
+
+# Claim Properties
+autoins:claimDate a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:date ;
+  rdfs:label "claim date" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Date the claim was made" .
+
+autoins:claimType a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:string ;
+  rdfs:label "claim type" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Type of insurance claim" ;
+  autoins:enumerationValues (
+    "Accident - At Fault" 
+    "Accident - Not At Fault" 
+    "Accident - Split Liability" 
+    "Theft - Vehicle" 
+    "Theft - Parts/Accessories" 
+    "Fire Damage" 
+    "Flood Damage" 
+    "Storm Damage" 
+    "Vandalism" 
+    "Windscreen Damage" 
+    "Animal Strike" 
+    "Medical Expenses" 
+    "Personal Injury" 
+    "Legal Expenses" 
+    "Recovery Costs" 
+    "Other"
+  ) .
+
+autoins:claimAmount a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "claim amount" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Total amount claimed" .
+
+autoins:claimStatus a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:string ;
+  rdfs:label "claim status" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues (
+    "Open" 
+    "Settled" 
+    "Rejected" 
+    "Under Investigation" 
+    "Pending"
+  ) .
+
+autoins:faultStatus a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:string ;
+  rdfs:label "fault status" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues (
+    "At Fault" 
+    "Not At Fault" 
+    "Split Liability" 
+    "Uncertain"
+  ) .
+
+autoins:policeReported a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "police reported" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Was the incident reported to police?" .
+
+autoins:crimeReference a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:string ;
+  rdfs:label "crime reference number" ;
+  autoins:conditionalRequirement "Required if police reported is true" ;
+  autoins:formHelpText "Police crime reference number" .
+
+autoins:claimDescription a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:string ;
+  rdfs:label "claim description" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Brief description of the incident" .
+
+# Conviction Properties
+autoins:convictionDate a owl:DatatypeProperty ;
+  rdfs:domain autoins:Conviction ;
+  rdfs:range xsd:date ;
+  rdfs:label "conviction date" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Date of conviction" .
+
+autoins:offenceCode a owl:DatatypeProperty ;
+  rdfs:domain autoins:Conviction ;
+  rdfs:range xsd:string ;
+  rdfs:label "DVLA offence code" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "DVLA offence code" ;
+  autoins:enumerationValues (
+    "AC10 - Failing to stop after an accident" 
+    "AC20 - Failing to give particulars or to report an accident within 24 hours" 
+    "AC30 - Undefined accident offences" 
+    "BA10 - Driving while disqualified by order of court" 
+    "BA30 - Attempting to drive while disqualified by order of court" 
+    "BA40 - Causing death by driving while disqualified" 
+    "BA60 - Causing serious injury by driving while disqualified" 
+    "CD10 - Driving without due care and attention" 
+    "CD20 - Driving without reasonable consideration for other road users" 
+    "CD30 - Driving without due care and attention or without reasonable consideration for other road users" 
+    "CD40 - Causing death through careless driving when unfit through drink" 
+    "CD50 - Causing death by careless driving when unfit through drugs" 
+    "CD60 - Causing death by careless driving with alcohol level above limit" 
+    "CD70 - Causing death by careless driving then failing to supply a specimen for alcohol analysis" 
+    "CD80 - Causing death by careless, or inconsiderate, driving" 
+    "CD90 - Causing death by driving: unlicensed, disqualified or uninsured drivers" 
+    "CU10 - Using a vehicle with defective brakes" 
+    "CU20 - Causing or likely to cause danger by reason of use of unsuitable vehicle or using a vehicle with parts or accessories (excluding brakes, steering or tyres) in a dangerous condition" 
+    "CU30 - Using a vehicle with defective tyre(s)" 
+    "CU40 - Using a vehicle with defective steering" 
+    "CU50 - Causing or likely to cause danger by reason of load or passengers" 
+    "CU80 - Breach of requirements as to control of the vehicle, such as holding a mobile phone" 
+    "DD10 - Causing death by dangerous driving" 
+    "DD20 - Dangerous driving" 
+    "DD30 - Manslaughter or culpable homicide while driving a vehicle" 
+    "DD40 - Causing death by careless driving when under influence of drink or drugs" 
+    "DD60 - Causing death by careless driving with alcohol level above limit" 
+    "DD80 - Causing death by careless, or inconsiderate, driving" 
+    "DD90 - Causing death by driving: unlicensed, disqualified or uninsured drivers" 
+    "DR10 - Driving or attempting to drive with alcohol level above limit" 
+    "DR20 - Driving or attempting to drive while unfit through drink" 
+    "DR30 - Driving or attempting to drive then failing to supply a specimen for determination of breath alcohol level" 
+    "DR31 - Driving or attempting to drive then refusing to give permission for analysis of a blood sample that was taken without consent due to incapacity" 
+    "DR61 - Refusing to give permission for analysis of a blood sample that was taken without consent due to incapacity" 
+    "DR70 - Failing to co-operate with a preliminary test" 
+    "DR80 - Driving or attempting to drive when unfit through drugs" 
+    "DR90 - In charge of a vehicle when alcohol level above limit" 
+    "DR91 - In charge of a vehicle while unfit through drink" 
+    "DR92 - In charge of a vehicle then failing to supply a specimen for determination of breath alcohol level" 
+    "DR93 - In charge of a vehicle then refusing to give permission for analysis of a blood sample that was taken without consent due to incapacity" 
+    "DR94 - In charge of a vehicle then failing to supply a specimen for determination of drug level" 
+    "DR95 - In charge of a vehicle then refusing to give permission for analysis of a blood sample that was taken without consent due to incapacity" 
+    "DR96 - In charge of a vehicle then failing to supply a specimen for determination of drug level" 
+    "DR97 - In charge of a vehicle then refusing to give permission for analysis of a blood sample that was taken without consent due to incapacity" 
+    "DR98 - In charge of a vehicle then failing to supply a specimen for determination of drug level" 
+    "DR99 - In charge of a vehicle then refusing to give permission for analysis of a blood sample that was taken without consent due to incapacity" 
+    "IN10 - Using a vehicle uninsured against third party risks" 
+    "IN14 - Causing or permitting the use of a vehicle uninsured against third party risks" 
+    "LC20 - Driving otherwise than in accordance with a licence" 
+    "LC30 - Driving after making a false declaration about fitness when applying for a licence" 
+    "LC40 - Driving a vehicle having failed to notify a disability" 
+    "LC50 - Driving after a licence has been cancelled or refused on medical grounds" 
+    "MS10 - Leaving a vehicle in a dangerous position" 
+    "MS20 - Unlawfully carrying passengers on a motorcycle" 
+    "MS30 - Play street offences" 
+    "MS50 - Motor racing on the highway" 
+    "MS60 - Offences not covered by other codes (including offences relating to breach of requirements as to control of vehicle)" 
+    "MS70 - Driving with uncorrected defective eyesight" 
+    "MS80 - Refusing to submit to an eyesight test" 
+    "MS90 - Failure to give information as to identity of driver etc." 
+    "MW10 - Contravention of Special Roads Regulations (excluding speed limits)" 
+    "PC10 - Exceeding goods vehicle speed limits" 
+    "PC20 - Exceeding speed limit for type of vehicle (excluding goods or passenger vehicles)" 
+    "PC30 - Exceeding statutory speed limit on a public road" 
+    "PC40 - Exceeding passenger vehicle speed limit" 
+    "PC50 - Exceeding speed limit on a motorway" 
+    "SP10 - Exceeding goods vehicle speed limits" 
+    "SP20 - Exceeding speed limit for type of vehicle (excluding goods or passenger vehicles)" 
+    "SP30 - Exceeding statutory speed limit on a public road" 
+    "SP40 - Exceeding passenger vehicle speed limit" 
+    "SP50 - Exceeding speed limit on a motorway" 
+    "SP60 - Undefined speed limit offence" 
+    "TS10 - Failing to comply with traffic light signals" 
+    "TS20 - Failing to comply with double white lines" 
+    "TS30 - Failing to comply with 'stop' sign" 
+    "TS40 - Failing to comply with direction of a constable or traffic warden" 
+    "TS50 - Failing to comply with traffic sign (excluding 'stop' signs, traffic lights or double white lines)" 
+    "TS60 - Failing to comply with a school crossing patrol sign" 
+    "TS70 - Undefined traffic signal and crossing offences" 
+    "UT50 - Aggravated taking of a vehicle" 
+    "Other - Other offence not listed"
+  ) .
+
+autoins:offenceDescription a owl:DatatypeProperty ;
+  rdfs:domain autoins:Conviction ;
+  rdfs:range xsd:string ;
+  rdfs:label "offence description" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Brief description of the offence" .
+
+autoins:penaltyPoints a owl:DatatypeProperty ;
+  rdfs:domain autoins:Conviction ;
+  rdfs:range xsd:integer ;
+  rdfs:label "penalty points" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Number of penalty points received" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 12 .
+
+autoins:pointsLost a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:integer ;
+  rdfs:label "points lost on licence" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Total penalty points currently on licence (0-12)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 12 ;
+  autoins:helpPrompt "This is the current number of penalty points on your driving licence. You can check this on your licence or through the DVLA website." .
+
+autoins:pointsHistory a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:string ;
+  rdfs:label "points history" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "History of points added and removed from licence" ;
+  autoins:helpPrompt "Track when points were added and when they expire/are removed from your licence." .
+
+# Driver Disabilities and Restrictions
+autoins:hasDisability a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "has disability" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Do you have any medical conditions or disabilities that affect driving?" ;
+  autoins:helpPrompt "This includes conditions that may affect your ability to drive safely or require vehicle adaptations." .
+
+autoins:disabilityType a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:string ;
+  rdfs:label "disability type" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Type of disability or medical condition" ;
+  autoins:enumerationValues (
+    "Visual impairment" 
+    "Hearing impairment" 
+    "Mobility impairment" 
+    "Cognitive impairment" 
+    "Neurological condition" 
+    "Cardiovascular condition" 
+    "Respiratory condition" 
+    "Diabetes" 
+    "Epilepsy" 
+    "Mental health condition" 
+    "Other medical condition" 
+    "None"
+  ) ;
+  autoins:conditionalRequirement "Required if hasDisability is true" .
+
+autoins:requiresAdaptations a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "requires vehicle adaptations" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Does your disability require vehicle adaptations?" ;
+  autoins:conditionalRequirement "Required if hasDisability is true" .
+
+autoins:adaptationType a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:string ;
+  rdfs:label "adaptation type" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Type of vehicle adaptation required" ;
+  autoins:enumerationValues (
+    "Hand controls" 
+    "Foot controls" 
+    "Steering wheel spinner" 
+    "Pedal extensions" 
+    "Seat modifications" 
+    "Mirror adaptations" 
+    "Brake modifications" 
+    "Accelerator modifications" 
+    "Gear lever modifications" 
+    "Other adaptation" 
+    "None"
+  ) ;
+  autoins:conditionalRequirement "Required if requiresAdaptations is true" .
+
+autoins:automaticOnly a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "automatic transmission only" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Are you restricted to automatic transmission vehicles only?" ;
+  autoins:helpPrompt "This restriction may be due to disability, licence conditions, or personal preference." .
+
+# Licence Classes and Entitlements
+autoins:licenceClassA a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "licence class A (motorcycles)" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Can drive motorcycles" .
+
+autoins:licenceClassB a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "licence class B (cars)" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Can drive cars up to 3.5 tonnes" .
+
+autoins:licenceClassC a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "licence class C (large vehicles)" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Can drive large vehicles over 3.5 tonnes" .
+
+autoins:licenceClassD a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "licence class D (buses)" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Can drive buses and minibuses" .
+
+autoins:licenceClassBE a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "licence class BE (car + trailer)" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Can drive car with trailer over 750kg" .
+
+autoins:licenceClassCE a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "licence class CE (large vehicle + trailer)" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Can drive large vehicle with trailer" .
+
+autoins:licenceClassDE a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "licence class DE (bus + trailer)" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Can drive bus with trailer" .
+
+# Driver Communication and Email
+autoins:driverEmail a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:string ;
+  rdfs:label "driver email address" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Email address for additional driver communications" ;
+  autoins:validationPattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+  autoins:conditionalRequirement "Required for additional drivers" .
+
+autoins:emailSent a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "form email sent" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Has the form been emailed to this driver?" ;
+  autoins:collectionPhase autoins:SystemDerivedField .
+
+autoins:emailSentDate a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "form email sent date" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Date and time when form was emailed" ;
+  autoins:collectionPhase autoins:SystemDerivedField .
+
+autoins:fine a owl:DatatypeProperty ;
+  rdfs:domain autoins:Conviction ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "fine amount" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Fine amount in pounds" .
+
+autoins:disqualification a owl:DatatypeProperty ;
+  rdfs:domain autoins:Conviction ;
+  rdfs:range xsd:integer ;
+  rdfs:label "disqualification period" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Disqualification period in months" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 120 .
+
+autoins:convictionStatus a owl:DatatypeProperty ;
+  rdfs:domain autoins:Conviction ;
+  rdfs:range xsd:string ;
+  rdfs:label "conviction status" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues (
+    "Active" 
+    "Spent" 
+    "Pending" 
+    "Appealed"
+  ) .
+
+# Accident Properties
+autoins:accidentDate a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:date ;
+  rdfs:label "accident date" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Date of the accident" .
+
+autoins:accidentType a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:string ;
+  rdfs:label "accident type" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues (
+    "Collision with another vehicle" 
+    "Collision with stationary object" 
+    "Collision with pedestrian" 
+    "Collision with animal" 
+    "Rollover" 
+    "Fire" 
+    "Flood damage" 
+    "Storm damage" 
+    "Vandalism" 
+    "Theft" 
+    "Other"
+  ) .
+
+autoins:accidentSeverity a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:string ;
+  rdfs:label "accident severity" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues (
+    "Minor - No injuries, minor damage" 
+    "Moderate - Minor injuries, moderate damage" 
+    "Serious - Serious injuries, major damage" 
+    "Fatal - Fatal injuries"
+  ) .
+
+autoins:claimMade a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "claim made" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Was an insurance claim made for this accident?" .
+
+autoins:accidentDescription a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:string ;
+  rdfs:label "accident description" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Brief description of the accident" .
 
 ############################################################
 ## 5. PAYMENT & START DATE
