@@ -1,0 +1,104 @@
+{
+  "application": {
+    "name": "Insurance Quote Application",
+    "version": "2.2",
+    "description": "Ontology-driven insurance quote system with React frontend and Go backend",
+    "architecture": "ontology-driven"
+  },
+  "server": {
+    "port": 3000,
+    "host": "localhost",
+    "staticFiles": {
+      "rootPath": "./static",
+      "serveFromRoot": [
+        "manifest.json",
+        "favicon.ico", 
+        "robots.txt",
+        "logo192.png",
+        "logo512.png",
+        "asset-manifest.json"
+      ],
+      "serveFromStatic": [
+        "js/*",
+        "css/*"
+      ],
+      "mimeTypes": {
+        ".css": "text/css",
+        ".js": "application/javascript",
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".svg": "image/svg+xml",
+        ".ico": "image/x-icon",
+        ".json": "application/json"
+      }
+    }
+  },
+  "frontend": {
+    "framework": "React 18 + TypeScript",
+    "styling": "Tailwind CSS + Flowbite",
+    "icons": "Lucide React",
+    "buildDirectory": "insurance-frontend/build",
+    "serveDirectory": "static"
+  },
+  "backend": {
+    "language": "Go 1.21+",
+    "framework": "Gorilla Mux",
+    "ontologyFiles": [
+      "ontology/autoins.ttl",
+      "ontology/categories.json", 
+      "ontology/fields.json",
+      "ontology/subforms.json",
+      "ontology/settings.ttl"
+    ]
+  },
+  "features": {
+    "hierarchicalSidebar": true,
+    "ontologyDrivenForms": true,
+    "multiLanguage": ["en", "de"],
+    "documentProcessing": true,
+    "sessionManagement": true,
+    "validation": "SHACL"
+  },
+  "startup": {
+    "script": "./start.sh",
+    "requirements": [
+      "Node.js 16+",
+      "Go 1.21+",
+      "npm install in insurance-frontend/",
+      "go mod tidy"
+    ],
+    "steps": [
+      "Kill existing processes",
+      "Build React frontend",
+      "Copy build to static/",
+      "Fix nested static/static/",
+      "Build Go backend",
+      "Start server"
+    ]
+  },
+  "troubleshooting": {
+    "commonIssues": {
+      "blankScreen": "Check static file serving and nested directories",
+      "404Errors": "Verify manifest.json and logo files are served from root",
+      "sidebarMissing": "Ensure React build is copied to static/",
+      "serverNotStarting": "Check Go compilation and port availability",
+      "mimeTypeErrors": "Ensure proper MIME types are set for CSS/JS files"
+    },
+    "fileStructure": {
+      "critical": [
+        "static/index.html",
+        "static/manifest.json", 
+        "static/js/main.*.js",
+        "static/css/main.*.css"
+      ]
+    },
+    "mimeTypeFix": {
+      "description": "Go server now sets proper MIME types for static files",
+      "css": "text/css",
+      "js": "application/javascript",
+      "png": "image/png",
+      "json": "application/json"
+    }
+  }
+}

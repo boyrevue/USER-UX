@@ -50,8 +50,47 @@ func main() {
 
 	r := mux.NewRouter()
 
-	// Static
-	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
+	// Static files with proper MIME types
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Set proper MIME types for different file extensions
+		switch {
+		case strings.HasSuffix(r.URL.Path, ".css"):
+			w.Header().Set("Content-Type", "text/css")
+		case strings.HasSuffix(r.URL.Path, ".js"):
+			w.Header().Set("Content-Type", "application/javascript")
+		case strings.HasSuffix(r.URL.Path, ".png"):
+			w.Header().Set("Content-Type", "image/png")
+		case strings.HasSuffix(r.URL.Path, ".jpg"), strings.HasSuffix(r.URL.Path, ".jpeg"):
+			w.Header().Set("Content-Type", "image/jpeg")
+		case strings.HasSuffix(r.URL.Path, ".svg"):
+			w.Header().Set("Content-Type", "image/svg+xml")
+		case strings.HasSuffix(r.URL.Path, ".ico"):
+			w.Header().Set("Content-Type", "image/x-icon")
+		case strings.HasSuffix(r.URL.Path, ".json"):
+			w.Header().Set("Content-Type", "application/json")
+		}
+		http.FileServer(http.Dir("./static")).ServeHTTP(w, r)
+	})))
+
+	// Serve all static files that React expects at root level
+	r.HandleFunc("/manifest.json", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./static/manifest.json")
+	})
+	r.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./static/favicon.ico")
+	})
+	r.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./static/robots.txt")
+	})
+	r.HandleFunc("/logo192.png", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./static/logo192.png")
+	})
+	r.HandleFunc("/logo512.png", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./static/logo512.png")
+	})
+	r.HandleFunc("/asset-manifest.json", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./static/asset-manifest.json")
+	})
 
 	// API
 	api := r.PathPrefix("/api").Subrouter()
@@ -73,6 +112,34 @@ func main() {
 
 	// NEW: DVLA proxy/simulator
 	api.HandleFunc("/dvla/lookup", app.handleDVLALookup).Methods("GET")
+
+	// Document processing routes
+	api.HandleFunc("/process-document", ProcessDocumentHandler).Methods("POST")
+	api.HandleFunc("/validate-document", ValidateDocumentHandler).Methods("POST")
+
+	// AI Form Analysis routes
+	api.HandleFunc("/analyze-form", AnalyzeFormHandler).Methods("POST")
+	api.HandleFunc("/map-fields", MapFieldsHandler).Methods("POST")
+	api.HandleFunc("/shacl-transform", SHACLTransformHandler).Methods("POST")
+
+	// Web Spider routes
+	api.HandleFunc("/web-spider", WebSpiderHandler).Methods("POST")
+	api.HandleFunc("/extract-data", ExtractDataHandler).Methods("POST")
+	api.HandleFunc("/fill-form", FillFormHandler).Methods("POST")
+	
+	// Stealth Browser routes
+	api.HandleFunc("/stealth-browser", StealthBrowserHandler).Methods("POST")
+	
+	// Bitwarden Integration routes
+	api.HandleFunc("/bitwarden/login", BitwardenLoginHandler).Methods("POST")
+	api.HandleFunc("/bitwarden/unlock", BitwardenUnlockHandler).Methods("POST")
+	api.HandleFunc("/bitwarden/store-site", BitwardenStoreSiteHandler).Methods("POST")
+	api.HandleFunc("/bitwarden/store-banking", BitwardenStoreBankingHandler).Methods("POST")
+	api.HandleFunc("/bitwarden/get-site", BitwardenGetSiteHandler).Methods("GET")
+	api.HandleFunc("/bitwarden/get-banking", BitwardenGetBankingHandler).Methods("GET")
+	api.HandleFunc("/bitwarden/list-credentials", BitwardenListCredentialsHandler).Methods("GET")
+	api.HandleFunc("/bitwarden/sync", BitwardenSyncHandler).Methods("POST")
+	api.HandleFunc("/bitwarden/setup-templates", BitwardenSetupTemplatesHandler).Methods("POST")
 
 	// UI
 	r.HandleFunc("/", app.handleHome).Methods("GET")
@@ -192,7 +259,7 @@ func (app *App) loadSessionsFromDisk() error {
 
 // Handlers (existing)
 func (app *App) handleHome(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "./templates/index.html")
+	http.ServeFile(w, r, "./static/index.html")
 }
 
 func (app *App) handleCategoryList(w http.ResponseWriter, r *http.Request) {
@@ -273,7 +340,7 @@ func (app *App) handleValidateDriver(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Session not found", http.StatusNotFound)
 		return
 	}
-	
+
 	var req struct {
 		DriverIndex int                    `json:"driverIndex"`
 		Fields      map[string]interface{} `json:"fields"`
@@ -282,15 +349,15 @@ func (app *App) handleValidateDriver(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
-	
+
 	if req.DriverIndex < 0 || req.DriverIndex >= len(s.Drivers) {
 		http.Error(w, "Invalid driver index", http.StatusBadRequest)
 		return
 	}
-	
+
 	driver := s.Drivers[req.DriverIndex]
 	result := ValidationResult{Valid: true, Errors: []ValidationError{}}
-	
+
 	// Validate SELF relationship can only be used for main driver
 	if relationship, exists := req.Fields["relationshipToMainDriver"]; exists {
 		if relationship == "SELF" && driver.Classification != "MAIN" {
@@ -301,7 +368,7 @@ func (app *App) handleValidateDriver(w http.ResponseWriter, r *http.Request) {
 			})
 		}
 	}
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(result)
 }
@@ -382,12 +449,12 @@ func (app *App) validateCategory(category string, data map[string]interface{}) V
 			}
 		}
 	}
-	
+
 	// Special validation for driver relationships
 	if category == "drivers" {
 		app.validateDriverRelationships(data, &result)
 	}
-	
+
 	return result
 }
 
@@ -584,7 +651,6 @@ func simulateDVLA(reg string) map[string]interface{} {
 		"vin":          vin,
 	}
 }
-
 
 // Utility
 func base64Key(key []byte) string { return base64.StdEncoding.EncodeToString(key) }

@@ -1,215 +1,159 @@
-# AutoIns - Insurance Quote Application
+# 🏗️ Insurance Quote Application - Ontology-Driven Architecture
 
-A comprehensive insurance quote system with ontology-driven form generation, intelligent document processing, and modern React frontends.
+## 🎯 Overview
+This application uses **ontology-driven development** where the application structure, forms, validation, and UI are all defined in ontology files (RDF/TTL + JSON) and interpreted by a Go backend to serve a React frontend.
 
-## 🏗️ Project Structure
+## 🏗️ Architecture
 
+### Core Components
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   ONTOLOGY      │    │   GO BACKEND    │    │  REACT FRONTEND │
+│   FILES         │    │   (Interpreter) │    │   (UI Renderer) │
+├─────────────────┤    ├─────────────────┤    ├─────────────────┤
+│ • autoins.ttl   │───▶│ • LoadOntology()│───▶│ • Sidebar Menu  │
+│ • categories.json│   │ • API Endpoints │   │ • Form Builder  │
+│ • fields.json   │   │ • SHACL Validation│   │ • State Mgmt    │
+│ • subforms.json │   │ • Session Mgmt   │   │ • Validation    │
+│ • settings.ttl  │   │ • File Serving   │   │                 │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
+
+### Key Principles
+1. **Ontology-First**: All application structure defined in RDF/TTL + JSON
+2. **Go Interpreter**: Backend reads ontology, serves API, validates with SHACL
+3. **React Renderer**: Frontend consumes API, builds UI dynamically
+4. **Static File Structure**: React build → `static/` → Go serves correctly
+
+## 📁 File Structure
 ```
 insurance-quote-app/
-├── ontology/                    # TTL Ontologies
-│   ├── autoins.ttl             # Main insurance ontology
-│   ├── passport.ttl            # Passport document ontology
-│   ├── driving_licence.ttl     # Driving licence document ontology
-│   └── settings.ttl            # Settings application ontology
-├── insurance-frontend/          # React insurance application
-├── settings-frontend/           # React settings application
-├── form_generator/             # Go backend for form generation
-├── sessions/                   # Session management
-├── static/                     # Static assets
-└── templates/                  # HTML templates
+├── ontology/           # 🧠 BRAIN - Application Definition
+│   ├── autoins.ttl    # Main insurance ontology (RDF/OWL)
+│   ├── categories.json # Menu structure & navigation
+│   ├── fields.json    # Form field definitions
+│   ├── subforms.json  # Dynamic form components
+│   └── settings.ttl   # Configuration & validation
+├── main.go            # 🚀 SERVER - Go backend
+├── parser.go          # 📖 INTERPRETER - Ontology loader
+├── types.go           # 🏗️ STRUCTURES - Go data models
+├── insurance-frontend/ # 🎨 UI - React application
+│   ├── src/App.tsx    # Main React component
+│   └── build/         # Compiled React files
+└── static/            # 🌐 SERVED - Go serves React build
+    ├── index.html     # React entry point
+    ├── js/            # React JavaScript
+    └── css/           # React stylesheets
 ```
 
-## 🚀 Applications
+## 🚀 Quick Start
 
-### 1. Insurance Frontend (`insurance-frontend/`)
-
-**Modern React application for insurance quote processing with intelligent document upload and processing.**
-
-#### Features:
-- **Ontology-Driven Forms**: Dynamic form generation based on TTL ontologies
-- **Intelligent Document Processing**: 
-  - Passport recognition and field extraction
-  - Driving licence front/back processing
-  - Name matching and driver creation/updates
-- **Real-time Chatbot**: AI assistant for document processing feedback
-- **Multi-language Support**: English and German
-- **Progress Tracking**: Visual progress indicators
-- **Responsive Design**: Modern UI with Tailwind CSS and Flowbite
-
-#### Technology Stack:
-- React 18 + TypeScript
-- Tailwind CSS
-- Flowbite React Components
-- Lucide React Icons
-
-#### Key Features:
-- **Document Upload**: Drag & drop file upload with OCR simulation
-- **Smart Matching**: Name + DOB matching for existing drivers
-- **Auto-fill**: Automatic form population from documents
-- **Visual Feedback**: Real-time processing status and notifications
-- **Passport Processing**: Complete passport field extraction
-- **Driving Licence Processing**: Front and back side processing
-
-### 2. Settings Frontend (`settings-frontend/`)
-
-**Comprehensive settings management application for insurance configuration.**
-
-#### Features:
-- **Bank Account Management**: Up to 8 accounts with Open Banking support
-- **Credit Card Management**: Up to 8 cards with digital wallet integration
-- **Communication Channels**: Email, SMS, Voice, Secure Messenger
-- **Security Settings**: PCI-compliant credential management
-- **Document Upload**: Configuration document processing
-- **Multi-language Support**: i18n ready
-
-#### Technology Stack:
-- React 18 + TypeScript
-- Tailwind CSS
-- Flowbite React Components
-- Lucide React Icons
-
-## 🧠 Ontology System
-
-### Core Ontologies:
-
-#### `autoins.ttl` - Main Insurance Ontology
-- Complete driver, vehicle, and policy definitions
-- SHACL validation rules
-- Document processing rules
-- Multi-language support
-
-#### `passport.ttl` - Passport Document Ontology
-- All passport field definitions
-- Insurance field mapping
-- Processing rules and validation
-- Front/back side differentiation
-
-#### `driving_licence.ttl` - Driving Licence Document Ontology
-- Front side fields (personal info, licence details)
-- Back side fields (entitlements, restrictions)
-- Category A-Z entitlement mapping
-- Processing rules for both sides
-
-#### `settings.ttl` - Settings Application Ontology
-- Bank account configurations
-- Credit card management
-- Communication channel settings
-- Security and compliance rules
-
-## 🛠️ Setup Instructions
-
-### Prerequisites
-- Node.js 18+
-- Go 1.21+
-- Git
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd insurance-quote-app
-   ```
-
-2. **Install Insurance Frontend Dependencies**
-   ```bash
-   cd insurance-frontend
-   npm install
-   ```
-
-3. **Install Settings Frontend Dependencies**
-   ```bash
-   cd ../settings-frontend
-   npm install
-   ```
-
-4. **Install Go Dependencies**
-   ```bash
-   cd ..
-   go mod tidy
-   ```
-
-### Running the Applications
-
-#### Insurance Frontend
+### 1. Build React Frontend
 ```bash
 cd insurance-frontend
-npm start
+npm run build
+cd ..
+cp -r insurance-frontend/build/* static/
 ```
-Access at: http://localhost:3000
 
-#### Settings Frontend
+### 2. Start Go Backend
 ```bash
-cd settings-frontend
-npm start
+go build -o insurance-quote-app .
+./insurance-quote-app
 ```
-Access at: http://localhost:3001
 
-#### Go Backend (Form Generator)
+### 3. Access Application
+Open http://localhost:3000
+
+## 🔧 Critical Configuration
+
+### Go Server Configuration
+- **Root route**: Serves `./static/index.html` (React build)
+- **Static files**: Serves `./static/js/` and `./static/css/`
+- **API endpoints**: `/api/category/list`, `/api/category/{id}`
+
+### React Build Process
+1. React builds to `insurance-frontend/build/`
+2. Copy build files to `static/` directory
+3. Go server serves from `static/` directory
+
+### File Serving Fix
+**IMPORTANT**: React creates nested `static/static/` structure. Fix with:
 ```bash
-go run main.go
+cp -r static/static/js/* static/js/
+cp -r static/static/css/* static/css/
+rm -rf static/static
 ```
 
-## 🔧 Development
+## 🎨 UI Components
 
-### Adding New Document Types
-
-1. Create new ontology file in `ontology/` directory
-2. Define document fields and processing rules
-3. Update `autoins.ttl` with new document class
-4. Add processing logic in React frontend
-
-### Ontology Development
-
-The system uses TTL (Turtle) format for ontologies with:
-- RDF Schema for class definitions
-- SHACL for validation rules
-- Custom properties for UI mapping
-- Multi-language support
-
-### Frontend Development
-
-Both React applications use:
-- TypeScript for type safety
-- Tailwind CSS for styling
-- Flowbite for UI components
-- Lucide React for icons
-
-## 🎯 Key Features
-
-### Document Processing
-- **OCR Simulation**: Document type recognition
-- **Field Extraction**: Automatic data extraction
-- **Smart Matching**: Name and DOB-based driver matching
-- **Conflict Resolution**: Handle data conflicts intelligently
-- **Real-time Feedback**: Chatbot integration for processing status
+### Hierarchical Sidebar Menu
+- **Structure**: Defined in `menuStructure` array in App.tsx
+- **Sections**: Car Insurance, Settings
+- **Subcategories**: Expandable/collapsible
+- **State**: `expandedSections` manages open/closed state
 
 ### Form Generation
-- **Dynamic Forms**: Ontology-driven form creation
-- **Validation**: SHACL-based field validation
-- **Conditional Logic**: Show/hide fields based on conditions
-- **Multi-language**: Full i18n support
+- **Source**: Ontology files define form structure
+- **API**: `/api/category/{id}` returns field definitions
+- **Rendering**: React builds forms dynamically
 
-### Settings Management
-- **Bank Integration**: Open Banking support
-- **Digital Wallets**: Apple Pay, Google Pay integration
-- **Communication**: Multi-channel communication setup
-- **Security**: PCI-compliant credential storage
+## 🔍 Troubleshooting
 
-## 📝 License
+### Blank Screen Issues
+1. Check static file serving: `curl http://localhost:3000/static/js/main.*.js`
+2. Verify file structure: `ls -la static/js/`
+3. Check browser console for 404 errors
 
-This project is licensed under the MIT License.
+### Sidebar Not Showing
+1. Verify React build: `npm run build` in insurance-frontend
+2. Copy build files: `cp -r insurance-frontend/build/* static/`
+3. Check file structure: No nested `static/static/` directories
 
-## 🤝 Contributing
+### API Errors
+1. Check ontology files exist: `ls -la ontology/`
+2. Verify Go server running: `curl http://localhost:3000/api/category/list`
+3. Check Go compilation: `go build .`
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+## 🧠 Ontology-Driven Development
 
-## 📞 Support
+### Adding New Features
+1. **Define in Ontology**: Add to `categories.json`, `fields.json`, etc.
+2. **Update Go Types**: Modify `types.go` if needed
+3. **Update React**: Add UI components in `App.tsx`
+4. **Rebuild**: `npm run build` → copy to `static/`
 
-For support and questions, please open an issue in the GitHub repository.
+### Menu Structure
+```javascript
+const menuStructure = [
+  {
+    id: 'car-insurance',
+    title: 'Car Insurance',
+    icon: Shield,
+    categories: [
+      { id: 'drivers', title: 'Driver Details', icon: User },
+      { id: 'vehicle', title: 'Vehicle Details', icon: Car },
+      // ... more categories
+    ]
+  }
+];
+```
+
+## 🔒 Security & Validation
+- **SHACL Shapes**: Defined in TTL files for validation
+- **Session Management**: Go handles user sessions
+- **API Security**: CORS configured for development
+
+## 📚 Dependencies
+- **Go**: 1.21+
+- **Node.js**: 16+
+- **React**: 18+
+- **Tailwind CSS**: Styling
+- **Flowbite**: UI Components
+- **Lucide**: Icons
+
+---
+
+**Remember**: This is an ontology-driven application. The ontology files are the source of truth for all application behavior!
 
 

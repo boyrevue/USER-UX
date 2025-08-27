@@ -14,7 +14,16 @@ import {
   HelpCircle,
   Upload,
   Mail,
-  CheckCircle
+  CheckCircle,
+  Navigation,
+  Brain,
+  Scan,
+  Key,
+  Zap,
+  FileSearch,
+  MapPin,
+  Target,
+  Wand2
 } from 'lucide-react';
 import { 
   Card, 
@@ -186,35 +195,117 @@ interface QuoteSession {
   completedAt?: string;
 }
 
-const categories = [
-  { id: 'drivers', title: 'Driver Details', icon: User, order: 1, description: 'Information about all drivers' },
-  { id: 'vehicle', title: 'Vehicle Details', icon: Car, order: 2, description: 'Vehicle information and modifications' },
-  { id: 'policy', title: 'Policy Details', icon: FileText, order: 3, description: 'Coverage and policy options' },
-  { id: 'claims', title: 'Claims History', icon: Shield, order: 4, description: 'Previous claims and convictions' },
-  { id: 'payment', title: 'Payment & Extras', icon: CreditCard, order: 5, description: 'Payment method and additional cover' },
-  { id: 'marketing', title: 'Marketing Preferences', icon: Settings, order: 6, description: 'Communication preferences' }
-];
+
 
 // Language translations
-const translations = {
+const translations: {[key: string]: {[key: string]: string}} = {
   en: {
     driverDetails: 'Driver Details',
     vehicleDetails: 'Vehicle Details',
     policyDetails: 'Policy Details',
     claimsHistory: 'Claims History',
-    paymentExtras: 'Payment & Extras',
+    paymentExtras: 'Insurance Payments',
     marketingPreferences: 'Marketing Preferences',
+    personalDocuments: 'Personal Documents',
+    // Navigate and Fill Menu
+    navigateAndFill: 'Navigate & Fill',
+    navigateAndFillDesc: 'AI-powered form analysis and automated filling tools',
+    formAnalyzer: 'Form Analyzer',
+    formAnalyzerDesc: 'Analyze external forms using AI and map fields to your data',
+    bitwardenIntegration: 'Bitwarden Integration',
+    bitwardenIntegrationDesc: 'Auto-fill forms using your Bitwarden vault data',
+    smartMapping: 'Smart Mapping',
+    smartMappingDesc: 'Intelligent field mapping with SHACL transformation',
+    formNavigator: 'Form Navigator',
+    formNavigatorDesc: 'Navigate and analyze web forms automatically',
+    autoFill: 'Auto Fill',
+    autoFillDesc: 'Automatically populate forms with your saved data',
+    // Web Spider Features
+    webSpider: 'Web Spider',
+    dataExtraction: 'Data Extraction',
+    dataExtractionComplete: 'Data extraction completed successfully',
+    formFillComplete: 'Form filling completed successfully',
+    extractFromWebsite: 'Extract from Website',
+    fillExternalForm: 'Fill External Form',
+    spiderConfiguration: 'Spider Configuration',
+    headlessMode: 'Headless Mode',
+    takeScreenshots: 'Take Screenshots',
+    waitForLoad: 'Wait for Page Load',
+    enableJavaScript: 'Enable JavaScript',
+    cssSelectors: 'CSS Selectors',
+    extractData: 'Extract Data',
+    fillForm: 'Fill Form',
+    extractionResults: 'Extraction Results',
+    recentTasks: 'Recent Tasks',
+    // Bitwarden & Stealth Browser
+    bitwardenUnlocked: 'Bitwarden vault unlocked successfully',
+    templatesCreated: 'Credential templates created successfully',
+    browserSessionCreated: 'Stealth browser session created',
+    loginSuccessful: 'Login successful',
+    loginFailed: 'Login may have failed',
+    stealthBrowser: 'Stealth Browser',
+    unlockVault: 'Unlock Vault',
+    setupTemplates: 'Setup Credential Templates',
+    autoLogin: 'Auto Login',
+    antiBotProtection: 'Anti-Bot Protection',
+    drivingLicence: 'Driving Licence',
+    identityCard: 'Identity Card',
+    utilityBill: 'Utility Bill',
+    vehicleRegistration: 'Vehicle Registration',
+    bankStatement: 'Bank Statement',
+    medicalCertificate: 'Medical Certificate',
+    insuranceQuote: 'Insurance Quote',
+    insurancePolicy: 'Insurance Policy',
+    documentProcessing: 'Document Processing',
+    uploadDocument: 'Upload Document',
+    dragDropFiles: 'Drag and drop files here, or click to browse',
+    dropFilesHere: 'Drop files here',
+    chooseFile: 'Choose File',
+    processing: 'Processing...',
+    processDocument: 'Process Document',
+    backToSelection: 'Back to Selection',
+    cancel: 'Cancel',
+    uploadedFiles: 'Uploaded Files',
+    numberOfPassports: 'Number of Passports',
+    passportUpload: 'Upload passport document',
+    drivingLicenceUpload: 'Upload driving licence (front & back)',
+    identityCardUpload: 'Upload national ID or identity card',
+    utilityBillUpload: 'Upload proof of address',
+    vehicleRegistrationUpload: 'Upload V5C or registration document',
+    bankStatementUpload: 'Upload recent bank statement',
+    medicalCertificateUpload: 'Upload medical or fitness certificate',
+    insuranceQuoteUpload: 'Upload existing insurance quote',
+    insurancePolicyUpload: 'Upload current/previous policy',
+    frontSide: 'Front Side',
+    backSide: 'Back Side',
+    passportNumber: 'Passport Number',
+    issuingCountry: 'Issuing Country',
+    issueDate: 'Issue Date',
+    expiryDate: 'Expiry Date',
+
+    selectCountry: 'Select country',
+    selectType: 'Select type',
+    selectGender: 'Select gender',
+    enterPassportNumber: 'Enter passport number',
+    enterLicenceNumber: 'Enter licence number',
+    asShownOnPassport: 'As shown on passport',
+    asShownOnDocument: 'As shown on document',
+    carInsurance: 'Car Insurance',
+    settings: 'Settings',
+    driverDetailsDesc: 'Information about all drivers',
+    vehicleDetailsDesc: 'Vehicle information and modifications',
+    policyDetailsDesc: 'Coverage and policy options',
+    claimsHistoryDesc: 'Previous claims and convictions',
+    paymentExtrasDesc: 'Payment method and additional cover',
+    marketingPreferencesDesc: 'Communication preferences',
     mainDriver: 'Main Driver',
     additionalDriver: 'Additional Driver',
     firstName: 'First Name',
     lastName: 'Last Name',
-    dateOfBirth: 'Date of Birth',
     email: 'Email',
     phone: 'Phone',
     address: 'Address',
     postcode: 'Postcode',
-    licenceType: 'Licence Type',
-    licenceNumber: 'Licence Number',
     yearsHeld: 'Years Held',
     pointsLost: 'Points Lost',
     licenceIssueDate: 'Licence Issue Date',
@@ -278,7 +369,47 @@ const translations = {
     claimsHistory: 'Schadenshistorie',
     paymentExtras: 'Zahlung & Extras',
     marketingPreferences: 'Marketing-Einstellungen',
-    mainDriver: 'Hauptfahrer',
+    // Navigate and Fill Menu
+    navigateAndFill: 'Navigieren & Ausfüllen',
+    navigateAndFillDesc: 'KI-gestützte Formularanalyse und automatische Ausfüllwerkzeuge',
+    formAnalyzer: 'Formular-Analyzer',
+    formAnalyzerDesc: 'Externe Formulare mit KI analysieren und Felder zu Ihren Daten zuordnen',
+    bitwardenIntegration: 'Bitwarden-Integration',
+    bitwardenIntegrationDesc: 'Formulare automatisch mit Ihren Bitwarden-Vault-Daten ausfüllen',
+    smartMapping: 'Intelligente Zuordnung',
+    smartMappingDesc: 'Intelligente Feldzuordnung mit SHACL-Transformation',
+    formNavigator: 'Formular-Navigator',
+    formNavigatorDesc: 'Web-Formulare automatisch navigieren und analysieren',
+    autoFill: 'Automatisches Ausfüllen',
+    autoFillDesc: 'Formulare automatisch mit Ihren gespeicherten Daten ausfüllen',
+    // Web Spider Features
+    webSpider: 'Web-Spider',
+    dataExtraction: 'Datenextraktion',
+    dataExtractionComplete: 'Datenextraktion erfolgreich abgeschlossen',
+    formFillComplete: 'Formular-Ausfüllung erfolgreich abgeschlossen',
+    extractFromWebsite: 'Von Website extrahieren',
+    fillExternalForm: 'Externes Formular ausfüllen',
+    spiderConfiguration: 'Spider-Konfiguration',
+    headlessMode: 'Headless-Modus',
+    takeScreenshots: 'Screenshots erstellen',
+    waitForLoad: 'Auf Seitenladen warten',
+    enableJavaScript: 'JavaScript aktivieren',
+    cssSelectors: 'CSS-Selektoren',
+    extractData: 'Daten extrahieren',
+    fillForm: 'Formular ausfüllen',
+    extractionResults: 'Extraktionsergebnisse',
+    recentTasks: 'Letzte Aufgaben',
+    // Bitwarden & Stealth Browser
+    bitwardenUnlocked: 'Bitwarden-Tresor erfolgreich entsperrt',
+    templatesCreated: 'Anmeldedaten-Vorlagen erfolgreich erstellt',
+    browserSessionCreated: 'Stealth-Browser-Sitzung erstellt',
+    loginSuccessful: 'Anmeldung erfolgreich',
+    loginFailed: 'Anmeldung möglicherweise fehlgeschlagen',
+    stealthBrowser: 'Stealth-Browser',
+    unlockVault: 'Tresor entsperren',
+    setupTemplates: 'Anmeldedaten-Vorlagen einrichten',
+    autoLogin: 'Automatische Anmeldung',
+    antiBotProtection: 'Anti-Bot-Schutz',
     additionalDriver: 'Zusatzfahrer',
     firstName: 'Vorname',
     lastName: 'Nachname',
@@ -287,8 +418,6 @@ const translations = {
     phone: 'Telefon',
     address: 'Adresse',
     postcode: 'Postleitzahl',
-    licenceType: 'Führerscheintyp',
-    licenceNumber: 'Führerscheinnummer',
     yearsHeld: 'Jahre gehalten',
     pointsLost: 'Punkte verloren',
     licenceIssueDate: 'Führerschein Ausstellungsdatum',
@@ -343,12 +472,651 @@ const translations = {
     emailSent: 'E-Mail gesendet',
     emailSentDate: 'E-Mail gesendet am',
     sendEmailToDriver: 'E-Mail an Fahrer senden',
-    emailDriverForm: 'Fahrerformular per E-Mail'
+    emailDriverForm: 'Fahrerformular per E-Mail',
+    personalDocuments: 'Persönliche Dokumente',
+    documentProcessing: 'Dokumentenverarbeitung',
+    uploadDocument: 'Dokument hochladen',
+    dragDropFiles: 'Dateien hier ablegen oder klicken zum Durchsuchen',
+    dropFilesHere: 'Dateien hier ablegen',
+    chooseFile: 'Datei auswählen',
+    processing: 'Verarbeitung...',
+    processDocument: 'Dokument verarbeiten',
+    backToSelection: 'Zurück zur Auswahl',
+    cancel: 'Abbrechen',
+    uploadedFiles: 'Hochgeladene Dateien',
+    numberOfPassports: 'Anzahl der Pässe',
+    passport: 'Reisepass',
+    passportUpload: 'Reisepass-Dokument hochladen',
+    drivingLicence: 'Führerschein',
+    drivingLicenceUpload: 'Führerschein hochladen (Vorder- und Rückseite)',
+    identityCard: 'Personalausweis',
+    identityCardUpload: 'Personalausweis oder Identitätskarte hochladen',
+    utilityBill: 'Nebenkostenabrechnung',
+    utilityBillUpload: 'Adressnachweis hochladen',
+    vehicleRegistration: 'Fahrzeugschein',
+    vehicleRegistrationUpload: 'Fahrzeugschein oder Zulassungsbescheinigung hochladen',
+    bankStatement: 'Kontoauszug',
+    bankStatementUpload: 'Aktuellen Kontoauszug hochladen',
+    medicalCertificate: 'Ärztliches Attest',
+    medicalCertificateUpload: 'Ärztliches Attest oder Tauglichkeitszeugnis hochladen',
+    insuranceQuote: 'Versicherungsangebot',
+    insuranceQuoteUpload: 'Bestehendes Versicherungsangebot hochladen',
+    insurancePolicy: 'Versicherungspolice',
+    insurancePolicyUpload: 'Aktuelle/vorherige Versicherungspolice hochladen',
+    frontSide: 'Vorderseite',
+    backSide: 'Rückseite',
+    passportNumber: 'Reisepassnummer',
+    issuingCountry: 'Ausstellendes Land',
+    issueDate: 'Ausstellungsdatum',
+    expiryDate: 'Ablaufdatum',
+
+    selectCountry: 'Land auswählen',
+    selectType: 'Typ auswählen',
+    selectGender: 'Geschlecht auswählen',
+    enterPassportNumber: 'Reisepassnummer eingeben',
+    enterLicenceNumber: 'Führerscheinnummer eingeben',
+    asShownOnPassport: 'Wie im Reisepass angegeben',
+    asShownOnDocument: 'Wie im Dokument angegeben',
+    carInsurance: 'Autoversicherung',
+    settings: 'Einstellungen',
+    driverDetailsDesc: 'Informationen über alle Fahrer',
+    vehicleDetailsDesc: 'Fahrzeuginformationen und Modifikationen',
+    policyDetailsDesc: 'Deckung und Policenoptionen',
+    claimsHistoryDesc: 'Frühere Schäden und Verurteilungen',
+    paymentExtrasDesc: 'Zahlungsmethode und zusätzliche Deckung',
+    marketingPreferencesDesc: 'Kommunikationseinstellungen'
   }
 };
 
 function App() {
   const [activeCategory, setActiveCategory] = useState(0);
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['car-insurance']));
+  const [showDocumentModal, setShowDocumentModal] = useState(false);
+  const [selectedDocumentType, setSelectedDocumentType] = useState<string>('');
+  const [documentFiles, setDocumentFiles] = useState<{[key: string]: File[]}>({});
+  const [isDragOverDocument, setIsDragOverDocument] = useState(false);
+  const [extractedData, setExtractedData] = useState<{[key: string]: any}>({});
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [passportCount, setPassportCount] = useState(1);
+  
+  // AI Form Analysis State
+  const [showFormAnalyzer, setShowFormAnalyzer] = useState(false);
+  const [analysisResults, setAnalysisResults] = useState<any>(null);
+  const [fieldMappings, setFieldMappings] = useState<any[]>([]);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisType, setAnalysisType] = useState<'document' | 'html' | 'url' | 'stealth'>('document');
+  
+  // Web Spider State
+  const [spiderTasks, setSpiderTasks] = useState<any[]>([]);
+  const [isSpiderRunning, setIsSpiderRunning] = useState(false);
+  const [extractionResults, setExtractionResults] = useState<any>(null);
+  const [spiderConfig, setSpiderConfig] = useState({
+    headless: true,
+    screenshots: false,
+    waitForLoad: true,
+    javascript: true
+  });
+
+  // Stealth Browser State
+  const [browserSession, setBrowserSession] = useState<any>(null);
+  const [isBrowserRunning, setIsBrowserRunning] = useState(false);
+  const [browserScreenshot, setBrowserScreenshot] = useState<string>('');
+  
+  // Bitwarden State
+  const [bitwardenUnlocked, setBitwardenUnlocked] = useState(false);
+  const [availableCredentials, setAvailableCredentials] = useState<any[]>([]);
+  const [selectedSite, setSelectedSite] = useState<string>('moneysupermarket.com');
+
+
+
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(sectionId)) {
+        newSet.delete(sectionId);
+      } else {
+        newSet.add(sectionId);
+      }
+      return newSet;
+    });
+  };
+
+  // Document upload handlers
+  const handleDocumentDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOverDocument(true);
+  };
+
+  const handleDocumentDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOverDocument(false);
+  };
+
+  const handleDocumentDrop = (e: React.DragEvent, uploadType: string = 'main') => {
+    e.preventDefault();
+    setIsDragOverDocument(false);
+    const files = Array.from(e.dataTransfer.files);
+    handleDocumentFiles(files, uploadType);
+  };
+
+  const handleDocumentFileSelect = (e: React.ChangeEvent<HTMLInputElement>, uploadType: string = 'main') => {
+    const files = Array.from(e.target.files || []);
+    handleDocumentFiles(files, uploadType);
+  };
+
+  const handleDocumentFiles = (files: File[], uploadType: string = 'main') => {
+    const key = `${selectedDocumentType}_${uploadType}`;
+    setDocumentFiles(prev => ({
+      ...prev,
+      [key]: [...(prev[key] || []), ...files]
+    }));
+    
+    // Auto-process if files are uploaded
+    if (files.length > 0) {
+      processDocumentOCR(files, uploadType);
+    }
+  };
+
+  const removeDocumentFile = (fileIndex: number, uploadType: string = 'main') => {
+    const key = `${selectedDocumentType}_${uploadType}`;
+    setDocumentFiles(prev => ({
+      ...prev,
+      [key]: prev[key]?.filter((_, index) => index !== fileIndex) || []
+    }));
+  };
+
+  // OCR Processing Functions
+  const processDocumentOCR = async (files: File[], uploadType: string = 'main') => {
+    if (!selectedDocumentType || files.length === 0) return;
+    
+    setIsProcessing(true);
+    
+    try {
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('documentType', selectedDocumentType);
+        formData.append('uploadType', uploadType);
+        
+        const response = await fetch('/api/process-document', {
+          method: 'POST',
+          body: formData
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          setExtractedData(prev => ({
+            ...prev,
+            [`${selectedDocumentType}_${uploadType}_${file.name}`]: result
+          }));
+          
+          // Auto-populate form fields with extracted data
+          populateFormFields(result, uploadType);
+        }
+      }
+    } catch (error) {
+      console.error('OCR processing failed:', error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const populateFormFields = (data: any, uploadType: string) => {
+    if (selectedDocumentType === 'driving-licence') {
+      if (uploadType === 'front' && data.licenceNumber) {
+        const input = document.getElementById('licenceNumber') as HTMLInputElement;
+        if (input) input.value = data.licenceNumber;
+      }
+      if (data.expiryDate) {
+        const input = document.getElementById('licenceExpiryDate') as HTMLInputElement;
+        if (input) input.value = data.expiryDate;
+      }
+      if (data.issueDate) {
+        const input = document.getElementById('licenceIssueDate') as HTMLInputElement;
+        if (input) input.value = data.issueDate;
+      }
+    } else if (selectedDocumentType === 'passport') {
+      // Extract passport number from uploadType (e.g., "passport_1" -> "1")
+      const passportNum = uploadType.includes('passport_') ? uploadType.split('_')[1] : '1';
+      
+      if (data.passportNumber) {
+        const input = document.getElementById(`passportNumber_${passportNum}`) as HTMLInputElement;
+        if (input) input.value = data.passportNumber;
+      }
+      if (data.issuingCountry) {
+        const select = document.getElementById(`passportCountry_${passportNum}`) as HTMLSelectElement;
+        if (select) select.value = data.issuingCountry;
+      }
+      if (data.expiryDate) {
+        const input = document.getElementById(`passportExpiryDate_${passportNum}`) as HTMLInputElement;
+        if (input) input.value = data.expiryDate;
+      }
+      if (data.issueDate) {
+        const input = document.getElementById(`passportIssueDate_${passportNum}`) as HTMLInputElement;
+        if (input) input.value = data.issueDate;
+      }
+      if (data.givenNames) {
+        const input = document.getElementById(`passportGivenNames_${passportNum}`) as HTMLInputElement;
+        if (input) input.value = data.givenNames;
+      }
+      if (data.surname) {
+        const input = document.getElementById(`passportSurname_${passportNum}`) as HTMLInputElement;
+        if (input) input.value = data.surname;
+      }
+      if (data.dateOfBirth) {
+        const input = document.getElementById(`passportDateOfBirth_${passportNum}`) as HTMLInputElement;
+        if (input) input.value = data.dateOfBirth;
+      }
+      if (data.gender) {
+        const select = document.getElementById(`passportGender_${passportNum}`) as HTMLSelectElement;
+        if (select) select.value = data.gender;
+      }
+    }
+  };
+
+  const validateWithSHACL = async (documentType: string, data: any) => {
+    try {
+      const response = await fetch('/api/validate-document', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          documentType,
+          data
+        })
+      });
+      
+      if (response.ok) {
+        const validation = await response.json();
+        return validation;
+      }
+    } catch (error) {
+      console.error('SHACL validation failed:', error);
+    }
+    return null;
+  };
+
+  // AI Form Analysis Functions
+  const analyzeForm = async (file?: File, htmlContent?: string, url?: string) => {
+    setIsAnalyzing(true);
+    try {
+      const formData = new FormData();
+      formData.append('analysisType', analysisType);
+      
+      if (analysisType === 'document' && file) {
+        formData.append('document', file);
+      } else if (analysisType === 'html' && htmlContent) {
+        formData.append('htmlContent', htmlContent);
+      } else if (analysisType === 'url' && url) {
+        formData.append('url', url);
+      }
+
+      const response = await fetch('/api/analyze-form', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setAnalysisResults(result);
+        
+        // Automatically generate field mappings
+        await generateFieldMappings(result);
+      } else {
+        console.error('Form analysis failed');
+      }
+    } catch (error) {
+      console.error('Form analysis error:', error);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const generateFieldMappings = async (formAnalysis: any) => {
+    try {
+      const response = await fetch('/api/map-fields', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formAnalysis),
+      });
+
+      if (response.ok) {
+        const mappingResult = await response.json();
+        setFieldMappings(mappingResult.mappings);
+        console.log('Generated field mappings:', mappingResult);
+      }
+    } catch (error) {
+      console.error('Field mapping error:', error);
+    }
+  };
+
+  const applyFieldMappings = async () => {
+    if (!fieldMappings.length) return;
+
+    try {
+      // Transform the current session data using SHACL rules
+      const transformRequest = {
+        sourceData: session,
+        targetShape: 'autoins:PersonShape',
+        mappings: fieldMappings,
+        options: {
+          strictValidation: false,
+          language: session.language,
+          preserveOriginal: true
+        }
+      };
+
+      const response = await fetch('/api/shacl-transform', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(transformRequest),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          // Apply transformed data to session
+          const updatedSession = { ...session, ...result.transformedData };
+          setSession(updatedSession);
+          
+          // Show success notification
+          setNotification({
+            type: 'success',
+            message: translations[session.language].fieldMappingApplied || 'Field mappings applied successfully'
+          });
+        } else {
+          console.error('Transformation errors:', result.validationErrors);
+        }
+      }
+    } catch (error) {
+      console.error('Field mapping application error:', error);
+    }
+  };
+
+  // Web Spider Functions
+  const extractDataFromWebsite = async (url: string, selectors: any[]) => {
+    setIsSpiderRunning(true);
+    try {
+      const response = await fetch('/api/extract-data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url,
+          selectors,
+          options: spiderConfig
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setExtractionResults(result);
+        
+        // Auto-map extracted data to session if possible
+        if (result.extractedData) {
+          await mapExtractedDataToSession(result.extractedData);
+        }
+        
+        setNotification({
+          type: 'success',
+          message: translations[session.language].dataExtractionComplete || 'Data extraction completed'
+        });
+      } else {
+        console.error('Data extraction failed');
+      }
+    } catch (error) {
+      console.error('Data extraction error:', error);
+    } finally {
+      setIsSpiderRunning(false);
+    }
+  };
+
+  const fillExternalForm = async (url: string, formData: any, navigation?: any[]) => {
+    setIsSpiderRunning(true);
+    try {
+      const response = await fetch('/api/fill-form', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url,
+          formData,
+          navigation: navigation || [],
+          options: spiderConfig
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Form fill result:', result);
+        
+        setNotification({
+          type: 'success',
+          message: translations[session.language].formFillComplete || 'Form filling completed'
+        });
+      } else {
+        console.error('Form filling failed');
+      }
+    } catch (error) {
+      console.error('Form filling error:', error);
+    } finally {
+      setIsSpiderRunning(false);
+    }
+  };
+
+  const mapExtractedDataToSession = async (extractedData: any) => {
+    // Intelligent mapping of extracted data to session fields
+    const mappings: any = {};
+    
+    // Common field mappings
+    const fieldMappings: {[key: string]: string[]} = {
+      'firstName': ['first_name', 'fname', 'given_name', 'forename'],
+      'lastName': ['last_name', 'lname', 'surname', 'family_name'],
+      'email': ['email', 'email_address', 'e_mail'],
+      'phone': ['phone', 'telephone', 'mobile', 'phone_number'],
+      'address': ['address', 'street_address', 'addr1', 'address_line_1'],
+      'postcode': ['postcode', 'postal_code', 'zip', 'zip_code'],
+      'dateOfBirth': ['dob', 'date_of_birth', 'birth_date', 'birthdate']
+    };
+
+    // Map extracted data to session fields
+    Object.keys(extractedData).forEach(key => {
+      const lowerKey = key.toLowerCase();
+      Object.keys(fieldMappings).forEach(sessionField => {
+        if (fieldMappings[sessionField].some(pattern => lowerKey.includes(pattern))) {
+          mappings[sessionField] = extractedData[key];
+        }
+      });
+    });
+
+    // Update session with mapped data
+    if (Object.keys(mappings).length > 0) {
+      const updatedDrivers = [...session.drivers];
+      if (updatedDrivers.length > 0) {
+        updatedDrivers[0] = { ...updatedDrivers[0], ...mappings };
+        setSession({ ...session, drivers: updatedDrivers });
+      }
+    }
+  };
+
+  const createSpiderTask = (type: string, config: any) => {
+    const task = {
+      id: `task_${Date.now()}`,
+      type,
+      status: 'pending',
+      createdAt: new Date(),
+      ...config
+    };
+    
+    setSpiderTasks(prev => [...prev, task]);
+    return task;
+  };
+
+  // Bitwarden Functions
+  const unlockBitwarden = async (password: string) => {
+    try {
+      const response = await fetch('/api/bitwarden/unlock', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setBitwardenUnlocked(result.isUnlocked);
+        
+        // Load available credentials
+        await loadAvailableCredentials();
+        
+        setNotification({
+          type: 'success',
+          message: translations[session.language].bitwardenUnlocked || 'Bitwarden vault unlocked'
+        });
+      } else {
+        console.error('Failed to unlock Bitwarden');
+      }
+    } catch (error) {
+      console.error('Bitwarden unlock error:', error);
+    }
+  };
+
+  const loadAvailableCredentials = async () => {
+    try {
+      const response = await fetch('/api/bitwarden/list-credentials?category=site_login');
+      if (response.ok) {
+        const result = await response.json();
+        setAvailableCredentials(result.credentials || []);
+      }
+    } catch (error) {
+      console.error('Failed to load credentials:', error);
+    }
+  };
+
+  const setupBitwardenTemplates = async () => {
+    try {
+      const response = await fetch('/api/bitwarden/setup-templates', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          setupSites: true,
+          setupOpenBanking: true
+        }),
+      });
+
+      if (response.ok) {
+        await loadAvailableCredentials();
+        setNotification({
+          type: 'success',
+          message: translations[session.language].templatesCreated || 'Credential templates created'
+        });
+      }
+    } catch (error) {
+      console.error('Failed to setup templates:', error);
+    }
+  };
+
+  // Stealth Browser Functions
+  const createStealthSession = async (url: string) => {
+    setIsBrowserRunning(true);
+    try {
+      const response = await fetch('/api/stealth-browser', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'create',
+          url: url,
+          options: {
+            randomizeUserAgent: true,
+            randomizeViewport: true,
+            humanizeTyping: true,
+            humanizeClicks: true,
+            randomDelays: true,
+            stealthPlugins: true,
+            webrtcBlock: true,
+            canvasFingerprint: true,
+            audioFingerprint: true,
+            minDelay: 500,
+            maxDelay: 2000
+          }
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setBrowserSession(result);
+        setBrowserScreenshot(result.screenshot);
+        
+        setNotification({
+          type: 'success',
+          message: translations[session.language].browserSessionCreated || 'Stealth browser session created'
+        });
+      } else {
+        console.error('Failed to create stealth browser session');
+      }
+    } catch (error) {
+      console.error('Stealth browser error:', error);
+    } finally {
+      setIsBrowserRunning(false);
+    }
+  };
+
+  const loginToSite = async (siteName: string) => {
+    if (!browserSession) {
+      await createStealthSession('');
+    }
+
+    setIsBrowserRunning(true);
+    try {
+      const response = await fetch('/api/stealth-browser', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'login',
+          sessionId: browserSession?.sessionId || 'new',
+          loginSite: siteName
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setBrowserSession(result);
+        setBrowserScreenshot(result.screenshot);
+        
+        if (result.isLoggedIn) {
+          setNotification({
+            type: 'success',
+            message: translations[session.language].loginSuccessful || `Successfully logged in to ${siteName}`
+          });
+        } else {
+          setNotification({
+            type: 'info',
+            message: translations[session.language].loginFailed || `Login to ${siteName} may have failed`
+          });
+        }
+      } else {
+        console.error('Failed to login to site');
+      }
+    } catch (error) {
+      console.error('Site login error:', error);
+    } finally {
+      setIsBrowserRunning(false);
+    }
+  };
   const [session, setSession] = useState<QuoteSession>({
     id: '1',
     language: 'en',
@@ -374,9 +1142,9 @@ function App() {
         sameAddress: true,
         // Disabilities and Restrictions
         hasDisability: false,
-        disabilityType: '',
+        disabilityTypes: [],
         requiresAdaptations: false,
-        adaptationType: '',
+        adaptationTypes: [],
         automaticOnly: false,
         // Licence Classes
         licenceClassA: false,
@@ -439,6 +1207,53 @@ function App() {
     lastAccessed: new Date().toISOString()
   });
 
+  // Function to get menu structure with translations
+  const getMenuStructure = () => [
+    {
+      id: 'car-insurance',
+      title: translations[session.language].carInsurance,
+      icon: Shield,
+      categories: [
+        { id: 'drivers', title: translations[session.language].driverDetails, icon: User, order: 1, description: translations[session.language].driverDetailsDesc },
+        { id: 'vehicle', title: translations[session.language].vehicleDetails, icon: Car, order: 2, description: translations[session.language].vehicleDetailsDesc },
+        { id: 'policy', title: translations[session.language].policyDetails, icon: FileText, order: 3, description: translations[session.language].policyDetailsDesc },
+        { id: 'claims', title: translations[session.language].claimsHistory, icon: Shield, order: 4, description: translations[session.language].claimsHistoryDesc },
+        { id: 'payment', title: translations[session.language].paymentExtras, icon: CreditCard, order: 5, description: translations[session.language].paymentExtrasDesc }
+      ]
+    },
+    {
+      id: 'personal-documents',
+      title: translations[session.language].personalDocuments,
+      icon: Upload,
+      isModal: true,
+      categories: []
+    },
+    {
+      id: 'navigate-fill',
+      title: translations[session.language].navigateAndFill,
+      icon: Navigation,
+      categories: [
+        { id: 'form-analyzer', title: translations[session.language].formAnalyzer, icon: Brain, order: 1, description: translations[session.language].formAnalyzerDesc },
+        { id: 'bitwarden-integration', title: translations[session.language].bitwardenIntegration, icon: Key, order: 2, description: translations[session.language].bitwardenIntegrationDesc },
+        { id: 'smart-mapping', title: translations[session.language].smartMapping, icon: Target, order: 3, description: translations[session.language].smartMappingDesc },
+        { id: 'form-navigator', title: translations[session.language].formNavigator, icon: MapPin, order: 4, description: translations[session.language].formNavigatorDesc },
+        { id: 'auto-fill', title: translations[session.language].autoFill, icon: Zap, order: 5, description: translations[session.language].autoFillDesc }
+      ]
+    },
+    {
+      id: 'settings',
+      title: translations[session.language].settings,
+      icon: Settings,
+      categories: [
+        { id: 'marketing', title: translations[session.language].marketingPreferences, icon: Settings, order: 1, description: translations[session.language].marketingPreferencesDesc }
+      ]
+    }
+  ];
+
+  const menuStructure = getMenuStructure();
+  // Flatten categories for backward compatibility
+  const categories = menuStructure.flatMap(section => section.categories);
+
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [showDocumentUpload, setShowDocumentUpload] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
@@ -475,9 +1290,9 @@ function App() {
       sameAddress: false,
       // Disabilities and Restrictions
       hasDisability: false,
-      disabilityType: '',
+      disabilityTypes: [],
       requiresAdaptations: false,
-      adaptationType: '',
+      adaptationTypes: [],
       automaticOnly: false,
       // Licence Classes
       licenceClassA: false,
@@ -1016,9 +1831,9 @@ Insurance Quote System
         nationality: passportData.Nationality,
         // Disabilities and Restrictions
         hasDisability: false,
-        disabilityType: '',
+        disabilityTypes: [],
         requiresAdaptations: false,
-        adaptationType: '',
+        adaptationTypes: [],
         automaticOnly: false,
         // Licence Classes
         licenceClassA: false,
@@ -1201,9 +2016,9 @@ Insurance Quote System
         licenceEndorsements: licenceData.Endorsements,
         // Disabilities and Restrictions
         hasDisability: false,
-        disabilityType: '',
+        disabilityTypes: [],
         requiresAdaptations: false,
-        adaptationType: '',
+        adaptationTypes: [],
         automaticOnly: false,
         // Licence Classes
         licenceClassA: false,
@@ -1753,11 +2568,11 @@ Insurance Quote System
                     <div className="form-group">
                       <Label className="form-label">
                         {translations[session.language as keyof typeof translations].disabilityType}
-                        {getStatusBadge(true, !!driver.disabilityType)}
+                        {getStatusBadge(true, !!driver.disabilityTypes)}
                       </Label>
                       <Select
-                        value={driver.disabilityType}
-                        onChange={(e) => updateDriver(index, 'disabilityType', e.target.value)}
+                        value={driver.disabilityTypes}
+                        onChange={(e) => updateDriver(index, 'disabilityTypes', e.target.value)}
                         className="form-select"
                       >
                         <option value="">Select disability type</option>
@@ -1790,11 +2605,11 @@ Insurance Quote System
                       <div className="form-group">
                         <Label className="form-label">
                           {translations[session.language as keyof typeof translations].adaptationType}
-                          {getStatusBadge(true, !!driver.adaptationType)}
+                          {getStatusBadge(true, !!driver.adaptationTypes)}
                         </Label>
                         <Select
-                          value={driver.adaptationType}
-                          onChange={(e) => updateDriver(index, 'adaptationType', e.target.value)}
+                          value={driver.adaptationTypes}
+                          onChange={(e) => updateDriver(index, 'adaptationTypes', e.target.value)}
                           className="form-select"
                         >
                           <option value="">Select adaptation type</option>
@@ -2686,6 +3501,847 @@ Insurance Quote System
     </div>
   );
 
+  // Document Processing Sections
+  const renderPassportSection = () => (
+    <div className="space-y-6">
+      <Card>
+        <div className="p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <FileText className="w-6 h-6 text-blue-600" />
+            <h2 className="text-xl font-semibold text-gray-900">Passport Document Processing</h2>
+          </div>
+          
+          <div className="space-y-6">
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+              <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Upload Passport</h3>
+              <p className="text-gray-600 mb-4">Upload a clear photo or scan of your passport</p>
+              <Button color="blue">
+                <Upload className="w-4 h-4 mr-2" />
+                Choose File
+              </Button>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="passportNumber">Passport Number</Label>
+                <TextInput id="passportNumber" placeholder="Enter passport number" />
+              </div>
+              <div>
+                <Label htmlFor="passportCountry">Issuing Country</Label>
+                <Select id="passportCountry">
+                  <option value="">Select country</option>
+                  <option value="GB">United Kingdom</option>
+                  <option value="US">United States</option>
+                  <option value="DE">Germany</option>
+                  <option value="FR">France</option>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="passportIssueDate">Issue Date</Label>
+                <TextInput id="passportIssueDate" type="date" />
+              </div>
+              <div>
+                <Label htmlFor="passportExpiryDate">Expiry Date</Label>
+                <TextInput id="passportExpiryDate" type="date" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+
+  const renderDrivingLicenceSection = () => (
+    <div className="space-y-6">
+      <Card>
+        <div className="p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <CreditCard className="w-6 h-6 text-blue-600" />
+            <h2 className="text-xl font-semibold text-gray-900">Driving Licence Processing</h2>
+          </div>
+          
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <Upload className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+                <h4 className="font-medium text-gray-900 mb-2">Front Side</h4>
+                <p className="text-sm text-gray-600 mb-3">Upload front of licence</p>
+                <Button color="blue" size="sm">Choose File</Button>
+              </div>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <Upload className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+                <h4 className="font-medium text-gray-900 mb-2">Back Side</h4>
+                <p className="text-sm text-gray-600 mb-3">Upload back of licence</p>
+                <Button color="blue" size="sm">Choose File</Button>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="licenceNumber">Licence Number</Label>
+                <TextInput id="licenceNumber" placeholder="Enter licence number" />
+              </div>
+              <div>
+                <Label htmlFor="licenceType">Licence Type</Label>
+                <Select id="licenceType">
+                  <option value="">Select type</option>
+                  <option value="FULL">Full Licence</option>
+                  <option value="PROVISIONAL">Provisional</option>
+                  <option value="INTERNATIONAL">International</option>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="licenceIssueDate">Issue Date</Label>
+                <TextInput id="licenceIssueDate" type="date" />
+              </div>
+              <div>
+                <Label htmlFor="licenceExpiryDate">Expiry Date</Label>
+                <TextInput id="licenceExpiryDate" type="date" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+
+  const renderIdentityCardSection = () => (
+    <div className="space-y-6">
+      <Card>
+        <div className="p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <User className="w-6 h-6 text-blue-600" />
+            <h2 className="text-xl font-semibold text-gray-900">Identity Card Processing</h2>
+          </div>
+          
+          <div className="space-y-6">
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+              <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Upload Identity Card</h3>
+              <p className="text-gray-600 mb-4">Upload a clear photo or scan of your ID card</p>
+              <Button color="blue">
+                <Upload className="w-4 h-4 mr-2" />
+                Choose File
+              </Button>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="idNumber">ID Number</Label>
+                <TextInput id="idNumber" placeholder="Enter ID number" />
+              </div>
+              <div>
+                <Label htmlFor="idType">ID Type</Label>
+                <Select id="idType">
+                  <option value="">Select type</option>
+                  <option value="NATIONAL_ID">National ID Card</option>
+                  <option value="RESIDENCE_PERMIT">Residence Permit</option>
+                  <option value="WORK_PERMIT">Work Permit</option>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="idIssueDate">Issue Date</Label>
+                <TextInput id="idIssueDate" type="date" />
+              </div>
+              <div>
+                <Label htmlFor="idExpiryDate">Expiry Date</Label>
+                <TextInput id="idExpiryDate" type="date" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+
+  const renderUtilityBillSection = () => (
+    <div className="space-y-6">
+      <Card>
+        <div className="p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <FileText className="w-6 h-6 text-blue-600" />
+            <h2 className="text-xl font-semibold text-gray-900">Proof of Address</h2>
+          </div>
+          
+          <div className="space-y-6">
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+              <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Upload Utility Bill</h3>
+              <p className="text-gray-600 mb-4">Upload a recent utility bill or bank statement</p>
+              <Button color="blue">
+                <Upload className="w-4 h-4 mr-2" />
+                Choose File
+              </Button>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="billType">Document Type</Label>
+                <Select id="billType">
+                  <option value="">Select type</option>
+                  <option value="ELECTRICITY">Electricity Bill</option>
+                  <option value="GAS">Gas Bill</option>
+                  <option value="WATER">Water Bill</option>
+                  <option value="COUNCIL_TAX">Council Tax</option>
+                  <option value="BANK_STATEMENT">Bank Statement</option>
+                  <option value="PHONE">Phone Bill</option>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="billDate">Bill Date</Label>
+                <TextInput id="billDate" type="date" />
+              </div>
+              <div>
+                <Label htmlFor="billAddress">Address on Bill</Label>
+                <TextInput id="billAddress" placeholder="Address as shown on bill" />
+              </div>
+              <div>
+                <Label htmlFor="billPostcode">Postcode</Label>
+                <TextInput id="billPostcode" placeholder="Postcode" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+
+
+
+  // Navigate and Fill Section Renderers
+  const renderFormAnalyzerSection = () => (
+    <div className="space-y-6">
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="flex items-center space-x-3 mb-6">
+          <Brain className="w-6 h-6 text-blue-600" />
+          <h2 className="text-xl font-semibold text-gray-900">{translations[session.language].formAnalyzer}</h2>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <Card className="p-4 cursor-pointer hover:bg-gray-50 border-2 border-dashed border-gray-300" 
+                onClick={() => setAnalysisType('document')}>
+            <div className="text-center">
+              <FileSearch className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+              <h3 className="font-medium">Document Analysis</h3>
+              <p className="text-sm text-gray-600">Upload PDF or image forms</p>
+            </div>
+          </Card>
+          
+          <Card className="p-4 cursor-pointer hover:bg-gray-50 border-2 border-dashed border-gray-300"
+                onClick={() => setAnalysisType('html')}>
+            <div className="text-center">
+              <Scan className="w-8 h-8 text-green-600 mx-auto mb-2" />
+              <h3 className="font-medium">HTML Analysis</h3>
+              <p className="text-sm text-gray-600">Paste HTML form code</p>
+            </div>
+          </Card>
+          
+          <Card className="p-4 cursor-pointer hover:bg-gray-50 border-2 border-dashed border-gray-300"
+                onClick={() => setAnalysisType('url')}>
+            <div className="text-center">
+              <MapPin className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+              <h3 className="font-medium">URL Analysis</h3>
+              <p className="text-sm text-gray-600">Analyze forms from website</p>
+            </div>
+          </Card>
+
+          <Card className="p-4 cursor-pointer hover:bg-gray-50 border-2 border-dashed border-gray-300"
+                onClick={() => setAnalysisType('stealth')}>
+            <div className="text-center">
+              <Navigation className="w-8 h-8 text-red-600 mx-auto mb-2" />
+              <h3 className="font-medium">🥷 Stealth Browser</h3>
+              <p className="text-sm text-gray-600">Navigate with anti-bot protection</p>
+            </div>
+          </Card>
+        </div>
+
+        {analysisType === 'document' && (
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+            <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-lg font-medium text-gray-900 mb-2">Upload Form Document</p>
+            <p className="text-gray-600 mb-4">Drag and drop a PDF or image file, or click to browse</p>
+            <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="form-upload" 
+                   onChange={(e) => e.target.files?.[0] && analyzeForm(e.target.files[0])} />
+            <Button onClick={() => document.getElementById('form-upload')?.click()}>
+              Choose File
+            </Button>
+          </div>
+        )}
+
+        {analysisType === 'html' && (
+          <div className="space-y-4">
+            <Label htmlFor="html-content">HTML Form Code</Label>
+            <textarea id="html-content" rows={8} className="w-full border rounded-lg p-3" 
+                      placeholder="Paste your HTML form code here..."></textarea>
+            <Button onClick={() => {
+              const htmlContent = (document.getElementById('html-content') as HTMLTextAreaElement)?.value;
+              if (htmlContent) analyzeForm(undefined, htmlContent);
+            }}>
+              Analyze HTML
+            </Button>
+          </div>
+        )}
+
+        {analysisType === 'url' && (
+          <div className="space-y-4">
+            <Label htmlFor="form-url">Website URL</Label>
+            <TextInput id="form-url" placeholder="https://example.com/form" />
+            <Button onClick={() => {
+              const url = (document.getElementById('form-url') as HTMLInputElement)?.value;
+              if (url) analyzeForm(undefined, undefined, url);
+            }}>
+              Analyze URL
+            </Button>
+          </div>
+        )}
+
+        {isAnalyzing && (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Analyzing form structure...</p>
+          </div>
+        )}
+
+        {analysisType === 'stealth' && (
+          <div className="space-y-6">
+            {/* Bitwarden Integration */}
+            <Card className="p-6 bg-gradient-to-r from-blue-50 to-purple-50">
+              <div className="flex items-center space-x-3 mb-4">
+                <Key className="w-6 h-6 text-blue-600" />
+                <h3 className="font-medium">🔐 Bitwarden Integration</h3>
+                <Badge color={bitwardenUnlocked ? 'success' : 'warning'}>
+                  {bitwardenUnlocked ? 'Unlocked' : 'Locked'}
+                </Badge>
+              </div>
+              
+              {!bitwardenUnlocked ? (
+                <div className="space-y-3">
+                  <p className="text-gray-600">Unlock your Bitwarden vault to access stored credentials</p>
+                  <div className="flex space-x-3">
+                    <TextInput 
+                      type="password" 
+                      placeholder="Master password" 
+                      id="bitwarden-password"
+                      className="flex-1"
+                    />
+                    <Button onClick={() => {
+                      const password = (document.getElementById('bitwarden-password') as HTMLInputElement)?.value;
+                      if (password) unlockBitwarden(password);
+                    }}>
+                      Unlock Vault
+                    </Button>
+                  </div>
+                  <Button 
+                    outline 
+                    onClick={setupBitwardenTemplates}
+                    className="w-full"
+                  >
+                    Setup Credential Templates
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-green-700">✅ Vault unlocked - {availableCredentials.length} credentials available</p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    {availableCredentials.slice(0, 8).map((cred, index) => (
+                      <Button 
+                        key={index}
+                        size="sm"
+                        outline
+                        onClick={() => setSelectedSite(cred)}
+                        className={selectedSite === cred ? 'bg-blue-100' : ''}
+                      >
+                        {cred.replace('Site Login - ', '')}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </Card>
+
+            {/* Stealth Browser Interface */}
+            <Card className="p-6">
+              <div className="flex items-center space-x-3 mb-4">
+                <Navigation className="w-6 h-6 text-red-600" />
+                <h3 className="font-medium">🥷 Stealth Browser</h3>
+                <Badge color={browserSession ? 'success' : 'gray'}>
+                  {browserSession ? 'Active' : 'Inactive'}
+                </Badge>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Browser Controls */}
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="site-url">Target Website</Label>
+                    <Select 
+                      id="site-url"
+                      value={selectedSite}
+                      onChange={(e) => setSelectedSite(e.target.value)}
+                    >
+                      <option value="moneysupermarket.com">Money Supermarket</option>
+                      <option value="comparethemarket.com">Compare the Market</option>
+                      <option value="gocompare.com">Go Compare</option>
+                      <option value="confused.com">Confused.com</option>
+                      <option value="custom">Custom URL...</option>
+                    </Select>
+                  </div>
+
+                  {selectedSite === 'custom' && (
+                    <div>
+                      <Label htmlFor="custom-url">Custom URL</Label>
+                      <TextInput 
+                        id="custom-url" 
+                        placeholder="https://example.com"
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex space-x-3">
+                    <Button 
+                      onClick={() => {
+                        const url = selectedSite === 'custom' 
+                          ? (document.getElementById('custom-url') as HTMLInputElement)?.value
+                          : `https://www.${selectedSite}`;
+                        if (url) createStealthSession(url);
+                      }}
+                      disabled={isBrowserRunning}
+                      className="flex-1"
+                    >
+                      {isBrowserRunning ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Loading...
+                        </>
+                      ) : (
+                        <>
+                          <Navigation className="w-4 h-4 mr-2" />
+                          Navigate
+                        </>
+                      )}
+                    </Button>
+
+                    <Button 
+                      onClick={() => loginToSite(selectedSite)}
+                      disabled={isBrowserRunning || !bitwardenUnlocked}
+                      color="success"
+                    >
+                      <Key className="w-4 h-4 mr-2" />
+                      Auto Login
+                    </Button>
+                  </div>
+
+                  {/* Anti-Bot Features */}
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <h4 className="font-medium text-sm mb-2">🛡️ Anti-Bot Protection</h4>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="flex items-center space-x-1">
+                        <CheckCircle className="w-3 h-3 text-green-500" />
+                        <span>User Agent Rotation</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <CheckCircle className="w-3 h-3 text-green-500" />
+                        <span>Canvas Fingerprint</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <CheckCircle className="w-3 h-3 text-green-500" />
+                        <span>Human-like Typing</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <CheckCircle className="w-3 h-3 text-green-500" />
+                        <span>WebRTC Blocking</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Browser Preview */}
+                <div className="space-y-4">
+                  <div className="aspect-video bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+                    {browserScreenshot ? (
+                      <img 
+                        src={`/screenshots/${browserScreenshot}`} 
+                        alt="Browser Screenshot" 
+                        className="max-w-full max-h-full rounded"
+                      />
+                    ) : (
+                      <div className="text-center">
+                        <Navigation className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                        <p className="text-gray-500">Browser preview will appear here</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {browserSession && (
+                    <div className="space-y-2">
+                      <div className="text-sm">
+                        <span className="font-medium">URL:</span> 
+                        <span className="text-blue-600 ml-1">{browserSession.url}</span>
+                      </div>
+                      <div className="text-sm">
+                        <span className="font-medium">Title:</span> 
+                        <span className="ml-1">{browserSession.title}</span>
+                      </div>
+                      <div className="text-sm">
+                        <span className="font-medium">Status:</span> 
+                        <Badge color={browserSession.success ? 'success' : 'failure'} className="ml-1">
+                          {browserSession.success ? 'Connected' : 'Error'}
+                        </Badge>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {analysisResults && (
+          <div className="mt-6 p-4 bg-green-50 rounded-lg">
+            <h3 className="font-medium text-green-900 mb-2">Analysis Complete</h3>
+            <p className="text-green-700">Found {analysisResults.fields?.length || 0} fields</p>
+            <p className="text-sm text-green-600">Form Type: {analysisResults.formType}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderBitwardenIntegrationSection = () => (
+    <div className="space-y-6">
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="flex items-center space-x-3 mb-6">
+          <Key className="w-6 h-6 text-blue-600" />
+          <h2 className="text-xl font-semibold text-gray-900">{translations[session.language].bitwardenIntegration}</h2>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card className="p-6">
+            <h3 className="font-medium mb-4">Connect Bitwarden</h3>
+            <p className="text-gray-600 mb-4">Link your Bitwarden vault to auto-fill forms with your saved data.</p>
+            <Button className="w-full">
+              <Key className="w-4 h-4 mr-2" />
+              Connect Vault
+            </Button>
+          </Card>
+          
+          <Card className="p-6">
+            <h3 className="font-medium mb-4">Sync Profile Data</h3>
+            <p className="text-gray-600 mb-4">Import your personal information from Bitwarden to populate insurance forms.</p>
+            <Button outline className="w-full">
+              <Zap className="w-4 h-4 mr-2" />
+              Sync Data
+            </Button>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderSmartMappingSection = () => (
+    <div className="space-y-6">
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="flex items-center space-x-3 mb-6">
+          <Target className="w-6 h-6 text-blue-600" />
+          <h2 className="text-xl font-semibold text-gray-900">{translations[session.language].smartMapping}</h2>
+        </div>
+        
+        {fieldMappings.length > 0 ? (
+          <div className="space-y-4">
+            <h3 className="font-medium">Field Mappings</h3>
+            {fieldMappings.map((mapping, index) => (
+              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <span className="font-medium">{mapping.sourceField.label}</span>
+                  <span className="text-gray-500 ml-2">→</span>
+                  <span className="text-blue-600 ml-2">{mapping.ontologyProp}</span>
+                </div>
+                <Badge color={mapping.confidence > 0.8 ? 'success' : 'warning'}>
+                  {Math.round(mapping.confidence * 100)}%
+                </Badge>
+              </div>
+            ))}
+            <Button onClick={applyFieldMappings} className="w-full">
+              <Wand2 className="w-4 h-4 mr-2" />
+              Apply Mappings
+            </Button>
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600">No field mappings available. Analyze a form first.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderFormNavigatorSection = () => (
+    <div className="space-y-6">
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="flex items-center space-x-3 mb-6">
+          <MapPin className="w-6 h-6 text-blue-600" />
+          <h2 className="text-xl font-semibold text-gray-900">{translations[session.language].formNavigator}</h2>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Data Extraction */}
+          <Card className="p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <FileSearch className="w-6 h-6 text-green-600" />
+              <h3 className="font-medium">Extract Data from Website</h3>
+            </div>
+            <p className="text-gray-600 mb-4">Pull data from any website using CSS selectors or XPath.</p>
+            
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="extract-url">Website URL</Label>
+                <TextInput id="extract-url" placeholder="https://example.com" />
+              </div>
+              
+              <div>
+                <Label htmlFor="css-selectors">CSS Selectors (one per line)</Label>
+                <textarea 
+                  id="css-selectors" 
+                  rows={3} 
+                  className="w-full border rounded-lg p-3 text-sm"
+                  placeholder="name: .customer-name&#10;email: input[name='email']&#10;phone: .contact-phone"
+                ></textarea>
+              </div>
+              
+              <Button 
+                onClick={() => {
+                  const url = (document.getElementById('extract-url') as HTMLInputElement)?.value;
+                  const selectorsText = (document.getElementById('css-selectors') as HTMLTextAreaElement)?.value;
+                  
+                  if (url && selectorsText) {
+                    const selectors = selectorsText.split('\n').map(line => {
+                      const [name, css] = line.split(':').map(s => s.trim());
+                      return { name, css, text: true, required: false };
+                    }).filter(s => s.name && s.css);
+                    
+                    extractDataFromWebsite(url, selectors);
+                  }
+                }}
+                disabled={isSpiderRunning}
+                className="w-full"
+              >
+                {isSpiderRunning ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Extracting...
+                  </>
+                ) : (
+                  <>
+                    <FileSearch className="w-4 h-4 mr-2" />
+                    Extract Data
+                  </>
+                )}
+              </Button>
+            </div>
+          </Card>
+
+          {/* Form Filling */}
+          <Card className="p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <Zap className="w-6 h-6 text-blue-600" />
+              <h3 className="font-medium">Fill External Form</h3>
+            </div>
+            <p className="text-gray-600 mb-4">Automatically fill forms on external websites with your data.</p>
+            
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="fill-url">Form URL</Label>
+                <TextInput id="fill-url" placeholder="https://example.com/form" />
+              </div>
+              
+              <div>
+                <Label>Data to Fill</Label>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="flex items-center space-x-2">
+                    <input type="checkbox" id="fill-name" defaultChecked />
+                    <label htmlFor="fill-name">Name</label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input type="checkbox" id="fill-email" defaultChecked />
+                    <label htmlFor="fill-email">Email</label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input type="checkbox" id="fill-phone" defaultChecked />
+                    <label htmlFor="fill-phone">Phone</label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input type="checkbox" id="fill-address" defaultChecked />
+                    <label htmlFor="fill-address">Address</label>
+                  </div>
+                </div>
+              </div>
+              
+              <Button 
+                onClick={() => {
+                  const url = (document.getElementById('fill-url') as HTMLInputElement)?.value;
+                  
+                  if (url && session.drivers.length > 0) {
+                    const driver = session.drivers[0];
+                    const formData: any = {};
+                    
+                    if ((document.getElementById('fill-name') as HTMLInputElement)?.checked) {
+                      formData.firstName = driver.firstName;
+                      formData.lastName = driver.lastName;
+                    }
+                    if ((document.getElementById('fill-email') as HTMLInputElement)?.checked) {
+                      formData.email = driver.email;
+                    }
+                    if ((document.getElementById('fill-phone') as HTMLInputElement)?.checked) {
+                      formData.phone = driver.phone;
+                    }
+                    if ((document.getElementById('fill-address') as HTMLInputElement)?.checked) {
+                      formData.address = driver.address;
+                      formData.postcode = driver.postcode;
+                    }
+                    
+                    fillExternalForm(url, formData);
+                  }
+                }}
+                disabled={isSpiderRunning}
+                className="w-full"
+              >
+                {isSpiderRunning ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Filling...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4 mr-2" />
+                    Fill Form
+                  </>
+                )}
+              </Button>
+            </div>
+          </Card>
+        </div>
+
+        {/* Spider Configuration */}
+        <Card className="p-6 mt-6">
+          <h3 className="font-medium mb-4">Spider Configuration</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="flex items-center space-x-2">
+              <input 
+                type="checkbox" 
+                id="headless" 
+                checked={spiderConfig.headless}
+                onChange={(e) => setSpiderConfig({...spiderConfig, headless: e.target.checked})}
+              />
+              <label htmlFor="headless" className="text-sm">Headless Mode</label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <input 
+                type="checkbox" 
+                id="screenshots" 
+                checked={spiderConfig.screenshots}
+                onChange={(e) => setSpiderConfig({...spiderConfig, screenshots: e.target.checked})}
+              />
+              <label htmlFor="screenshots" className="text-sm">Take Screenshots</label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <input 
+                type="checkbox" 
+                id="wait-load" 
+                checked={spiderConfig.waitForLoad}
+                onChange={(e) => setSpiderConfig({...spiderConfig, waitForLoad: e.target.checked})}
+              />
+              <label htmlFor="wait-load" className="text-sm">Wait for Load</label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <input 
+                type="checkbox" 
+                id="javascript" 
+                checked={spiderConfig.javascript}
+                onChange={(e) => setSpiderConfig({...spiderConfig, javascript: e.target.checked})}
+              />
+              <label htmlFor="javascript" className="text-sm">Enable JavaScript</label>
+            </div>
+          </div>
+        </Card>
+
+        {/* Extraction Results */}
+        {extractionResults && (
+          <Card className="p-6 mt-6">
+            <h3 className="font-medium mb-4">Extraction Results</h3>
+            <div className="space-y-2">
+              {Object.entries(extractionResults.extractedData || {}).map(([key, value]) => (
+                <div key={key} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                  <span className="font-medium text-sm">{key}:</span>
+                  <span className="text-sm text-gray-600">{String(value)}</span>
+                </div>
+              ))}
+            </div>
+            {extractionResults.success && (
+              <div className="mt-4 p-3 bg-green-50 rounded-lg">
+                <p className="text-green-700 text-sm">
+                  ✅ Successfully extracted {Object.keys(extractionResults.extractedData || {}).length} fields
+                </p>
+              </div>
+            )}
+          </Card>
+        )}
+
+        {/* Spider Tasks */}
+        {spiderTasks.length > 0 && (
+          <Card className="p-6 mt-6">
+            <h3 className="font-medium mb-4">Recent Tasks</h3>
+            <div className="space-y-2">
+              {spiderTasks.slice(-5).map(task => (
+                <div key={task.id} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                  <div>
+                    <span className="font-medium text-sm">{task.type}</span>
+                    <span className="text-xs text-gray-500 ml-2">{task.createdAt.toLocaleTimeString()}</span>
+                  </div>
+                  <Badge color={task.status === 'completed' ? 'success' : task.status === 'failed' ? 'failure' : 'warning'}>
+                    {task.status}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderAutoFillSection = () => (
+    <div className="space-y-6">
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="flex items-center space-x-3 mb-6">
+          <Zap className="w-6 h-6 text-blue-600" />
+          <h2 className="text-xl font-semibold text-gray-900">{translations[session.language].autoFill}</h2>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card className="p-6">
+            <h3 className="font-medium mb-4">Quick Fill</h3>
+            <p className="text-gray-600 mb-4">Instantly populate common form fields with your saved data.</p>
+            <Button className="w-full">
+              <Zap className="w-4 h-4 mr-2" />
+              Fill Current Form
+            </Button>
+          </Card>
+          
+          <Card className="p-6">
+            <h3 className="font-medium mb-4">Custom Templates</h3>
+            <p className="text-gray-600 mb-4">Create and manage custom auto-fill templates for different form types.</p>
+            <Button outline className="w-full">
+              <FileText className="w-4 h-4 mr-2" />
+              Manage Templates
+            </Button>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderContent = () => {
     switch (activeCategory) {
       case 0:
@@ -2699,6 +4355,16 @@ Insurance Quote System
       case 4:
         return renderPaymentSection();
       case 5:
+        return renderFormAnalyzerSection();
+      case 6:
+        return renderBitwardenIntegrationSection();
+      case 7:
+        return renderSmartMappingSection();
+      case 8:
+        return renderFormNavigatorSection();
+      case 9:
+        return renderAutoFillSection();
+      case 10:
         return renderMarketingSection();
       default:
         return renderDriversSection();
@@ -2744,38 +4410,71 @@ Insurance Quote System
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex gap-8">
-          {/* Sidebar */}
-          <div className="w-80 flex-shrink-0">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Quote Sections</h2>
-              <div className="space-y-2">
-                {categories.map((category, index) => (
+      {/* Main Layout with Left Sidebar */}
+      <div className="flex h-screen bg-gray-50">
+        {/* Left Sidebar */}
+        <div className="w-80 bg-white shadow-lg border-r border-gray-200 flex-shrink-0 overflow-y-auto">
+          <div className="p-4">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Navigation</h2>
+            <div className="space-y-1">
+              {menuStructure.map((section) => (
+                <div key={section.id} className="space-y-1">
+                  {/* Section Header */}
                   <button
-                    key={category.id}
-                    onClick={() => setActiveCategory(index)}
-                    className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors ${
-                      activeCategory === index
-                        ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                    onClick={() => {
+                      if (section.id === 'personal-documents') {
+                        setShowDocumentModal(true);
+                      } else {
+                        toggleSection(section.id);
+                      }
+                    }}
+                    className={`w-full flex items-center gap-3 p-2 rounded-lg text-left transition-colors ${
+                      expandedSections.has(section.id)
+                        ? 'bg-gray-100 text-gray-900'
                         : 'hover:bg-gray-50 text-gray-700'
                     }`}
                   >
-                    <category.icon className="w-5 h-5" />
-                    <div className="flex-1">
-                      <div className="font-medium">{category.title}</div>
-                      <div className="text-sm text-gray-500">{category.description}</div>
-                    </div>
-                    {activeCategory === index && <ChevronRight className="w-4 h-4" />}
+                    <section.icon className="w-4 h-4" />
+                    <div className="flex-1 font-medium text-sm">{section.title}</div>
+                    {expandedSections.has(section.id) ? (
+                      <ChevronRight className="w-4 h-4 transform rotate-90" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4" />
+                    )}
                   </button>
-                ))}
-              </div>
+                  
+                  {/* Subcategories */}
+                  {expandedSections.has(section.id) && (
+                    <div className="ml-6 space-y-1">
+                      {section.categories.map((category) => {
+                        const categoryIndex = categories.findIndex(cat => cat.id === category.id);
+                        return (
+                          <button
+                            key={category.id}
+                            onClick={() => setActiveCategory(categoryIndex)}
+                            className={`w-full flex items-center gap-3 p-2 rounded-lg text-left transition-colors text-sm ${
+                              activeCategory === categoryIndex
+                                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                                : 'hover:bg-gray-50 text-gray-600'
+                            }`}
+                          >
+                            <category.icon className="w-4 h-4" />
+                            <div className="flex-1">{category.title}</div>
+                            {activeCategory === categoryIndex && <ChevronRight className="w-4 h-4" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
+        </div>
 
-          {/* Main Content Area */}
-          <div className="flex-1">
+        {/* Main Content Area */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-8">
             <div className="mb-6">
               <Breadcrumb>
                 <BreadcrumbItem>
@@ -2974,6 +4673,425 @@ Insurance Quote System
           </div>
         </div>
       )}
+
+      {/* Personal Documents Modal */}
+      <Modal show={showDocumentModal} onClose={() => setShowDocumentModal(false)} size="7xl">
+        <div className="p-6 bg-white rounded-lg">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <Upload className="w-6 h-6 text-blue-600" />
+              <h3 className="text-lg font-semibold text-gray-900">{translations[session.language].personalDocuments}</h3>
+            </div>
+            <Button color="gray" size="sm" onClick={() => setShowDocumentModal(false)}>
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+          <div className="space-y-6">
+            {/* Document Type Selection */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[
+                { id: 'passport', title: translations[session.language].passport, icon: FileText, description: translations[session.language].passportUpload },
+                { id: 'driving-licence', title: translations[session.language].drivingLicence, icon: CreditCard, description: translations[session.language].drivingLicenceUpload },
+                { id: 'identity-card', title: translations[session.language].identityCard, icon: User, description: translations[session.language].identityCardUpload },
+                { id: 'utility-bill', title: translations[session.language].utilityBill, icon: FileText, description: translations[session.language].utilityBillUpload },
+                { id: 'vehicle-registration', title: translations[session.language].vehicleRegistration, icon: Car, description: translations[session.language].vehicleRegistrationUpload },
+                { id: 'bank-statement', title: translations[session.language].bankStatement, icon: CreditCard, description: translations[session.language].bankStatementUpload },
+                { id: 'medical-certificate', title: translations[session.language].medicalCertificate, icon: FileText, description: translations[session.language].medicalCertificateUpload },
+                { id: 'insurance-quote', title: translations[session.language].insuranceQuote, icon: Shield, description: translations[session.language].insuranceQuoteUpload },
+                { id: 'insurance-policy', title: translations[session.language].insurancePolicy, icon: Shield, description: translations[session.language].insurancePolicyUpload }
+              ].map((docType) => (
+                <Card 
+                  key={docType.id} 
+                  className={`cursor-pointer transition-all hover:shadow-lg bg-white ${
+                    selectedDocumentType === docType.id ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
+                  }`}
+                  onClick={() => setSelectedDocumentType(docType.id)}
+                >
+                  <div className="p-4 text-center">
+                    <docType.icon className="w-8 h-8 text-blue-600 mx-auto mb-3" />
+                    <h3 className="font-medium text-gray-900 mb-2">{docType.title}</h3>
+                    <p className="text-sm text-gray-600">{docType.description}</p>
+                  </div>
+                </Card>
+              ))}
+            </div>
+
+            {/* Document Upload Area */}
+            {selectedDocumentType && (
+              <div className="border-t pt-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <FileText className="w-5 h-5 text-blue-600" />
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Upload {selectedDocumentType.charAt(0).toUpperCase() + selectedDocumentType.slice(1).replace('-', ' ')}
+                  </h3>
+                </div>
+                
+                {/* Upload Areas */}
+                {selectedDocumentType === 'driving-licence' ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Front Side Upload */}
+                    <div>
+                      <div 
+                        className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors bg-white ${
+                          isDragOverDocument ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
+                        }`}
+                        onDragOver={handleDocumentDragOver}
+                        onDragLeave={handleDocumentDragLeave}
+                        onDrop={(e) => handleDocumentDrop(e, 'front')}
+                      >
+                        <Upload className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+                        <h4 className="font-medium text-gray-900 mb-2">{translations[session.language].frontSide}</h4>
+                        <p className="text-sm text-gray-600 mb-3">
+                          {isDragOverDocument ? translations[session.language].dropFilesHere : translations[session.language].dragDropFiles}
+                        </p>
+                        <input
+                          type="file"
+                          multiple
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          onChange={(e) => handleDocumentFileSelect(e, 'front')}
+                          className="hidden"
+                          id="front-upload"
+                        />
+                        <label htmlFor="front-upload">
+                          <Button color="blue" size="sm" className="cursor-pointer">
+                            {isProcessing ? translations[session.language].processing : translations[session.language].chooseFile}
+                          </Button>
+                        </label>
+                      </div>
+                      {documentFiles[`${selectedDocumentType}_front`]?.length > 0 && (
+                        <div className="mt-3 space-y-2">
+                          {documentFiles[`${selectedDocumentType}_front`].map((file, index) => (
+                            <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm">
+                              <span className="text-gray-700">{file.name}</span>
+                              <Button 
+                                color="failure" 
+                                size="xs" 
+                                onClick={() => removeDocumentFile(index, 'front')}
+                              >
+                                <X className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Back Side Upload */}
+                    <div>
+                      <div 
+                        className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors bg-white ${
+                          isDragOverDocument ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
+                        }`}
+                        onDragOver={handleDocumentDragOver}
+                        onDragLeave={handleDocumentDragLeave}
+                        onDrop={(e) => handleDocumentDrop(e, 'back')}
+                      >
+                        <Upload className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+                        <h4 className="font-medium text-gray-900 mb-2">{translations[session.language].backSide}</h4>
+                        <p className="text-sm text-gray-600 mb-3">
+                          {isDragOverDocument ? translations[session.language].dropFilesHere : translations[session.language].dragDropFiles}
+                        </p>
+                        <input
+                          type="file"
+                          multiple
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          onChange={(e) => handleDocumentFileSelect(e, 'back')}
+                          className="hidden"
+                          id="back-upload"
+                        />
+                        <label htmlFor="back-upload">
+                          <Button color="blue" size="sm" className="cursor-pointer">
+                            {isProcessing ? 'Processing...' : 'Choose File'}
+                          </Button>
+                        </label>
+                      </div>
+                      {documentFiles[`${selectedDocumentType}_back`]?.length > 0 && (
+                        <div className="mt-3 space-y-2">
+                          {documentFiles[`${selectedDocumentType}_back`].map((file, index) => (
+                            <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm">
+                              <span className="text-gray-700">{file.name}</span>
+                              <Button 
+                                color="failure" 
+                                size="xs" 
+                                onClick={() => removeDocumentFile(index, 'back')}
+                              >
+                                <X className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : selectedDocumentType === 'passport' ? (
+                  <div className="space-y-6">
+                    {/* Passport Count Selector */}
+                    <div className="flex items-center gap-4 mb-4">
+                      <Label>Number of Passports:</Label>
+                      <Select value={passportCount.toString()} onChange={(e) => setPassportCount(parseInt(e.target.value))}>
+                        <option value="1">1 Passport</option>
+                        <option value="2">2 Passports</option>
+                        <option value="3">3 Passports</option>
+                      </Select>
+                    </div>
+                    
+                    {Array.from({length: passportCount}, (_, i) => (
+                      <div key={i} className="border border-gray-200 rounded-lg p-4">
+                        <h4 className="font-medium text-gray-900 mb-4">Passport {i + 1}</h4>
+                        <div 
+                          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors bg-white ${
+                            isDragOverDocument ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
+                          }`}
+                          onDragOver={handleDocumentDragOver}
+                          onDragLeave={handleDocumentDragLeave}
+                          onDrop={(e) => handleDocumentDrop(e, `passport_${i + 1}`)}
+                        >
+                          <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                          <h4 className="text-lg font-medium text-gray-900 mb-2">Upload Passport {i + 1}</h4>
+                          <p className="text-gray-600 mb-4">
+                            {isDragOverDocument ? 'Drop files here' : 'Drag and drop your passport here, or click to browse'}
+                          </p>
+                          <input
+                            type="file"
+                            multiple
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            onChange={(e) => handleDocumentFileSelect(e, `passport_${i + 1}`)}
+                            className="hidden"
+                            id={`passport-upload-${i + 1}`}
+                          />
+                          <label htmlFor={`passport-upload-${i + 1}`}>
+                            <Button color="blue" className="cursor-pointer">
+                              <Upload className="w-4 h-4 mr-2" />
+                              {isProcessing ? 'Processing...' : 'Choose File'}
+                            </Button>
+                          </label>
+                        </div>
+                        {documentFiles[`${selectedDocumentType}_passport_${i + 1}`]?.length > 0 && (
+                          <div className="mt-4 space-y-2">
+                            <h5 className="font-medium">Uploaded Files:</h5>
+                            {documentFiles[`${selectedDocumentType}_passport_${i + 1}`].map((file, fileIndex) => (
+                              <div key={fileIndex} className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm">
+                                <span className="text-gray-700">{file.name}</span>
+                                <Button 
+                                  color="failure" 
+                                  size="xs" 
+                                  onClick={() => removeDocumentFile(fileIndex, `passport_${i + 1}`)}
+                                >
+                                  <X className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div 
+                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors bg-white ${
+                      isDragOverDocument ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
+                    }`}
+                    onDragOver={handleDocumentDragOver}
+                    onDragLeave={handleDocumentDragLeave}
+                    onDrop={(e) => handleDocumentDrop(e, 'main')}
+                  >
+                    <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <h4 className="text-lg font-medium text-gray-900 mb-2">
+                      Upload {selectedDocumentType.charAt(0).toUpperCase() + selectedDocumentType.slice(1).replace('-', ' ')}
+                    </h4>
+                    <p className="text-gray-600 mb-4">
+                      {isDragOverDocument ? 'Drop files here' : 'Drag and drop your file here, or click to browse'}
+                    </p>
+                    <input
+                      type="file"
+                      multiple
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      onChange={(e) => handleDocumentFileSelect(e, 'main')}
+                      className="hidden"
+                      id="main-upload"
+                    />
+                    <label htmlFor="main-upload">
+                      <Button color="blue" className="cursor-pointer">
+                        <Upload className="w-4 h-4 mr-2" />
+                        {isProcessing ? 'Processing...' : 'Choose File'}
+                      </Button>
+                    </label>
+                  </div>
+                )}
+
+                {/* Document-specific fields */}
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {selectedDocumentType === 'passport' && (
+                    <div className="space-y-6">
+                      {Array.from({length: passportCount}, (_, i) => (
+                        <div key={i} className="border border-gray-200 rounded-lg p-4">
+                          <h4 className="font-medium text-gray-900 mb-4">Passport {i + 1} Details</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <Label htmlFor={`passportNumber_${i + 1}`}>Passport Number</Label>
+                              <TextInput id={`passportNumber_${i + 1}`} placeholder="Enter passport number" />
+                            </div>
+                            <div>
+                              <Label htmlFor={`passportCountry_${i + 1}`}>Issuing Country</Label>
+                              <Select id={`passportCountry_${i + 1}`}>
+                                <option value="">Select country</option>
+                                <option value="GB">United Kingdom</option>
+                                <option value="US">United States</option>
+                                <option value="DE">Germany</option>
+                                <option value="FR">France</option>
+                                <option value="CA">Canada</option>
+                                <option value="AU">Australia</option>
+                                <option value="IE">Ireland</option>
+                                <option value="NZ">New Zealand</option>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label htmlFor={`passportIssueDate_${i + 1}`}>Issue Date</Label>
+                              <TextInput id={`passportIssueDate_${i + 1}`} type="date" />
+                            </div>
+                            <div>
+                              <Label htmlFor={`passportExpiryDate_${i + 1}`}>Expiry Date</Label>
+                              <TextInput id={`passportExpiryDate_${i + 1}`} type="date" />
+                            </div>
+                            <div>
+                              <Label htmlFor={`passportGivenNames_${i + 1}`}>Given Names</Label>
+                              <TextInput id={`passportGivenNames_${i + 1}`} placeholder="As shown on passport" />
+                            </div>
+                            <div>
+                              <Label htmlFor={`passportSurname_${i + 1}`}>Surname</Label>
+                              <TextInput id={`passportSurname_${i + 1}`} placeholder="As shown on passport" />
+                            </div>
+                            <div>
+                              <Label htmlFor={`passportDateOfBirth_${i + 1}`}>Date of Birth</Label>
+                              <TextInput id={`passportDateOfBirth_${i + 1}`} type="date" />
+                            </div>
+                            <div>
+                              <Label htmlFor={`passportGender_${i + 1}`}>Gender</Label>
+                              <Select id={`passportGender_${i + 1}`}>
+                                <option value="">Select gender</option>
+                                <option value="M">Male</option>
+                                <option value="F">Female</option>
+                                <option value="X">Other</option>
+                              </Select>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {selectedDocumentType === 'driving-licence' && (
+                    <>
+                      <div>
+                        <Label htmlFor="licenceNumber">Licence Number</Label>
+                        <TextInput id="licenceNumber" placeholder="Enter licence number" />
+                      </div>
+                      <div>
+                        <Label htmlFor="licenceType">Licence Type</Label>
+                        <Select id="licenceType">
+                          <option value="">Select type</option>
+                          <option value="FULL">Full Licence</option>
+                          <option value="PROVISIONAL">Provisional</option>
+                          <option value="INTERNATIONAL">International</option>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="licenceIssueDate">Issue Date</Label>
+                        <TextInput id="licenceIssueDate" type="date" />
+                      </div>
+                      <div>
+                        <Label htmlFor="licenceExpiryDate">Expiry Date</Label>
+                        <TextInput id="licenceExpiryDate" type="date" />
+                      </div>
+                    </>
+                  )}
+
+                  {selectedDocumentType === 'vehicle-registration' && (
+                    <>
+                      <div>
+                        <Label htmlFor="registrationNumber">Registration Number</Label>
+                        <TextInput id="registrationNumber" placeholder="Enter registration number" />
+                      </div>
+                      <div>
+                        <Label htmlFor="vehicleMake">Make</Label>
+                        <TextInput id="vehicleMake" placeholder="Vehicle make" />
+                      </div>
+                      <div>
+                        <Label htmlFor="vehicleModel">Model</Label>
+                        <TextInput id="vehicleModel" placeholder="Vehicle model" />
+                      </div>
+                      <div>
+                        <Label htmlFor="yearOfManufacture">Year</Label>
+                        <TextInput id="yearOfManufacture" type="number" placeholder="Year" />
+                      </div>
+                    </>
+                  )}
+
+                  {selectedDocumentType === 'bank-statement' && (
+                    <>
+                      <div>
+                        <Label htmlFor="bankName">Bank Name</Label>
+                        <Select id="bankName">
+                          <option value="">Select bank</option>
+                          <option value="HSBC">HSBC</option>
+                          <option value="BARCLAYS">Barclays</option>
+                          <option value="LLOYDS">Lloyds</option>
+                          <option value="NATWEST">NatWest</option>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="statementDate">Statement Date</Label>
+                        <TextInput id="statementDate" type="date" />
+                      </div>
+                    </>
+                  )}
+
+                  {selectedDocumentType === 'insurance-policy' && (
+                    <>
+                      <div>
+                        <Label htmlFor="policyProvider">Insurance Provider</Label>
+                        <TextInput id="policyProvider" placeholder="Provider name" />
+                      </div>
+                      <div>
+                        <Label htmlFor="policyNumber">Policy Number</Label>
+                        <TextInput id="policyNumber" placeholder="Policy number" />
+                      </div>
+                      <div>
+                        <Label htmlFor="ncdYears">No Claims Discount</Label>
+                        <Select id="ncdYears">
+                          <option value="">Select NCD years</option>
+                          <option value="0">0 years</option>
+                          <option value="1">1 year</option>
+                          <option value="2">2 years</option>
+                          <option value="3">3 years</option>
+                          <option value="4">4 years</option>
+                          <option value="5">5+ years</option>
+                        </Select>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex justify-between mt-6">
+                  <Button color="gray" onClick={() => setSelectedDocumentType('')}>
+                    Back to Selection
+                  </Button>
+                  <div className="flex gap-3">
+                    <Button color="gray" onClick={() => setShowDocumentModal(false)}>
+                      Cancel
+                    </Button>
+                    <Button color="blue">
+                      <Upload className="w-4 h-4 mr-2" />
+                      Process Document
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

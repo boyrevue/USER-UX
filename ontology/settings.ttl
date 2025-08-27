@@ -41,6 +41,41 @@ settings:CreditCard a owl:Class ;
   security:tokenizationRequired "true"^^xsd:boolean ;
   monitoring:fraudDetection "enabled" .
 
+settings:InsurancePayments a owl:Class ;
+  rdfs:subClassOf settings:Settings ;
+  rdfs:label "Insurance Payments" ;
+  rdfs:label "Versicherungszahlungen"@de ;
+  rdfs:comment "Insurance payment configuration and processing settings" ;
+  security:pciCompliant "true"^^xsd:boolean ;
+  security:encryptionRequired "true"^^xsd:boolean ;
+  monitoring:fraudDetection "enabled" ;
+  monitoring:paymentTracking "required" .
+
+# MENU STRUCTURE AND I18N DEFINITIONS
+settings:MenuStructure a owl:Class ;
+  rdfs:subClassOf settings:Settings ;
+  rdfs:label "Menu Structure" ;
+  rdfs:label "Menüstruktur"@de ;
+  rdfs:comment "Application menu structure and internationalization definitions" ;
+  autoins:i18nCompliant "true"^^xsd:boolean ;
+  autoins:multiLanguageSupport "true"^^xsd:boolean .
+
+settings:CarInsuranceMenu a owl:Class ;
+  rdfs:subClassOf settings:MenuStructure ;
+  rdfs:label "Car Insurance" ;
+  rdfs:label "Autoversicherung"@de ;
+  rdfs:comment "Car insurance menu section containing all insurance-related categories" ;
+  autoins:menuOrder "1" ;
+  autoins:menuIcon "Shield" .
+
+settings:SettingsMenu a owl:Class ;
+  rdfs:subClassOf settings:MenuStructure ;
+  rdfs:label "Settings" ;
+  rdfs:label "Einstellungen"@de ;
+  rdfs:comment "Application settings menu section" ;
+  autoins:menuOrder "2" ;
+  autoins:menuIcon "Settings" .
+
 settings:CommunicationChannel a owl:Class ;
   rdfs:subClassOf settings:Settings ;
   rdfs:label "Communication Channel" ;
@@ -167,6 +202,287 @@ banking:accessStatus a owl:DatatypeProperty ;
   autoins:formHelpText "Current access status of the bank account" ;
   autoins:enumerationValues ("Active" "Inactive" "Error" "Expired" "Suspended" "Pending") ;
   monitoring:alertOnChange "true"^^xsd:boolean .
+
+# MENU ITEM DEFINITIONS WITH I18N SUPPORT
+settings:DriverDetailsMenuItem a owl:Class ;
+  rdfs:subClassOf settings:CarInsuranceMenu ;
+  rdfs:label "Driver Details" ;
+  rdfs:label "Fahrerdetails"@de ;
+  rdfs:comment "Driver information and licensing details" ;
+  autoins:menuOrder "1" ;
+  autoins:menuIcon "User" ;
+  autoins:categoryId "drivers" .
+
+settings:VehicleDetailsMenuItem a owl:Class ;
+  rdfs:subClassOf settings:CarInsuranceMenu ;
+  rdfs:label "Vehicle Details" ;
+  rdfs:label "Fahrzeugdetails"@de ;
+  rdfs:comment "Vehicle information and modifications" ;
+  autoins:menuOrder "2" ;
+  autoins:menuIcon "Car" ;
+  autoins:categoryId "vehicle" .
+
+settings:PolicyDetailsMenuItem a owl:Class ;
+  rdfs:subClassOf settings:CarInsuranceMenu ;
+  rdfs:label "Policy Details" ;
+  rdfs:label "Policendetails"@de ;
+  rdfs:comment "Coverage and policy options" ;
+  autoins:menuOrder "3" ;
+  autoins:menuIcon "FileText" ;
+  autoins:categoryId "policy" .
+
+settings:ClaimsHistoryMenuItem a owl:Class ;
+  rdfs:subClassOf settings:CarInsuranceMenu ;
+  rdfs:label "Claims History" ;
+  rdfs:label "Schadensverlauf"@de ;
+  rdfs:comment "Previous claims and convictions" ;
+  autoins:menuOrder "4" ;
+  autoins:menuIcon "Shield" ;
+  autoins:categoryId "claims" .
+
+settings:InsurancePaymentsMenuItem a owl:Class ;
+  rdfs:subClassOf settings:CarInsuranceMenu ;
+  rdfs:label "Insurance Payments" ;
+  rdfs:label "Versicherungszahlungen"@de ;
+  rdfs:comment "Payment method and additional cover" ;
+  autoins:menuOrder "5" ;
+  autoins:menuIcon "CreditCard" ;
+  autoins:categoryId "payment" .
+
+settings:MarketingPreferencesMenuItem a owl:Class ;
+  rdfs:subClassOf settings:SettingsMenu ;
+  rdfs:label "Marketing Preferences" ;
+  rdfs:label "Marketing-Einstellungen"@de ;
+  rdfs:comment "Communication preferences and marketing options" ;
+  autoins:menuOrder "1" ;
+  autoins:menuIcon "Settings" ;
+  autoins:categoryId "marketing" .
+
+settings:PersonalDocumentsMenu a owl:Class ;
+  rdfs:subClassOf settings:MenuStructure ;
+  rdfs:label "Personal Documents" ;
+  rdfs:label "Persönliche Dokumente"@de ;
+  rdfs:comment "Personal document processing and upload section" ;
+  autoins:menuOrder "2" ;
+  autoins:menuIcon "Upload" .
+
+settings:PassportMenuItem a owl:Class ;
+  rdfs:subClassOf settings:PersonalDocumentsMenu ;
+  rdfs:label "Passport" ;
+  rdfs:label "Reisepass"@de ;
+  rdfs:comment "Upload and process passport documents" ;
+  autoins:menuOrder "1" ;
+  autoins:menuIcon "FileText" ;
+  autoins:categoryId "passport" .
+
+settings:DrivingLicenceMenuItem a owl:Class ;
+  rdfs:subClassOf settings:PersonalDocumentsMenu ;
+  rdfs:label "Driving Licence" ;
+  rdfs:label "Führerschein"@de ;
+  rdfs:comment "Upload and process driving licence documents" ;
+  autoins:menuOrder "2" ;
+  autoins:menuIcon "CreditCard" ;
+  autoins:categoryId "driving-licence" .
+
+settings:IdentityCardMenuItem a owl:Class ;
+  rdfs:subClassOf settings:PersonalDocumentsMenu ;
+  rdfs:label "Identity Card" ;
+  rdfs:label "Personalausweis"@de ;
+  rdfs:comment "Upload and process identity card documents" ;
+  autoins:menuOrder "3" ;
+  autoins:menuIcon "User" ;
+  autoins:categoryId "identity-card" .
+
+settings:UtilityBillMenuItem a owl:Class ;
+  rdfs:subClassOf settings:PersonalDocumentsMenu ;
+  rdfs:label "Utility Bill" ;
+  rdfs:label "Versorgerrechnung"@de ;
+  rdfs:comment "Upload proof of address documents" ;
+  autoins:menuOrder "4" ;
+  autoins:menuIcon "FileText" ;
+  autoins:categoryId "utility-bill" .
+
+settings:VehicleRegistrationMenuItem a owl:Class ;
+  rdfs:subClassOf settings:PersonalDocumentsMenu ;
+  rdfs:label "Vehicle Registration" ;
+  rdfs:label "Fahrzeugschein"@de ;
+  rdfs:comment "Upload vehicle registration documents" ;
+  autoins:menuOrder "5" ;
+  autoins:menuIcon "Car" ;
+  autoins:categoryId "vehicle-registration" .
+
+settings:BankStatementMenuItem a owl:Class ;
+  rdfs:subClassOf settings:PersonalDocumentsMenu ;
+  rdfs:label "Bank Statement" ;
+  rdfs:label "Kontoauszug"@de ;
+  rdfs:comment "Upload recent bank statement documents" ;
+  autoins:menuOrder "6" ;
+  autoins:menuIcon "CreditCard" ;
+  autoins:categoryId "bank-statement" .
+
+settings:MedicalCertificateMenuItem a owl:Class ;
+  rdfs:subClassOf settings:PersonalDocumentsMenu ;
+  rdfs:label "Medical Certificate" ;
+  rdfs:label "Ärztliches Attest"@de ;
+  rdfs:comment "Upload medical or fitness certificate documents" ;
+  autoins:menuOrder "7" ;
+  autoins:menuIcon "FileText" ;
+  autoins:categoryId "medical-certificate" .
+
+settings:InsuranceQuoteMenuItem a owl:Class ;
+  rdfs:subClassOf settings:PersonalDocumentsMenu ;
+  rdfs:label "Insurance Quote" ;
+  rdfs:label "Versicherungsangebot"@de ;
+  rdfs:comment "Upload existing insurance quote documents" ;
+  autoins:menuOrder "8" ;
+  autoins:menuIcon "Shield" ;
+  autoins:categoryId "insurance-quote" .
+
+settings:InsurancePolicyMenuItem a owl:Class ;
+  rdfs:subClassOf settings:PersonalDocumentsMenu ;
+  rdfs:label "Insurance Policy" ;
+  rdfs:label "Versicherungspolice"@de ;
+  rdfs:comment "Upload existing insurance policy documents" ;
+  autoins:menuOrder "9" ;
+  autoins:menuIcon "Shield" ;
+  autoins:categoryId "insurance-policy" .
+
+# MENU PROPERTIES FOR I18N COMPLIANCE
+autoins:menuOrder a owl:DatatypeProperty ;
+  rdfs:domain settings:MenuStructure ;
+  rdfs:range xsd:integer ;
+  rdfs:label "menu order" ;
+  rdfs:label "Menüreihenfolge"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Display order of menu items" ;
+  autoins:formHelpText "Anzeigereihenfolge der Menüelemente"@de .
+
+autoins:menuIcon a owl:DatatypeProperty ;
+  rdfs:domain settings:MenuStructure ;
+  rdfs:range xsd:string ;
+  rdfs:label "menu icon" ;
+  rdfs:label "Menüsymbol"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Lucide icon name for menu item" ;
+  autoins:formHelpText "Lucide-Symbolname für Menüelement"@de ;
+  autoins:enumerationValues ("User" "Car" "FileText" "Shield" "CreditCard" "Settings") .
+
+autoins:categoryId a owl:DatatypeProperty ;
+  rdfs:domain settings:MenuStructure ;
+  rdfs:range xsd:string ;
+  rdfs:label "category ID" ;
+  rdfs:label "Kategorie-ID"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Unique identifier for menu category" ;
+  autoins:formHelpText "Eindeutige Kennung für Menükategorie"@de ;
+  autoins:validationPattern "^[a-z]+$" ;
+  autoins:errorMessage "Category ID must contain only lowercase letters" ;
+  autoins:errorMessage "Kategorie-ID darf nur Kleinbuchstaben enthalten"@de .
+
+autoins:i18nCompliant a owl:DatatypeProperty ;
+  rdfs:domain settings:Settings ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "i18n compliant" ;
+  rdfs:label "i18n-konform"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Whether this setting supports internationalization" ;
+  autoins:formHelpText "Ob diese Einstellung Internationalisierung unterstützt"@de ;
+  autoins:defaultValue "true"^^xsd:boolean .
+
+autoins:multiLanguageSupport a owl:DatatypeProperty ;
+  rdfs:domain settings:Settings ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "multi-language support" ;
+  rdfs:label "Mehrsprachige Unterstützung"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Whether this setting supports multiple languages" ;
+  autoins:formHelpText "Ob diese Einstellung mehrere Sprachen unterstützt"@de ;
+  autoins:defaultValue "true"^^xsd:boolean .
+
+# INSURANCE PAYMENTS PROPERTIES
+banking:paymentMethod a owl:DatatypeProperty ;
+  rdfs:domain settings:InsurancePayments ;
+  rdfs:range xsd:string ;
+  rdfs:label "payment method" ;
+  rdfs:label "Zahlungsmethode"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Primary payment method for insurance premiums" ;
+  autoins:formHelpText "Primäre Zahlungsmethode für Versicherungsprämien"@de ;
+  autoins:enumerationValues ("Direct Debit" "Credit Card" "Debit Card" "Bank Transfer" "PayPal" "Apple Pay" "Google Pay") ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+banking:paymentFrequency a owl:DatatypeProperty ;
+  rdfs:domain settings:InsurancePayments ;
+  rdfs:range xsd:string ;
+  rdfs:label "payment frequency" ;
+  rdfs:label "Zahlungshäufigkeit"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "How often insurance payments are made" ;
+  autoins:formHelpText "Wie oft Versicherungszahlungen geleistet werden"@de ;
+  autoins:enumerationValues ("Monthly" "Quarterly" "Semi-Annually" "Annually") ;
+  autoins:defaultValue "Monthly" ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+banking:premiumAmount a owl:DatatypeProperty ;
+  rdfs:domain settings:InsurancePayments ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "premium amount" ;
+  rdfs:label "Prämienbetrag"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Insurance premium amount in GBP" ;
+  autoins:formHelpText "Versicherungsprämienbetrag in GBP"@de ;
+  autoins:min "0.01" ;
+  autoins:max "50000.00" ;
+  autoins:validationPattern "^[0-9]+\\.[0-9]{2}$" ;
+  autoins:errorMessage "Premium amount must be a valid currency amount (e.g., 123.45)" ;
+  autoins:errorMessage "Prämienbetrag muss ein gültiger Währungsbetrag sein (z.B. 123,45)"@de ;
+  security:encryptionRequired "true"^^xsd:boolean .
+
+banking:paymentStartDate a owl:DatatypeProperty ;
+  rdfs:domain settings:InsurancePayments ;
+  rdfs:range xsd:date ;
+  rdfs:label "payment start date" ;
+  rdfs:label "Zahlungsbeginn"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Date when insurance payments begin" ;
+  autoins:formHelpText "Datum, an dem die Versicherungszahlungen beginnen"@de ;
+  monitoring:alertDaysBefore "7" ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+banking:autoRenewal a owl:DatatypeProperty ;
+  rdfs:domain settings:InsurancePayments ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "auto renewal" ;
+  rdfs:label "Automatische Verlängerung"@de ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Whether to automatically renew the insurance policy" ;
+  autoins:formHelpText "Ob die Versicherungspolice automatisch verlängert werden soll"@de ;
+  autoins:defaultValue "true"^^xsd:boolean ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+banking:discountCode a owl:DatatypeProperty ;
+  rdfs:domain settings:InsurancePayments ;
+  rdfs:range xsd:string ;
+  rdfs:label "discount code" ;
+  rdfs:label "Rabattcode"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Optional discount or promotional code" ;
+  autoins:formHelpText "Optionaler Rabatt- oder Aktionscode"@de ;
+  autoins:validationPattern "^[A-Z0-9]{4,20}$" ;
+  autoins:errorMessage "Discount code must be 4-20 uppercase letters and numbers" ;
+  autoins:errorMessage "Rabattcode muss 4-20 Großbuchstaben und Zahlen enthalten"@de ;
+  security:encryptionRequired "false"^^xsd:boolean .
+
+banking:paymentReference a owl:DatatypeProperty ;
+  rdfs:domain settings:InsurancePayments ;
+  rdfs:range xsd:string ;
+  rdfs:label "payment reference" ;
+  rdfs:label "Zahlungsreferenz"@de ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Unique payment reference number" ;
+  autoins:formHelpText "Eindeutige Zahlungsreferenznummer"@de ;
+  monitoring:readOnly "true"^^xsd:boolean ;
+  security:encryptionRequired "true"^^xsd:boolean .
 
 # CREDIT CARD PROPERTIES
 banking:cardProvider a owl:DatatypeProperty ;
@@ -869,6 +1185,84 @@ settings:BankAccountShape a sh:NodeShape ;
     sh:minCount 1 ;
     sh:datatype xsd:date ;
     sh:message "Credential renewal date is required" ;
+  ] .
+
+# Menu Structure Validation
+settings:MenuStructureShape a sh:NodeShape ;
+  sh:targetClass settings:MenuStructure ;
+  sh:property [
+    sh:path autoins:menuOrder ;
+    sh:minCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 10 ;
+    sh:message "Menu order must be between 1 and 10" ;
+  ] ;
+  sh:property [
+    sh:path autoins:menuIcon ;
+    sh:minCount 1 ;
+    sh:in ("User" "Car" "FileText" "Shield" "CreditCard" "Settings") ;
+    sh:message "Valid Lucide icon name is required" ;
+  ] ;
+  sh:property [
+    sh:path autoins:i18nCompliant ;
+    sh:datatype xsd:boolean ;
+    sh:hasValue "true"^^xsd:boolean ;
+    sh:message "Menu items must be i18n compliant" ;
+  ] .
+
+settings:MenuItemShape a sh:NodeShape ;
+  sh:targetClass settings:CarInsuranceMenu, settings:SettingsMenu ;
+  sh:property [
+    sh:path autoins:categoryId ;
+    sh:minCount 1 ;
+    sh:pattern "^[a-z]+$" ;
+    sh:message "Category ID must contain only lowercase letters" ;
+  ] ;
+  sh:property [
+    sh:path rdfs:label ;
+    sh:minCount 2 ;
+    sh:message "Menu items must have labels in at least 2 languages (en, de)" ;
+  ] .
+
+# Insurance Payments Validation
+settings:InsurancePaymentsShape a sh:NodeShape ;
+  sh:targetClass settings:InsurancePayments ;
+  sh:property [
+    sh:path banking:paymentMethod ;
+    sh:minCount 1 ;
+    sh:in ("Direct Debit" "Credit Card" "Debit Card" "Bank Transfer" "PayPal" "Apple Pay" "Google Pay") ;
+    sh:message "Valid payment method is required" ;
+  ] ;
+  sh:property [
+    sh:path banking:paymentFrequency ;
+    sh:minCount 1 ;
+    sh:in ("Monthly" "Quarterly" "Semi-Annually" "Annually") ;
+    sh:message "Valid payment frequency is required" ;
+  ] ;
+  sh:property [
+    sh:path banking:premiumAmount ;
+    sh:minCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0.01 ;
+    sh:maxInclusive 50000.00 ;
+    sh:message "Premium amount must be between £0.01 and £50,000.00" ;
+  ] ;
+  sh:property [
+    sh:path banking:paymentStartDate ;
+    sh:minCount 1 ;
+    sh:datatype xsd:date ;
+    sh:message "Payment start date is required" ;
+  ] ;
+  sh:property [
+    sh:path banking:autoRenewal ;
+    sh:datatype xsd:boolean ;
+    sh:message "Auto renewal must be boolean" ;
+  ] ;
+  sh:property [
+    sh:path banking:discountCode ;
+    sh:pattern "^[A-Z0-9]{4,20}$" ;
+    sh:message "Discount code must be 4-20 uppercase letters and numbers" ;
   ] .
 
 # Credit Card Validation
