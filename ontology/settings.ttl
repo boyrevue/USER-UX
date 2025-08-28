@@ -14,6 +14,112 @@
 ## SETTINGS ONTOLOGY - COMPREHENSIVE CONFIGURATION MANAGEMENT
 ############################################################
 
+# I18N LABELS FOR FORM NAVIGATOR
+settings:I18nLabels a owl:Class ;
+  rdfs:label "Internationalization Labels" ;
+  rdfs:label "Internationalisierungslabels"@de ;
+  rdfs:comment "Multilingual labels for UI components and navigation" .
+
+# Form Navigator Menu Labels
+settings:extractData a settings:I18nLabels ;
+  rdfs:label "Extract Data"@en ;
+  rdfs:label "Daten extrahieren"@de ;
+  rdfs:comment "Menu option for data extraction from websites" .
+
+settings:fillForms a settings:I18nLabels ;
+  rdfs:label "Fill Forms"@en ;
+  rdfs:label "Formulare ausfüllen"@de ;
+  rdfs:comment "Menu option for automated form filling" .
+
+settings:webBrowser a settings:I18nLabels ;
+  rdfs:label "Web Browser"@en ;
+  rdfs:label "Webbrowser"@de ;
+  rdfs:comment "Full browser for website navigation" .
+
+settings:spiderConfiguration a settings:I18nLabels ;
+  rdfs:label "Spider Configuration"@en ;
+  rdfs:label "Spider-Konfiguration"@de ;
+  rdfs:comment "Configuration options for web spider" .
+
+settings:extractDataDesc a settings:I18nLabels ;
+  rdfs:label "Extract data from websites using AI-powered analysis"@en ;
+  rdfs:label "Daten von Websites mit KI-gestützter Analyse extrahieren"@de .
+
+settings:fillFormsDesc a settings:I18nLabels ;
+  rdfs:label "Automatically fill forms with your saved data"@en ;
+  rdfs:label "Formulare automatisch mit Ihren gespeicherten Daten ausfüllen"@de .
+
+settings:webBrowserDesc a settings:I18nLabels ;
+  rdfs:label "Navigate websites with full browser functionality"@en ;
+  rdfs:label "Navigieren Sie auf Websites mit voller Browser-Funktionalität"@de .
+
+settings:spiderConfigDesc a settings:I18nLabels ;
+  rdfs:label "Configure web spider settings and options"@en ;
+  rdfs:label "Web-Spider-Einstellungen und -Optionen konfigurieren"@de .
+
+# Menu Structure Configuration
+settings:MenuStructure a owl:Class ;
+  rdfs:label "Menu Structure"@en ;
+  rdfs:label "Menüstruktur"@de ;
+  rdfs:comment "Defines the hierarchical menu structure for the application" .
+
+settings:extractDataMenu a settings:MenuStructure ;
+  rdfs:label "Extract Data Menu"@en ;
+  rdfs:label "Daten extrahieren Menü"@de ;
+  settings:menuId "extract-data" ;
+  settings:menuOrder 1 ;
+  settings:hasSubMenu settings:webBrowserExtract, settings:dataExtractorMenu, settings:spiderConfigExtract .
+
+settings:fillFormsMenu a settings:MenuStructure ;
+  rdfs:label "Fill Forms Menu"@en ;
+  rdfs:label "Formulare ausfüllen Menü"@de ;
+  settings:menuId "fill-forms" ;
+  settings:menuOrder 2 ;
+  settings:hasSubMenu settings:webBrowserFill, settings:formFillerMenu, settings:bitwardenMenu, settings:smartMappingMenu, settings:spiderConfigFill .
+
+settings:webBrowserExtract a settings:MenuStructure ;
+  rdfs:label "Web Browser (Extract)"@en ;
+  rdfs:label "Webbrowser (Extrahieren)"@de ;
+  settings:menuId "web-browser-extract" ;
+  settings:functionality "data-extraction" .
+
+settings:webBrowserFill a settings:MenuStructure ;
+  rdfs:label "Web Browser (Fill)"@en ;
+  rdfs:label "Webbrowser (Ausfüllen)"@de ;
+  settings:menuId "web-browser-fill" ;
+  settings:functionality "form-filling" .
+
+# Web Spider Configuration Classes
+settings:WebSpiderConfig a owl:Class ;
+  rdfs:subClassOf settings:Settings ;
+  rdfs:label "Web Spider Configuration"@en ;
+  rdfs:label "Web-Spider-Konfiguration"@de ;
+  rdfs:comment "Configuration settings for web spider functionality" .
+
+settings:headlessMode a owl:DatatypeProperty ;
+  rdfs:domain settings:WebSpiderConfig ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Headless Mode"@en ;
+  rdfs:label "Headless-Modus"@de .
+
+settings:takeScreenshots a owl:DatatypeProperty ;
+  rdfs:domain settings:WebSpiderConfig ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Take Screenshots"@en ;
+  rdfs:label "Screenshots aufnehmen"@de .
+
+settings:waitForPageLoad a owl:DatatypeProperty ;
+  rdfs:domain settings:WebSpiderConfig ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Wait for Page Load"@en ;
+  rdfs:label "Auf Seitenladevorgang warten"@de .
+
+settings:enableJavaScript a owl:DatatypeProperty ;
+  rdfs:domain settings:WebSpiderConfig ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Enable JavaScript"@en ;
+  rdfs:label "JavaScript aktivieren"@de .
+
 # SETTINGS BASE CLASSES
 settings:Settings a owl:Class ;
   rdfs:label "Settings" ;

@@ -126,12 +126,14 @@ func main() {
 	api.HandleFunc("/web-spider", WebSpiderHandler).Methods("POST")
 	api.HandleFunc("/extract-data", ExtractDataHandler).Methods("POST")
 	api.HandleFunc("/fill-form", FillFormHandler).Methods("POST")
-	
+
 	// Stealth Browser routes
 	api.HandleFunc("/stealth-browser", StealthBrowserHandler).Methods("POST")
-	
+
 	// Bitwarden Integration routes
+	api.HandleFunc("/bitwarden/status", BitwardenStatusHandler).Methods("GET")
 	api.HandleFunc("/bitwarden/login", BitwardenLoginHandler).Methods("POST")
+	api.HandleFunc("/bitwarden/login-apikey", BitwardenAPIKeyLoginHandler).Methods("POST")
 	api.HandleFunc("/bitwarden/unlock", BitwardenUnlockHandler).Methods("POST")
 	api.HandleFunc("/bitwarden/store-site", BitwardenStoreSiteHandler).Methods("POST")
 	api.HandleFunc("/bitwarden/store-banking", BitwardenStoreBankingHandler).Methods("POST")
@@ -140,6 +142,9 @@ func main() {
 	api.HandleFunc("/bitwarden/list-credentials", BitwardenListCredentialsHandler).Methods("GET")
 	api.HandleFunc("/bitwarden/sync", BitwardenSyncHandler).Methods("POST")
 	api.HandleFunc("/bitwarden/setup-templates", BitwardenSetupTemplatesHandler).Methods("POST")
+
+	// Money Supermarket Infiltration
+	api.HandleFunc("/infiltrate/moneysupermarket", MoneySupermarketInfiltrationHandler).Methods("POST")
 
 	// UI
 	r.HandleFunc("/", app.handleHome).Methods("GET")

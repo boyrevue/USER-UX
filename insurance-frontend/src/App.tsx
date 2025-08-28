@@ -23,7 +23,9 @@ import {
   FileSearch,
   MapPin,
   Target,
-  Wand2
+  Wand2,
+  Download,
+  Globe
 } from 'lucide-react';
 import { 
   Card, 
@@ -207,19 +209,24 @@ const translations: {[key: string]: {[key: string]: string}} = {
     paymentExtras: 'Insurance Payments',
     marketingPreferences: 'Marketing Preferences',
     personalDocuments: 'Personal Documents',
-    // Navigate and Fill Menu
-    navigateAndFill: 'Navigate & Fill',
-    navigateAndFillDesc: 'AI-powered form analysis and automated filling tools',
-    formAnalyzer: 'Form Analyzer',
-    formAnalyzerDesc: 'Analyze external forms using AI and map fields to your data',
+    // Extract Data Menu
+    extractData: 'Extract Data',
+    extractDataDesc: 'Extract data from websites using AI-powered analysis',
+    webBrowser: 'Web Browser',
+    webBrowserDesc: 'Navigate websites with full browser functionality',
+    spiderConfiguration: 'Spider Configuration',
+    spiderConfigDesc: 'Configure web spider settings and options',
+    dataExtractor: 'Data Extractor',
+    dataExtractorDesc: 'AI-powered data extraction from web pages',
+    // Fill Forms Menu
+    fillForms: 'Fill Forms',
+    fillFormsDesc: 'Automatically fill forms with your saved data',
+    formFiller: 'Form Filler',
+    formFillerDesc: 'Automated form filling with saved data',
     bitwardenIntegration: 'Bitwarden Integration',
     bitwardenIntegrationDesc: 'Auto-fill forms using your Bitwarden vault data',
     smartMapping: 'Smart Mapping',
     smartMappingDesc: 'Intelligent field mapping with SHACL transformation',
-    formNavigator: 'Form Navigator',
-    formNavigatorDesc: 'Navigate and analyze web forms automatically',
-    autoFill: 'Auto Fill',
-    autoFillDesc: 'Automatically populate forms with your saved data',
     // Web Spider Features
     webSpider: 'Web Spider',
     dataExtraction: 'Data Extraction',
@@ -227,14 +234,13 @@ const translations: {[key: string]: {[key: string]: string}} = {
     formFillComplete: 'Form filling completed successfully',
     extractFromWebsite: 'Extract from Website',
     fillExternalForm: 'Fill External Form',
-    spiderConfiguration: 'Spider Configuration',
     headlessMode: 'Headless Mode',
     takeScreenshots: 'Take Screenshots',
     waitForLoad: 'Wait for Page Load',
     enableJavaScript: 'Enable JavaScript',
     cssSelectors: 'CSS Selectors',
-    extractData: 'Extract Data',
-    fillForm: 'Fill Form',
+    extractDataAction: 'Extract Data',
+    fillFormAction: 'Fill Form',
     extractionResults: 'Extraction Results',
     recentTasks: 'Recent Tasks',
     // Bitwarden & Stealth Browser
@@ -248,6 +254,15 @@ const translations: {[key: string]: {[key: string]: string}} = {
     setupTemplates: 'Setup Credential Templates',
     autoLogin: 'Auto Login',
     antiBotProtection: 'Anti-Bot Protection',
+    // Money Supermarket Infiltration
+    moneySupermarketInfiltration: 'Money Supermarket Infiltration',
+    infiltrateMoneySupermarket: 'Infiltrate Money Supermarket',
+    stealthInfiltration: 'Stealth Infiltration',
+    targetAcquired: 'Target Acquired',
+    infiltrationInProgress: 'Infiltration in Progress...',
+    infiltrationComplete: 'Infiltration Complete!',
+    quotesExtracted: 'Quotes Extracted',
+    evidenceCaptured: 'Evidence Captured',
     drivingLicence: 'Driving Licence',
     identityCard: 'Identity Card',
     utilityBill: 'Utility Bill',
@@ -369,19 +384,24 @@ const translations: {[key: string]: {[key: string]: string}} = {
     claimsHistory: 'Schadenshistorie',
     paymentExtras: 'Zahlung & Extras',
     marketingPreferences: 'Marketing-Einstellungen',
-    // Navigate and Fill Menu
-    navigateAndFill: 'Navigieren & Ausfüllen',
-    navigateAndFillDesc: 'KI-gestützte Formularanalyse und automatische Ausfüllwerkzeuge',
-    formAnalyzer: 'Formular-Analyzer',
-    formAnalyzerDesc: 'Externe Formulare mit KI analysieren und Felder zu Ihren Daten zuordnen',
+    // Extract Data Menu
+    extractData: 'Daten extrahieren',
+    extractDataDesc: 'Daten von Websites mit KI-gestützter Analyse extrahieren',
+    webBrowser: 'Webbrowser',
+    webBrowserDesc: 'Navigieren Sie auf Websites mit voller Browser-Funktionalität',
+    spiderConfiguration: 'Spider-Konfiguration',
+    spiderConfigDesc: 'Web-Spider-Einstellungen und -Optionen konfigurieren',
+    dataExtractor: 'Datenextraktor',
+    dataExtractorDesc: 'KI-gestützte Datenextraktion von Webseiten',
+    // Fill Forms Menu
+    fillForms: 'Formulare ausfüllen',
+    fillFormsDesc: 'Formulare automatisch mit Ihren gespeicherten Daten ausfüllen',
+    formFiller: 'Formular-Ausfüller',
+    formFillerDesc: 'Automatisches Ausfüllen von Formularen mit gespeicherten Daten',
     bitwardenIntegration: 'Bitwarden-Integration',
     bitwardenIntegrationDesc: 'Formulare automatisch mit Ihren Bitwarden-Vault-Daten ausfüllen',
     smartMapping: 'Intelligente Zuordnung',
     smartMappingDesc: 'Intelligente Feldzuordnung mit SHACL-Transformation',
-    formNavigator: 'Formular-Navigator',
-    formNavigatorDesc: 'Web-Formulare automatisch navigieren und analysieren',
-    autoFill: 'Automatisches Ausfüllen',
-    autoFillDesc: 'Formulare automatisch mit Ihren gespeicherten Daten ausfüllen',
     // Web Spider Features
     webSpider: 'Web-Spider',
     dataExtraction: 'Datenextraktion',
@@ -389,14 +409,13 @@ const translations: {[key: string]: {[key: string]: string}} = {
     formFillComplete: 'Formular-Ausfüllung erfolgreich abgeschlossen',
     extractFromWebsite: 'Von Website extrahieren',
     fillExternalForm: 'Externes Formular ausfüllen',
-    spiderConfiguration: 'Spider-Konfiguration',
     headlessMode: 'Headless-Modus',
     takeScreenshots: 'Screenshots erstellen',
     waitForLoad: 'Auf Seitenladen warten',
     enableJavaScript: 'JavaScript aktivieren',
     cssSelectors: 'CSS-Selektoren',
-    extractData: 'Daten extrahieren',
-    fillForm: 'Formular ausfüllen',
+    extractDataAction: 'Daten extrahieren',
+    fillFormAction: 'Formular ausfüllen',
     extractionResults: 'Extraktionsergebnisse',
     recentTasks: 'Letzte Aufgaben',
     // Bitwarden & Stealth Browser
@@ -410,6 +429,15 @@ const translations: {[key: string]: {[key: string]: string}} = {
     setupTemplates: 'Anmeldedaten-Vorlagen einrichten',
     autoLogin: 'Automatische Anmeldung',
     antiBotProtection: 'Anti-Bot-Schutz',
+    // Money Supermarket Infiltration
+    moneySupermarketInfiltration: 'Money Supermarket Infiltration',
+    infiltrateMoneySupermarket: 'Money Supermarket infiltrieren',
+    stealthInfiltration: 'Stealth-Infiltration',
+    targetAcquired: 'Ziel erfasst',
+    infiltrationInProgress: 'Infiltration läuft...',
+    infiltrationComplete: 'Infiltration abgeschlossen!',
+    quotesExtracted: 'Angebote extrahiert',
+    evidenceCaptured: 'Beweise gesichert',
     additionalDriver: 'Zusatzfahrer',
     firstName: 'Vorname',
     lastName: 'Nachname',
@@ -539,6 +567,11 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [passportCount, setPassportCount] = useState(1);
   
+  // Browser state
+  const [browserUrl, setBrowserUrl] = useState('');
+  const [isBrowsing, setIsBrowsing] = useState(false);
+  const [browserWindow, setBrowserWindow] = useState<Window | null>(null);
+  
   // AI Form Analysis State
   const [showFormAnalyzer, setShowFormAnalyzer] = useState(false);
   const [analysisResults, setAnalysisResults] = useState<any>(null);
@@ -566,6 +599,12 @@ function App() {
   const [bitwardenUnlocked, setBitwardenUnlocked] = useState(false);
   const [availableCredentials, setAvailableCredentials] = useState<any[]>([]);
   const [selectedSite, setSelectedSite] = useState<string>('moneysupermarket.com');
+
+  // Money Supermarket Infiltration State
+  const [infiltrationInProgress, setInfiltrationInProgress] = useState(false);
+  const [infiltrationResult, setInfiltrationResult] = useState<any>(null);
+  const [extractedQuotes, setExtractedQuotes] = useState<any[]>([]);
+  const [infiltrationLogs, setInfiltrationLogs] = useState<string[]>([]);
 
 
 
@@ -600,11 +639,25 @@ function App() {
   };
 
   const handleDocumentFileSelect = (e: React.ChangeEvent<HTMLInputElement>, uploadType: string = 'main') => {
+    console.log('File selection triggered:', { uploadType, selectedDocumentType });
     const files = Array.from(e.target.files || []);
+    console.log('Files selected:', files.map(f => f.name));
+    
+    // Auto-process files immediately
     handleDocumentFiles(files, uploadType);
+    
+    // Clear the input so the same file can be selected again
+    e.target.value = '';
   };
 
   const handleDocumentFiles = (files: File[], uploadType: string = 'main') => {
+    console.log('Processing files:', { files: files.map(f => f.name), uploadType, selectedDocumentType });
+    
+    if (!selectedDocumentType) {
+      console.error('No document type selected!');
+      return;
+    }
+    
     const key = `${selectedDocumentType}_${uploadType}`;
     setDocumentFiles(prev => ({
       ...prev,
@@ -613,6 +666,7 @@ function App() {
     
     // Auto-process if files are uploaded
     if (files.length > 0) {
+      console.log('Starting OCR processing...');
       processDocumentOCR(files, uploadType);
     }
   };
@@ -627,31 +681,53 @@ function App() {
 
   // OCR Processing Functions
   const processDocumentOCR = async (files: File[], uploadType: string = 'main') => {
-    if (!selectedDocumentType || files.length === 0) return;
+    console.log('processDocumentOCR called:', { files: files.map(f => f.name), uploadType, selectedDocumentType });
+    
+    if (!selectedDocumentType || files.length === 0) {
+      console.error('Cannot process OCR:', { selectedDocumentType, filesLength: files.length });
+      return;
+    }
     
     setIsProcessing(true);
     
     try {
       for (const file of files) {
+        console.log('Processing file:', file.name);
         const formData = new FormData();
         formData.append('file', file);
         formData.append('documentType', selectedDocumentType);
         formData.append('uploadType', uploadType);
         
+        console.log('Sending OCR request to /api/process-document');
         const response = await fetch('/api/process-document', {
           method: 'POST',
           body: formData
         });
         
+        console.log('OCR response status:', response.status);
+        
         if (response.ok) {
           const result = await response.json();
+          console.log('OCR result:', result);
+          console.log('🔍 Extracted Fields Detail:', JSON.stringify(result.extractedFields, null, 2));
+          console.log('📊 OCR Metadata:', {
+            engine: result.ocrEngine || result.extractedFields?._ocrEngine,
+            confidence: result.confidence,
+            processingPath: result.processingPath,
+            ocrConfidence: result.extractedFields?._ocrConfidence,
+            fieldConfidence: result.extractedFields?._fieldConfidence
+          });
+          
           setExtractedData(prev => ({
             ...prev,
             [`${selectedDocumentType}_${uploadType}_${file.name}`]: result
           }));
           
           // Auto-populate form fields with extracted data
-          populateFormFields(result, uploadType);
+          populateFormFields(result.extractedFields, uploadType);
+        } else {
+          const errorText = await response.text();
+          console.error('OCR request failed:', response.status, errorText);
         }
       }
     } catch (error) {
@@ -662,6 +738,8 @@ function App() {
   };
 
   const populateFormFields = (data: any, uploadType: string) => {
+    console.log('Populating form fields:', { data, uploadType, selectedDocumentType });
+    
     if (selectedDocumentType === 'driving-licence') {
       if (uploadType === 'front' && data.licenceNumber) {
         const input = document.getElementById('licenceNumber') as HTMLInputElement;
@@ -678,10 +756,15 @@ function App() {
     } else if (selectedDocumentType === 'passport') {
       // Extract passport number from uploadType (e.g., "passport_1" -> "1")
       const passportNum = uploadType.includes('passport_') ? uploadType.split('_')[1] : '1';
+      console.log('Processing passport data:', { passportNum, data });
       
       if (data.passportNumber) {
         const input = document.getElementById(`passportNumber_${passportNum}`) as HTMLInputElement;
-        if (input) input.value = data.passportNumber;
+        console.log('Found passport number input:', input);
+        if (input) {
+          input.value = data.passportNumber;
+          console.log('Set passport number:', data.passportNumber);
+        }
       }
       if (data.issuingCountry) {
         const select = document.getElementById(`passportCountry_${passportNum}`) as HTMLSelectElement;
@@ -989,6 +1072,131 @@ function App() {
     }
   };
 
+  // Smart Bitwarden Connection Handler
+  const connectToBitwarden = async () => {
+    try {
+      // First check Bitwarden status
+      const statusResponse = await fetch('/api/bitwarden/status');
+      
+      if (!statusResponse.ok) {
+        throw new Error(`HTTP ${statusResponse.status}: ${statusResponse.statusText}`);
+      }
+      
+      const responseText = await statusResponse.text();
+      console.log('Raw Bitwarden status response:', responseText);
+      
+      let status;
+      try {
+        status = JSON.parse(responseText);
+      } catch (parseError) {
+        throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}...`);
+      }
+      
+      if (!status.available) {
+        alert('❌ Bitwarden CLI not available: ' + status.error);
+        return;
+      }
+      
+      const bitwardenStatus = status.status?.status;
+      
+      if (bitwardenStatus === 'unauthenticated') {
+        // Ask user for login method
+        const loginMethod = window.confirm('Choose login method:\n\nOK = Email/Password\nCancel = API Key (for 2FA accounts)');
+        
+        if (loginMethod) {
+          // Email/Password login
+          const email = prompt('🔐 Enter your Bitwarden email:');
+          const password = prompt('🔑 Enter your Bitwarden password:');
+          
+          if (!email || !password) {
+            alert('❌ Email and password required');
+            return;
+          }
+          
+          const loginResponse = await fetch('/api/bitwarden/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+          
+          const loginResult = await loginResponse.json();
+          if (!loginResult.success) {
+            let errorMsg = loginResult.error || 'Unknown error';
+            
+            // Provide helpful error messages and suggestions
+            if (errorMsg.includes('invalid credentials') || errorMsg.includes('Username or password')) {
+              errorMsg = 'Invalid email or password. Please check your Bitwarden credentials.';
+            } else if (errorMsg.includes('two-factor') || errorMsg.includes('2FA')) {
+              errorMsg = 'Two-factor authentication detected. Please use API Key login instead.';
+            } else if (errorMsg.includes('server configuration')) {
+              errorMsg = 'Server configuration error. Please check your Bitwarden server URL.';
+            } else if (errorMsg.includes('network')) {
+              errorMsg = 'Network error. Please check your internet connection.';
+            }
+            
+            alert('❌ Login failed: ' + errorMsg);
+            return;
+          }
+          
+          setBitwardenUnlocked(true);
+          alert('✅ Successfully logged in to Bitwarden!');
+          
+        } else {
+          // API Key login
+          const clientId = prompt('🔑 Enter your Bitwarden Client ID:');
+          const clientSecret = prompt('🔐 Enter your Bitwarden Client Secret:');
+          const masterPassword = prompt('🔓 Enter your Master Password:');
+          
+          if (!clientId || !clientSecret || !masterPassword) {
+            alert('❌ All API key fields are required');
+            return;
+          }
+          
+          const apiLoginResponse = await fetch('/api/bitwarden/login-apikey', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              clientId, 
+              clientSecret, 
+              password: masterPassword 
+            })
+          });
+          
+          const apiLoginResult = await apiLoginResponse.json();
+          if (!apiLoginResult.success) {
+            alert('❌ API Key login failed: ' + (apiLoginResult.error || 'Unknown error'));
+            return;
+          }
+          
+          setBitwardenUnlocked(true);
+          alert('✅ Successfully logged in to Bitwarden with API key!');
+        }
+        
+      } else if (bitwardenStatus === 'locked') {
+        // Need to unlock
+        const masterPassword = prompt('🔓 Enter your Bitwarden master password:');
+        if (!masterPassword) {
+          alert('❌ Master password required');
+          return;
+        }
+        
+        await unlockBitwarden(masterPassword);
+        
+      } else if (bitwardenStatus === 'unlocked') {
+        setBitwardenUnlocked(true);
+        alert('✅ Bitwarden is already unlocked!');
+      }
+      
+      if (bitwardenUnlocked || bitwardenStatus === 'unlocked') {
+        await loadAvailableCredentials();
+      }
+      
+    } catch (error) {
+      console.error('Bitwarden connection failed:', error);
+      alert('❌ Bitwarden connection failed: ' + error);
+    }
+  };
+
   const loadAvailableCredentials = async () => {
     try {
       const response = await fetch('/api/bitwarden/list-credentials?category=site_login');
@@ -1117,6 +1325,74 @@ function App() {
       setIsBrowserRunning(false);
     }
   };
+
+  // Money Supermarket Infiltration Function
+  const infiltrateMoneySupermarket = async () => {
+    setInfiltrationInProgress(true);
+    setInfiltrationLogs([]);
+    setExtractedQuotes([]);
+    
+    const logs: string[] = [];
+    const addLog = (message: string) => {
+      logs.push(`${new Date().toLocaleTimeString()}: ${message}`);
+      setInfiltrationLogs([...logs]);
+    };
+
+    try {
+      addLog('🥷 Initiating Money Supermarket infiltration...');
+      addLog('🛡️ Activating maximum stealth protection...');
+      
+      const infiltrationData = {
+        vehicleReg: session.vehicle?.registration || 'AB12 CDE',
+        postCode: session.drivers?.[0]?.postcode || 'SW1A 1AA',
+        dateOfBirth: session.drivers?.[0]?.dateOfBirth || '01/01/1990',
+        licenceType: session.drivers?.[0]?.licenceType || 'full'
+      };
+
+      addLog('📝 Preparing infiltration data...');
+      addLog(`🎯 Target: Money Supermarket (${Object.keys(infiltrationData).length} data points)`);
+      
+      const response = await fetch('/api/infiltrate/moneysupermarket', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(infiltrationData)
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setInfiltrationResult(result);
+        
+        if (result.success) {
+          addLog(`🏆 INFILTRATION SUCCESSFUL!`);
+          addLog(`💰 Extracted ${result.quotes.length} insurance quotes`);
+          addLog(`📸 Captured ${result.screenshots.length} evidence screenshots`);
+          addLog(`⏱️ Mission duration: ${result.duration}`);
+          
+          setExtractedQuotes(result.quotes);
+          
+          // Display quotes
+          result.quotes.forEach((quote: any, index: number) => {
+            addLog(`📋 Quote ${index + 1}: ${quote.provider} - ${quote.price}`);
+          });
+          
+        } else {
+          addLog('❌ Infiltration failed');
+          result.errors.forEach((error: string) => {
+            addLog(`🚨 Error: ${error}`);
+          });
+        }
+      } else {
+        addLog('❌ Failed to connect to infiltration endpoint');
+      }
+      
+    } catch (error) {
+      console.error('Infiltration error:', error);
+      addLog(`🚨 Critical error: ${error}`);
+    } finally {
+      setInfiltrationInProgress(false);
+      addLog('🏁 Infiltration mission complete');
+    }
+  };
   const [session, setSession] = useState<QuoteSession>({
     id: '1',
     language: 'en',
@@ -1229,15 +1505,25 @@ function App() {
       categories: []
     },
     {
-      id: 'navigate-fill',
-      title: translations[session.language].navigateAndFill,
-      icon: Navigation,
+      id: 'extract-data',
+      title: translations[session.language].extractData,
+      icon: Download,
       categories: [
-        { id: 'form-analyzer', title: translations[session.language].formAnalyzer, icon: Brain, order: 1, description: translations[session.language].formAnalyzerDesc },
-        { id: 'bitwarden-integration', title: translations[session.language].bitwardenIntegration, icon: Key, order: 2, description: translations[session.language].bitwardenIntegrationDesc },
-        { id: 'smart-mapping', title: translations[session.language].smartMapping, icon: Target, order: 3, description: translations[session.language].smartMappingDesc },
-        { id: 'form-navigator', title: translations[session.language].formNavigator, icon: MapPin, order: 4, description: translations[session.language].formNavigatorDesc },
-        { id: 'auto-fill', title: translations[session.language].autoFill, icon: Zap, order: 5, description: translations[session.language].autoFillDesc }
+        { id: 'web-browser-extract', title: translations[session.language].webBrowser, icon: Globe, order: 1, description: translations[session.language].webBrowserDesc },
+        { id: 'data-extractor', title: translations[session.language].dataExtractor, icon: Brain, order: 2, description: translations[session.language].dataExtractorDesc },
+        { id: 'spider-config-extract', title: translations[session.language].spiderConfiguration, icon: Settings, order: 3, description: translations[session.language].spiderConfigDesc }
+      ]
+    },
+    {
+      id: 'fill-forms',
+      title: translations[session.language].fillForms,
+      icon: Upload,
+      categories: [
+        { id: 'web-browser-fill', title: translations[session.language].webBrowser, icon: Globe, order: 1, description: translations[session.language].webBrowserDesc },
+        { id: 'form-filler', title: translations[session.language].formFiller, icon: Zap, order: 2, description: translations[session.language].formFillerDesc },
+        { id: 'bitwarden-integration', title: translations[session.language].bitwardenIntegration, icon: Key, order: 3, description: translations[session.language].bitwardenIntegrationDesc },
+        { id: 'smart-mapping', title: translations[session.language].smartMapping, icon: Target, order: 4, description: translations[session.language].smartMappingDesc },
+        { id: 'spider-config-fill', title: translations[session.language].spiderConfiguration, icon: Settings, order: 5, description: translations[session.language].spiderConfigDesc }
       ]
     },
     {
@@ -4020,7 +4306,7 @@ Insurance Quote System
           <Card className="p-6">
             <h3 className="font-medium mb-4">Connect Bitwarden</h3>
             <p className="text-gray-600 mb-4">Link your Bitwarden vault to auto-fill forms with your saved data.</p>
-            <Button className="w-full">
+            <Button className="w-full" onClick={connectToBitwarden}>
               <Key className="w-4 h-4 mr-2" />
               Connect Vault
             </Button>
@@ -4338,34 +4624,365 @@ Insurance Quote System
             </Button>
           </Card>
         </div>
+
+        {/* Money Supermarket Infiltration */}
+        <div className="mt-8 bg-gradient-to-r from-red-50 to-orange-50 rounded-lg p-6 border-2 border-red-200">
+          <div className="flex items-center space-x-3 mb-6">
+            <Target className="w-8 h-8 text-red-600" />
+            <div>
+              <h2 className="text-2xl font-bold text-red-900">{translations[session.language].moneySupermarketInfiltration}</h2>
+              <p className="text-red-700">🥷 Advanced stealth infiltration with anti-bot protection</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Infiltration Control Panel */}
+            <Card className="p-6 bg-white border-red-200">
+              <h3 className="font-bold text-lg mb-4 text-red-900">🎯 Mission Control</h3>
+              
+              <div className="space-y-4">
+                <div className="bg-red-50 p-4 rounded-lg">
+                  <h4 className="font-medium text-red-800 mb-2">{translations[session.language].targetAcquired}</h4>
+                  <p className="text-sm text-red-700">Money Supermarket Car Insurance</p>
+                  <p className="text-xs text-red-600 mt-1">🛡️ Stealth Level: MAXIMUM</p>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-gray-700">Mission Data:</p>
+                  <div className="text-xs text-gray-600 space-y-1">
+                    <div>🚗 Vehicle: {session.vehicle?.registration || 'AB12 CDE'}</div>
+                    <div>📍 Postcode: {session.drivers?.[0]?.postcode || 'SW1A 1AA'}</div>
+                    <div>🎂 DOB: {session.drivers?.[0]?.dateOfBirth || '01/01/1990'}</div>
+                  </div>
+                </div>
+
+                <Button 
+                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3"
+                  onClick={infiltrateMoneySupermarket}
+                  disabled={infiltrationInProgress}
+                >
+                  {infiltrationInProgress ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      {translations[session.language].infiltrationInProgress}
+                    </>
+                  ) : (
+                    <>
+                      <Target className="w-4 h-4 mr-2" />
+                      {translations[session.language].infiltrateMoneySupermarket}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </Card>
+
+            {/* Mission Logs */}
+            <Card className="p-6 bg-gray-900 text-green-400 font-mono">
+              <h3 className="font-bold text-lg mb-4 text-green-300">📡 Mission Logs</h3>
+              
+              <div className="h-64 overflow-y-auto bg-black p-3 rounded border border-green-600">
+                {infiltrationLogs.length === 0 ? (
+                  <div className="text-green-600 text-sm">
+                    <p>🥷 Stealth systems ready...</p>
+                    <p>🛡️ Anti-bot protection armed...</p>
+                    <p>🎯 Awaiting infiltration orders...</p>
+                  </div>
+                ) : (
+                  infiltrationLogs.map((log, index) => (
+                    <div key={index} className="text-xs mb-1 text-green-400">
+                      {log}
+                    </div>
+                  ))
+                )}
+              </div>
+            </Card>
+          </div>
+
+          {/* Extracted Quotes Display */}
+          {extractedQuotes.length > 0 && (
+            <div className="mt-6">
+              <h3 className="font-bold text-lg mb-4 text-red-900">
+                💰 {translations[session.language].quotesExtracted} ({extractedQuotes.length})
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {extractedQuotes.map((quote, index) => (
+                  <Card key={index} className="p-4 border-green-200 bg-green-50">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-bold text-green-800">{quote.provider}</span>
+                      <span className="text-xs text-green-600">#{quote.position}</span>
+                    </div>
+                    <div className="text-2xl font-bold text-green-900 mb-1">{quote.price}</div>
+                    <div className="text-xs text-green-700">{quote.details}</div>
+                    <div className="text-xs text-gray-500 mt-2">
+                      Extracted: {new Date(quote.extractedAt).toLocaleTimeString()}
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 
+  // Web Browser Component with Real Browser Integration
+  const renderWebBrowserSection = (mode: 'extract' | 'fill') => {
+    const openRealBrowser = () => {
+      const url = browserUrl || 'https://example.com';
+      setIsBrowsing(true);
+      
+      // Open in new window with specific dimensions
+      const newWindow = window.open(
+        url,
+        '_blank',
+        'width=1200,height=800,scrollbars=yes,resizable=yes,toolbar=yes,menubar=yes,location=yes'
+      );
+      
+      setBrowserWindow(newWindow);
+      
+      // Monitor if window is closed
+      const checkClosed = setInterval(() => {
+        if (newWindow?.closed) {
+          setIsBrowsing(false);
+          setBrowserWindow(null);
+          clearInterval(checkClosed);
+        }
+      }, 1000);
+    };
+
+    const closeBrowser = () => {
+      if (browserWindow) {
+        browserWindow.close();
+        setBrowserWindow(null);
+      }
+      setIsBrowsing(false);
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <Globe className="w-6 h-6 text-blue-600" />
+            <h2 className="text-xl font-semibold text-gray-900">
+              {translations[session.language].webBrowser} - {mode === 'extract' ? translations[session.language].extractData : translations[session.language].fillForms}
+            </h2>
+            {isBrowsing && (
+              <Badge color="green" className="animate-pulse">
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-ping"></div>
+                  Browsing Active
+                </div>
+              </Badge>
+            )}
+          </div>
+
+          {/* Browser Control Panel */}
+          <div className="border border-gray-300 rounded-lg overflow-hidden bg-gray-50">
+            {/* Browser Header */}
+            <div className="bg-gray-200 px-4 py-3 flex items-center gap-3 border-b border-gray-300">
+              <div className="flex gap-1">
+                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              </div>
+              <div className="flex-1 mx-4">
+                <TextInput
+                  type="url"
+                  placeholder="https://example.com"
+                  value={browserUrl}
+                  onChange={(e) => setBrowserUrl(e.target.value)}
+                  className="text-sm"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      openRealBrowser();
+                    }
+                  }}
+                />
+              </div>
+              <Button 
+                size="sm" 
+                color="blue"
+                onClick={openRealBrowser}
+                disabled={isBrowsing}
+              >
+                <Globe className="w-4 h-4 mr-2" />
+                {isBrowsing ? 'Browsing...' : 'Navigate'}
+              </Button>
+            </div>
+            
+            {/* Browser Status */}
+            <div className="p-6 text-center">
+              {isBrowsing ? (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-center gap-3">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <Globe className="w-12 h-12 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-lg font-medium text-gray-900">Browser Window Active</p>
+                    <p className="text-sm text-gray-600">
+                      Real browser opened for {mode === 'extract' ? 'data extraction' : 'form filling'}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-2">
+                      URL: {browserUrl || 'https://example.com'}
+                    </p>
+                  </div>
+                  <Button 
+                    color="failure" 
+                    size="sm" 
+                    onClick={closeBrowser}
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Close Browser
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <Globe className="w-16 h-16 mx-auto text-gray-300" />
+                  <div>
+                    <p className="text-lg font-medium text-gray-900">Real Browser Integration</p>
+                    <p className="text-sm text-gray-600">
+                      Enter a URL above and click Navigate to open a real browser window
+                    </p>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Floating controls will appear for {mode === 'extract' ? 'data extraction' : 'form filling'}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Floating Controls (when browsing) */}
+          {isBrowsing && (
+            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center gap-2 mb-3">
+                <Zap className="w-5 h-5 text-blue-600" />
+                <h3 className="font-medium text-blue-900">Floating Controls Active</h3>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {mode === 'extract' ? (
+                  <>
+                    <Button size="xs" color="green">
+                      <Download className="w-3 h-3 mr-1" />
+                      Extract Data
+                    </Button>
+                    <Button size="xs" outline>
+                      <Settings className="w-3 h-3 mr-1" />
+                      Configure
+                    </Button>
+                    <Button size="xs" outline>
+                      <Scan className="w-3 h-3 mr-1" />
+                      Screenshot
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button size="xs" color="blue">
+                      <Wand2 className="w-3 h-3 mr-1" />
+                      Auto Fill
+                    </Button>
+                    <Button size="xs" outline>
+                      <Settings className="w-3 h-3 mr-1" />
+                      Configure
+                    </Button>
+                    <Button size="xs" outline>
+                      <Key className="w-3 h-3 mr-1" />
+                      Bitwarden
+                    </Button>
+                  </>
+                )}
+              </div>
+              <p className="text-xs text-blue-700 mt-2">
+                These controls are available as floating overlay in the browser window
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Spider Configuration Panel */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Settings className="w-5 h-5 text-gray-600" />
+            <h3 className="text-lg font-medium text-gray-900">
+              {translations[session.language].spiderConfiguration}
+            </h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="headless-mode" className="mb-2 block">
+                {translations[session.language].headlessMode}
+              </Label>
+              <ToggleSwitch id="headless-mode" checked={false} onChange={() => {}} />
+            </div>
+            <div>
+              <Label htmlFor="screenshots" className="mb-2 block">
+                {translations[session.language].takeScreenshots}
+              </Label>
+              <ToggleSwitch id="screenshots" checked={true} onChange={() => {}} />
+            </div>
+            <div>
+              <Label htmlFor="wait-load" className="mb-2 block">
+                {translations[session.language].waitForLoad}
+              </Label>
+              <ToggleSwitch id="wait-load" checked={true} onChange={() => {}} />
+            </div>
+            <div>
+              <Label htmlFor="javascript" className="mb-2 block">
+                {translations[session.language].enableJavaScript}
+              </Label>
+              <ToggleSwitch id="javascript" checked={true} onChange={() => {}} />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderContent = () => {
-    switch (activeCategory) {
-      case 0:
+    const category = categories[activeCategory];
+    if (!category) return renderDriversSection();
+
+    switch (category.id) {
+      // Insurance sections
+      case 'drivers':
         return renderDriversSection();
-      case 1:
+      case 'vehicle':
         return renderVehicleSection();
-      case 2:
+      case 'policy':
         return renderPolicySection();
-      case 3:
+      case 'claims':
         return renderClaimsSection();
-      case 4:
+      case 'payment':
         return renderPaymentSection();
-      case 5:
+      
+      // Extract Data sections
+      case 'web-browser-extract':
+        return renderWebBrowserSection('extract');
+      case 'data-extractor':
         return renderFormAnalyzerSection();
-      case 6:
-        return renderBitwardenIntegrationSection();
-      case 7:
-        return renderSmartMappingSection();
-      case 8:
-        return renderFormNavigatorSection();
-      case 9:
+      case 'spider-config-extract':
+        return renderWebBrowserSection('extract');
+      
+      // Fill Forms sections
+      case 'web-browser-fill':
+        return renderWebBrowserSection('fill');
+      case 'form-filler':
         return renderAutoFillSection();
-      case 10:
+      case 'bitwarden-integration':
+        return renderBitwardenIntegrationSection();
+      case 'smart-mapping':
+        return renderSmartMappingSection();
+      case 'spider-config-fill':
+        return renderWebBrowserSection('fill');
+      
+      // Settings
+      case 'marketing':
         return renderMarketingSection();
+      
       default:
         return renderDriversSection();
     }
@@ -4687,7 +5304,7 @@ Insurance Quote System
             </Button>
           </div>
           <div className="space-y-6">
-            {/* Document Type Selection */}
+            {/* Document Upload Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[
                 { id: 'passport', title: translations[session.language].passport, icon: FileText, description: translations[session.language].passportUpload },
@@ -4702,15 +5319,86 @@ Insurance Quote System
               ].map((docType) => (
                 <Card 
                   key={docType.id} 
-                  className={`cursor-pointer transition-all hover:shadow-lg bg-white ${
-                    selectedDocumentType === docType.id ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
+                  className={`transition-all hover:shadow-lg bg-white border-2 border-dashed ${
+                    isDragOverDocument && selectedDocumentType === docType.id
+                      ? 'border-blue-500 bg-blue-50' 
+                      : isProcessing && selectedDocumentType === docType.id
+                        ? 'border-green-400 bg-green-50'
+                        : 'border-gray-300 hover:border-blue-400'
                   }`}
-                  onClick={() => setSelectedDocumentType(docType.id)}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setSelectedDocumentType(docType.id);
+                    setIsDragOverDocument(true);
+                  }}
+                  onDragLeave={(e) => {
+                    e.preventDefault();
+                    setIsDragOverDocument(false);
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setSelectedDocumentType(docType.id);
+                    setIsDragOverDocument(false);
+                    handleDocumentDrop(e, docType.id);
+                  }}
                 >
                   <div className="p-4 text-center">
                     <docType.icon className="w-8 h-8 text-blue-600 mx-auto mb-3" />
                     <h3 className="font-medium text-gray-900 mb-2">{docType.title}</h3>
-                    <p className="text-sm text-gray-600">{docType.description}</p>
+                    <p className="text-xs text-gray-600 mb-3">{docType.description}</p>
+                    
+                    {/* Upload Area */}
+                    <div className="border-t pt-3">
+                      <Upload className="w-6 h-6 text-gray-400 mx-auto mb-2" />
+                      <p className="text-xs text-gray-500 mb-2">
+                        {isDragOverDocument && selectedDocumentType === docType.id 
+                          ? 'Drop files here' 
+                          : 'Drag & drop or click'
+                        }
+                      </p>
+                      <input
+                        type="file"
+                        multiple
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={(e) => {
+                          setSelectedDocumentType(docType.id);
+                          handleDocumentFileSelect(e, docType.id);
+                        }}
+                        className="hidden"
+                        id={`upload-${docType.id}`}
+                      />
+                      <Button 
+                        size="xs" 
+                        color="blue"
+                        onClick={(e: React.MouseEvent) => {
+                          e.stopPropagation();
+                          setSelectedDocumentType(docType.id);
+                          document.getElementById(`upload-${docType.id}`)?.click();
+                        }}
+                        disabled={isProcessing && selectedDocumentType === docType.id}
+                      >
+                        {isProcessing && selectedDocumentType === docType.id ? (
+                          <>
+                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
+                            Processing...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-3 h-3 mr-1" />
+                            Upload
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    
+                    {/* File Count */}
+                    {documentFiles[docType.id]?.length > 0 && (
+                      <div className="mt-2">
+                        <Badge color="green" size="xs">
+                          {documentFiles[docType.id].length} file{documentFiles[docType.id].length > 1 ? 's' : ''} uploaded
+                        </Badge>
+                      </div>
+                    )}
                   </div>
                 </Card>
               ))}
@@ -5081,10 +5769,10 @@ Insurance Quote System
                     <Button color="gray" onClick={() => setShowDocumentModal(false)}>
                       Cancel
                     </Button>
-                    <Button color="blue">
-                      <Upload className="w-4 h-4 mr-2" />
-                      Process Document
-                    </Button>
+                    <div className="text-sm text-gray-600 flex items-center">
+                      <CheckCircle className="w-4 h-4 mr-2 text-green-600" />
+                      Documents auto-process on upload
+                    </div>
                   </div>
                 </div>
               </div>

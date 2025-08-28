@@ -3,12 +3,58 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"os/exec"
 )
 
 var globalBitwardenManager *BitwardenManager
 
 func init() {
 	globalBitwardenManager = NewBitwardenManager()
+}
+
+// Bitwarden Status Handler
+func BitwardenStatusHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Check Bitwarden CLI status
+	cmd := exec.Command(globalBitwardenManager.CLIPath, "status")
+	output, err := cmd.CombinedOutput()
+	outputStr := string(output)
+
+	var status map[string]interface{}
+	if err != nil {
+		status = map[string]interface{}{
+			"available": false,
+			"error":     "Bitwarden CLI error: " + err.Error(),
+			"message":   outputStr,
+		}
+	} else {
+		// Try to parse as JSON first
+		var statusData map[string]interface{}
+		jsonErr := json.Unmarshal(output, &statusData)
+
+		if jsonErr != nil {
+			// If not JSON, treat as plain text (likely an error message)
+			status = map[string]interface{}{
+				"available": false,
+				"error":     "Bitwarden CLI returned non-JSON response",
+				"message":   outputStr,
+				"rawOutput": outputStr,
+			}
+		} else {
+			status = map[string]interface{}{
+				"available": true,
+				"status":    statusData,
+				"message":   "Bitwarden CLI available",
+			}
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(status)
 }
 
 // Bitwarden Login Handler
@@ -38,6 +84,47 @@ func BitwardenLoginHandler(w http.ResponseWriter, r *http.Request) {
 	response := map[string]interface{}{
 		"success": true,
 		"message": "Successfully logged in to Bitwarden",
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+// Bitwarden API Key Login Handler
+func BitwardenAPIKeyLoginHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var request struct {
+		ClientId     string `json:"clientId"`
+		ClientSecret string `json:"clientSecret"`
+		Password     string `json:"password"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	err = globalBitwardenManager.LoginWithAPIKey(request.ClientId, request.ClientSecret, request.Password)
+	if err != nil {
+		response := map[string]interface{}{
+			"success": false,
+			"error":   err.Error(),
+			"message": "Bitwarden API key login failed",
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	response := map[string]interface{}{
+		"success": true,
+		"message": "Successfully logged in to Bitwarden with API key",
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -201,19 +288,19 @@ func BitwardenGetBankingHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Don't return sensitive credentials for security
 	safeCredentials := map[string]interface{}{
-		"bankName":          credentials.BankName,
-		"baseUrl":           credentials.BaseURL,
-		"authUrl":           credentials.AuthURL,
-		"tokenUrl":          credentials.TokenURL,
-		"hasClientId":       credentials.ClientID != "",
-		"hasClientSecret":   credentials.ClientSecret != "",
-		"hasApiKey":         credentials.APIKey != "",
-		"certificatePath":   credentials.CertificatePath,
-		"privateKeyPath":    credentials.PrivateKeyPath,
-		"scopes":            credentials.Scopes,
-		"redirectUri":       credentials.RedirectURI,
-		"environment":       credentials.Environment,
-		"extraFields":       credentials.ExtraFields,
+		"bankName":        credentials.BankName,
+		"baseUrl":         credentials.BaseURL,
+		"authUrl":         credentials.AuthURL,
+		"tokenUrl":        credentials.TokenURL,
+		"hasClientId":     credentials.ClientID != "",
+		"hasClientSecret": credentials.ClientSecret != "",
+		"hasApiKey":       credentials.APIKey != "",
+		"certificatePath": credentials.CertificatePath,
+		"privateKeyPath":  credentials.PrivateKeyPath,
+		"scopes":          credentials.Scopes,
+		"redirectUri":     credentials.RedirectURI,
+		"environment":     credentials.Environment,
+		"extraFields":     credentials.ExtraFields,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -279,8 +366,8 @@ func BitwardenSetupTemplatesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var request struct {
-		SetupSites        bool `json:"setupSites"`
-		SetupOpenBanking  bool `json:"setupOpenBanking"`
+		SetupSites       bool `json:"setupSites"`
+		SetupOpenBanking bool `json:"setupOpenBanking"`
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&request)

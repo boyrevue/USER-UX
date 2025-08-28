@@ -72,14 +72,127 @@ func NewBitwardenManager() *BitwardenManager {
 
 // Authenticate with Bitwarden
 func (bw *BitwardenManager) Login(email, password string) error {
-	// Login to Bitwarden
-	cmd := exec.Command(bw.CLIPath, "login", email, password, "--raw")
-	output, err := cmd.Output()
+	// Check current status first
+	statusCmd := exec.Command(bw.CLIPath, "status")
+	statusOutput, _ := statusCmd.CombinedOutput()
+	statusStr := string(statusOutput)
+	
+	// If already logged in and unlocked, just return success
+	if strings.Contains(statusStr, "\"status\":\"unlocked\"") {
+		return nil
+	}
+	
+	// If locked, we need to unlock instead of login
+	if strings.Contains(statusStr, "\"status\":\"locked\"") {
+		return fmt.Errorf("vault is locked - please unlock with master password first")
+	}
+	
+	// If not logged in, attempt login
+	if email == "" || password == "" {
+		return fmt.Errorf("email and password required for initial Bitwarden login")
+	}
+	
+	// Try different login methods based on the server configuration
+	var cmd *exec.Cmd
+	var output []byte
+	var err error
+	
+	// Method 1: Standard email/password login with proper server URL
+	if bw.ServerURL != "" && bw.ServerURL != "https://vault.bitwarden.com" {
+		// Custom server - ensure proper URL format
+		serverURL := bw.ServerURL
+		if !strings.HasPrefix(serverURL, "http") {
+			serverURL = "https://" + serverURL
+		}
+		
+		cmd = exec.Command(bw.CLIPath, "login", email, password, "--serverurl", serverURL, "--raw")
+	} else {
+		// Standard Bitwarden.com login
+		cmd = exec.Command(bw.CLIPath, "login", email, password, "--raw")
+	}
+	
+	output, err = cmd.CombinedOutput()
+	outputStr := strings.TrimSpace(string(output))
+	
 	if err != nil {
-		return fmt.Errorf("bitwarden login failed: %v", err)
+		// Check for common error patterns and provide helpful messages
+		if strings.Contains(outputStr, "Username or password") || strings.Contains(outputStr, "incorrect") {
+			return fmt.Errorf("invalid credentials: Username or password is incorrect")
+		}
+		if strings.Contains(outputStr, "bitwarden") && strings.Contains(outputStr, "not valid JSON") {
+			return fmt.Errorf("server configuration error: Please check your Bitwarden server URL format")
+		}
+		if strings.Contains(outputStr, "network") || strings.Contains(outputStr, "connection") {
+			return fmt.Errorf("network error: Cannot connect to Bitwarden server. Check your internet connection")
+		}
+		if strings.Contains(outputStr, "Two-step") || strings.Contains(outputStr, "2FA") {
+			return fmt.Errorf("two-factor authentication required: Please disable 2FA temporarily or use API key authentication")
+		}
+		
+		return fmt.Errorf("login failed: %s", outputStr)
+	}
+	
+	// Validate session token format
+	if len(outputStr) < 10 || strings.Contains(outputStr, " ") || strings.Contains(outputStr, "error") {
+		return fmt.Errorf("invalid session token received: %s", outputStr)
 	}
 
-	bw.SessionToken = strings.TrimSpace(string(output))
+	bw.SessionToken = outputStr
+	bw.IsUnlocked = true
+	return nil
+}
+
+// Login with API Key (alternative method)
+func (bw *BitwardenManager) LoginWithAPIKey(clientId, clientSecret, password string) error {
+	// Check current status first
+	statusCmd := exec.Command(bw.CLIPath, "status")
+	statusOutput, _ := statusCmd.CombinedOutput()
+	statusStr := string(statusOutput)
+	
+	// If already logged in and unlocked, just return success
+	if strings.Contains(statusStr, "\"status\":\"unlocked\"") {
+		return nil
+	}
+	
+	if clientId == "" || clientSecret == "" || password == "" {
+		return fmt.Errorf("client ID, client secret, and master password required for API key authentication")
+	}
+	
+	// Prepare API key JSON
+	apiKeyJSON := fmt.Sprintf(`{"clientId":"%s","clientSecret":"%s","password":"%s"}`, 
+		clientId, clientSecret, password)
+	
+	// Use API key login
+	var cmd *exec.Cmd
+	if bw.ServerURL != "" && bw.ServerURL != "https://vault.bitwarden.com" {
+		serverURL := bw.ServerURL
+		if !strings.HasPrefix(serverURL, "http") {
+			serverURL = "https://" + serverURL
+		}
+		cmd = exec.Command(bw.CLIPath, "login", "--apikey", "--serverurl", serverURL, "--raw")
+	} else {
+		cmd = exec.Command(bw.CLIPath, "login", "--apikey", "--raw")
+	}
+	
+	// Pass API key JSON via stdin
+	cmd.Stdin = strings.NewReader(apiKeyJSON)
+	output, err := cmd.CombinedOutput()
+	outputStr := strings.TrimSpace(string(output))
+	
+	if err != nil {
+		if strings.Contains(outputStr, "Invalid") || strings.Contains(outputStr, "incorrect") {
+			return fmt.Errorf("invalid API credentials: Please check your client ID, client secret, and master password")
+		}
+		return fmt.Errorf("API key login failed: %s", outputStr)
+	}
+	
+	// Validate session token
+	if len(outputStr) < 10 || strings.Contains(outputStr, " ") || strings.Contains(outputStr, "error") {
+		return fmt.Errorf("invalid session token received: %s", outputStr)
+	}
+	
+	bw.SessionToken = outputStr
+	bw.IsUnlocked = true
 	return nil
 }
 
