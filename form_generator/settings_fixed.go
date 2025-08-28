@@ -1,4 +1,4 @@
-package main
+package formgenerator
 
 import (
 	"flag"
@@ -977,6 +977,3 @@ func main() {
 
 	fmt.Printf("✅ Settings form generated successfully: %s\n", *outputFile)
 }
-
-
-

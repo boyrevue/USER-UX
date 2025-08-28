@@ -46,5 +46,34 @@
     "required":"This field is required","invalidEmail":"Please enter a valid email address","invalidPhone":"Please enter a valid UK phone number",
     "invalidRegistration":"Please enter a valid UK registration number","invalidAge":"Driver must be between 17 and 99 years old",
     "invalidPostcode":"Please enter a valid UK postcode","sessionNotFound":"Session not found","maxDriversReached":"Maximum 4 drivers allowed"
+  },
+  "months": {
+    "full": {
+      "1":"January","2":"February","3":"March","4":"April","5":"May","6":"June",
+      "7":"July","8":"August","9":"September","10":"October","11":"November","12":"December"
+    },
+    "short": {
+      "1":"Jan","2":"Feb","3":"Mar","4":"Apr","5":"May","6":"Jun",
+      "7":"Jul","8":"Aug","9":"Sep","10":"Oct","11":"Nov","12":"Dec"
+    },
+    "abbrev": {
+      "JAN":"1","FEB":"2","MAR":"3","APR":"4","MAY":"5","JUN":"6",
+      "JUL":"7","AUG":"8","SEP":"9","OCT":"10","NOV":"11","DEC":"12",
+      "jan":"1","feb":"2","mar":"3","apr":"4","may":"5","jun":"6",
+      "jul":"7","aug":"8","sep":"9","oct":"10","nov":"11","dec":"12"
+    }
+  },
+  "days": {
+    "full": {
+      "1":"Monday","2":"Tuesday","3":"Wednesday","4":"Thursday","5":"Friday","6":"Saturday","7":"Sunday"
+    },
+    "short": {
+      "1":"Mon","2":"Tue","3":"Wed","4":"Thu","5":"Fri","6":"Sat","7":"Sun"
+    },
+    "abbrev": {
+      "MON":"1","TUE":"2","WED":"3","THU":"4","FRI":"5","SAT":"6","SUN":"7",
+      "mon":"1","tue":"2","wed":"3","thu":"4","fri":"5","sat":"6","sun":"7",
+      "MO":"1","TU":"2","WE":"3","TH":"4","FR":"5","SA":"6","SU":"7"
+    }
   }
 }

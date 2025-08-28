@@ -709,7 +709,29 @@ function App() {
         if (response.ok) {
           const result = await response.json();
           console.log('OCR result:', result);
-          console.log('🔍 Extracted Fields Detail:', JSON.stringify(result.extractedFields, null, 2));
+          console.log('🔍 Extracted Fields Detail:', result.extractedFields);
+          
+          // Log clickable image URLs
+          if (result.extractedFields) {
+            const fields = result.extractedFields;
+            console.group('📸 Extracted Images (Click to view):');
+            
+            if (fields._page1ImageUrl) {
+              console.log('📄 Page 1 (Top Half):', `http://localhost:3000${fields._page1ImageUrl}`);
+            }
+            if (fields._page2UpperImageUrl) {
+              console.log('📄 Page 2 Upper (Middle):', `http://localhost:3000${fields._page2UpperImageUrl}`);
+            }
+            if (fields._page2MrzImageUrl) {
+              console.log('📄 Page 2 MRZ (Bottom):', `http://localhost:3000${fields._page2MrzImageUrl}`);
+            }
+            if (fields._page2MrzPreprocessedUrl) {
+              console.log('🎨 Page 2 MRZ Preprocessed:', `http://localhost:3000${fields._page2MrzPreprocessedUrl}`);
+            }
+            
+            console.groupEnd();
+          }
+          
           console.log('📊 OCR Metadata:', {
             engine: result.ocrEngine || result.extractedFields?._ocrEngine,
             confidence: result.confidence,
@@ -735,6 +757,105 @@ function App() {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  // Map country name back to ISO code for form selection
+  const getCountryCodeFromName = (countryName: string): string => {
+    const countryMap: { [key: string]: string } = {
+      'United Kingdom': 'GB',
+      'United States': 'US',
+      'Germany': 'DE',
+      'France': 'FR',
+      'Italy': 'IT',
+      'Spain': 'ES',
+      'Netherlands': 'NL',
+      'Belgium': 'BE',
+      'Austria': 'AT',
+      'Switzerland': 'CH',
+      'Ireland': 'IE',
+      'Portugal': 'PT',
+      'Greece': 'GR',
+      'Poland': 'PL',
+      'Czech Republic': 'CZ',
+      'Hungary': 'HU',
+      'Slovakia': 'SK',
+      'Slovenia': 'SI',
+      'Croatia': 'HR',
+      'Romania': 'RO',
+      'Bulgaria': 'BG',
+      'Lithuania': 'LT',
+      'Latvia': 'LV',
+      'Estonia': 'EE',
+      'Finland': 'FI',
+      'Sweden': 'SE',
+      'Denmark': 'DK',
+      'Norway': 'NO',
+      'Iceland': 'IS',
+      'Luxembourg': 'LU',
+      'Malta': 'MT',
+      'Cyprus': 'CY',
+      'Canada': 'CA',
+      'Australia': 'AU',
+      'New Zealand': 'NZ',
+      'Japan': 'JP',
+      'South Korea': 'KR',
+      'China': 'CN',
+      'India': 'IN',
+      'Brazil': 'BR',
+      'Mexico': 'MX',
+      'Argentina': 'AR',
+      'Chile': 'CL',
+      'South Africa': 'ZA',
+      'Russia': 'RU',
+      'Turkey': 'TR',
+      'Israel': 'IL',
+      'United Arab Emirates': 'AE',
+      'Saudi Arabia': 'SA',
+      'Singapore': 'SG',
+      'Malaysia': 'MY',
+      'Thailand': 'TH',
+      'Indonesia': 'ID',
+      'Philippines': 'PH',
+      'Vietnam': 'VN'
+    };
+    
+    return countryMap[countryName] || countryName;
+  };
+
+  // Convert passport MRZ date format YYMMDD to YYYY-MM-DD (HTML date input format)
+  const convertPassportDate = (passportDate: string): string => {
+    if (!passportDate || passportDate.length !== 6) return '';
+    
+    const yy = passportDate.substring(0, 2);
+    const mm = passportDate.substring(2, 4);
+    const dd = passportDate.substring(4, 6);
+    
+    // Convert YY to YYYY according to MRZ specification:
+    // For dates of birth: 00-30 = 20xx, 31-99 = 19xx
+    // For expiry dates: typically all future dates, so 00-99 = 20xx
+    // We'll use context-aware interpretation
+    let year: string;
+    const yyNum = parseInt(yy);
+    
+    // For years 00-99, determine century based on reasonable date ranges
+    if (yyNum >= 0 && yyNum <= 99) {
+      // If it's likely a birth date (before current year), use 19xx for 31-99, 20xx for 00-30
+      // If it's likely an expiry date (future), use 20xx
+      const currentYear = new Date().getFullYear();
+      const currentYY = currentYear % 100;
+      
+      if (yyNum > currentYY + 10) {
+        // Likely a birth date from previous century
+        year = `19${yy}`;
+      } else {
+        // Likely current century (birth date for young people or expiry date)
+        year = `20${yy}`;
+      }
+    } else {
+      year = `20${yy}`;
+    }
+    
+    return `${year}-${mm}-${dd}`;
   };
 
   const populateFormFields = (data: any, uploadType: string) => {
@@ -768,19 +889,41 @@ function App() {
       }
       if (data.issuingCountry) {
         const select = document.getElementById(`passportCountry_${passportNum}`) as HTMLSelectElement;
-        if (select) select.value = data.issuingCountry;
+        if (select) {
+          // Map full country name back to country code for form selection
+          const countryCode = getCountryCodeFromName(data.issuingCountry);
+          select.value = countryCode;
+          console.log('Set issuing country:', data.issuingCountry, '->', countryCode);
+        }
       }
       if (data.expiryDate) {
         const input = document.getElementById(`passportExpiryDate_${passportNum}`) as HTMLInputElement;
-        if (input) input.value = data.expiryDate;
+        if (input) {
+          const formattedDate = convertPassportDate(data.expiryDate);
+          input.value = formattedDate;
+          console.log('Set expiry date:', data.expiryDate, '->', formattedDate);
+        }
       }
+      // Issue date is not available in MRZ - only populate if explicitly provided
       if (data.issueDate) {
         const input = document.getElementById(`passportIssueDate_${passportNum}`) as HTMLInputElement;
-        if (input) input.value = data.issueDate;
+        if (input) {
+          const formattedDate = convertPassportDate(data.issueDate);
+          input.value = formattedDate;
+          console.log('Set issue date:', data.issueDate, '->', formattedDate);
+        }
       }
       if (data.givenNames) {
         const input = document.getElementById(`passportGivenNames_${passportNum}`) as HTMLInputElement;
-        if (input) input.value = data.givenNames;
+        if (input) {
+          // Clean up given names - remove extra padding and filler characters
+          const cleanedNames = data.givenNames
+            .replace(/\s+/g, ' ')  // Replace multiple spaces with single space
+            .replace(/[K<]+/g, '') // Remove filler characters K and <
+            .trim();               // Remove leading/trailing spaces
+          input.value = cleanedNames;
+          console.log('Set given names:', data.givenNames, '->', cleanedNames);
+        }
       }
       if (data.surname) {
         const input = document.getElementById(`passportSurname_${passportNum}`) as HTMLInputElement;
@@ -788,7 +931,11 @@ function App() {
       }
       if (data.dateOfBirth) {
         const input = document.getElementById(`passportDateOfBirth_${passportNum}`) as HTMLInputElement;
-        if (input) input.value = data.dateOfBirth;
+        if (input) {
+          const formattedDate = convertPassportDate(data.dateOfBirth);
+          input.value = formattedDate;
+          console.log('Set date of birth:', data.dateOfBirth, '->', formattedDate);
+        }
       }
       if (data.gender) {
         const select = document.getElementById(`passportGender_${passportNum}`) as HTMLSelectElement;
@@ -3816,8 +3963,62 @@ Insurance Quote System
               <div>
                 <Label htmlFor="passportCountry">Issuing Country</Label>
                 <Select id="passportCountry">
-                  <option value="">Select country</option>
+                  <option value="">{translations[session.language as keyof typeof translations].selectCountry}</option>
                   <option value="GB">United Kingdom</option>
+                  <option value="US">United States</option>
+                  <option value="DE">Germany</option>
+                  <option value="FR">France</option>
+                  <option value="IT">Italy</option>
+                  <option value="ES">Spain</option>
+                  <option value="NL">Netherlands</option>
+                  <option value="BE">Belgium</option>
+                  <option value="AT">Austria</option>
+                  <option value="CH">Switzerland</option>
+                  <option value="IE">Ireland</option>
+                  <option value="PT">Portugal</option>
+                  <option value="GR">Greece</option>
+                  <option value="PL">Poland</option>
+                  <option value="CZ">Czech Republic</option>
+                  <option value="HU">Hungary</option>
+                  <option value="SK">Slovakia</option>
+                  <option value="SI">Slovenia</option>
+                  <option value="HR">Croatia</option>
+                  <option value="RO">Romania</option>
+                  <option value="BG">Bulgaria</option>
+                  <option value="LT">Lithuania</option>
+                  <option value="LV">Latvia</option>
+                  <option value="EE">Estonia</option>
+                  <option value="FI">Finland</option>
+                  <option value="SE">Sweden</option>
+                  <option value="DK">Denmark</option>
+                  <option value="NO">Norway</option>
+                  <option value="IS">Iceland</option>
+                  <option value="LU">Luxembourg</option>
+                  <option value="MT">Malta</option>
+                  <option value="CY">Cyprus</option>
+                  <option value="CA">Canada</option>
+                  <option value="AU">Australia</option>
+                  <option value="NZ">New Zealand</option>
+                  <option value="JP">Japan</option>
+                  <option value="KR">South Korea</option>
+                  <option value="CN">China</option>
+                  <option value="IN">India</option>
+                  <option value="BR">Brazil</option>
+                  <option value="MX">Mexico</option>
+                  <option value="AR">Argentina</option>
+                  <option value="CL">Chile</option>
+                  <option value="ZA">South Africa</option>
+                  <option value="RU">Russia</option>
+                  <option value="TR">Turkey</option>
+                  <option value="IL">Israel</option>
+                  <option value="AE">United Arab Emirates</option>
+                  <option value="SA">Saudi Arabia</option>
+                  <option value="SG">Singapore</option>
+                  <option value="MY">Malaysia</option>
+                  <option value="TH">Thailand</option>
+                  <option value="ID">Indonesia</option>
+                  <option value="PH">Philippines</option>
+                  <option value="VN">Vietnam</option>
                   <option value="US">United States</option>
                   <option value="DE">Germany</option>
                   <option value="FR">France</option>
@@ -5622,8 +5823,62 @@ Insurance Quote System
                             <div>
                               <Label htmlFor={`passportCountry_${i + 1}`}>Issuing Country</Label>
                               <Select id={`passportCountry_${i + 1}`}>
-                                <option value="">Select country</option>
+                                <option value="">{translations[session.language as keyof typeof translations].selectCountry}</option>
                                 <option value="GB">United Kingdom</option>
+                                <option value="US">United States</option>
+                                <option value="DE">Germany</option>
+                                <option value="FR">France</option>
+                                <option value="IT">Italy</option>
+                                <option value="ES">Spain</option>
+                                <option value="NL">Netherlands</option>
+                                <option value="BE">Belgium</option>
+                                <option value="AT">Austria</option>
+                                <option value="CH">Switzerland</option>
+                                <option value="IE">Ireland</option>
+                                <option value="PT">Portugal</option>
+                                <option value="GR">Greece</option>
+                                <option value="PL">Poland</option>
+                                <option value="CZ">Czech Republic</option>
+                                <option value="HU">Hungary</option>
+                                <option value="SK">Slovakia</option>
+                                <option value="SI">Slovenia</option>
+                                <option value="HR">Croatia</option>
+                                <option value="RO">Romania</option>
+                                <option value="BG">Bulgaria</option>
+                                <option value="LT">Lithuania</option>
+                                <option value="LV">Latvia</option>
+                                <option value="EE">Estonia</option>
+                                <option value="FI">Finland</option>
+                                <option value="SE">Sweden</option>
+                                <option value="DK">Denmark</option>
+                                <option value="NO">Norway</option>
+                                <option value="IS">Iceland</option>
+                                <option value="LU">Luxembourg</option>
+                                <option value="MT">Malta</option>
+                                <option value="CY">Cyprus</option>
+                                <option value="CA">Canada</option>
+                                <option value="AU">Australia</option>
+                                <option value="NZ">New Zealand</option>
+                                <option value="JP">Japan</option>
+                                <option value="KR">South Korea</option>
+                                <option value="CN">China</option>
+                                <option value="IN">India</option>
+                                <option value="BR">Brazil</option>
+                                <option value="MX">Mexico</option>
+                                <option value="AR">Argentina</option>
+                                <option value="CL">Chile</option>
+                                <option value="ZA">South Africa</option>
+                                <option value="RU">Russia</option>
+                                <option value="TR">Turkey</option>
+                                <option value="IL">Israel</option>
+                                <option value="AE">United Arab Emirates</option>
+                                <option value="SA">Saudi Arabia</option>
+                                <option value="SG">Singapore</option>
+                                <option value="MY">Malaysia</option>
+                                <option value="TH">Thailand</option>
+                                <option value="ID">Indonesia</option>
+                                <option value="PH">Philippines</option>
+                                <option value="VN">Vietnam</option>
                                 <option value="US">United States</option>
                                 <option value="DE">Germany</option>
                                 <option value="FR">France</option>

@@ -47,5 +47,34 @@
     "invalidPhone":"Bitte geben Sie eine gültige UK-Telefonnummer ein","invalidRegistration":"Bitte geben Sie ein gültiges UK-Kennzeichen ein",
     "invalidAge":"Fahrer muss zwischen 17 und 99 Jahre alt sein","invalidPostcode":"Bitte geben Sie eine gültige UK-Postleitzahl ein",
     "sessionNotFound":"Sitzung nicht gefunden","maxDriversReached":"Maximal 4 Fahrer erlaubt"
+  },
+  "months": {
+    "full": {
+      "1":"Januar","2":"Februar","3":"März","4":"April","5":"Mai","6":"Juni",
+      "7":"Juli","8":"August","9":"September","10":"Oktober","11":"November","12":"Dezember"
+    },
+    "short": {
+      "1":"Jan","2":"Feb","3":"Mär","4":"Apr","5":"Mai","6":"Jun",
+      "7":"Jul","8":"Aug","9":"Sep","10":"Okt","11":"Nov","12":"Dez"
+    },
+    "abbrev": {
+      "JÄN":"1","FEB":"2","MÄR":"3","APR":"4","MAI":"5","JUN":"6",
+      "JUL":"7","AUG":"8","SEP":"9","OKT":"10","NOV":"11","DEZ":"12",
+      "jän":"1","feb":"2","mär":"3","apr":"4","mai":"5","jun":"6",
+      "jul":"7","aug":"8","sep":"9","okt":"10","nov":"11","dez":"12"
+    }
+  },
+  "days": {
+    "full": {
+      "1":"Montag","2":"Dienstag","3":"Mittwoch","4":"Donnerstag","5":"Freitag","6":"Samstag","7":"Sonntag"
+    },
+    "short": {
+      "1":"Mo","2":"Di","3":"Mi","4":"Do","5":"Fr","6":"Sa","7":"So"
+    },
+    "abbrev": {
+      "MON":"1","DIE":"2","MIT":"3","DON":"4","FRE":"5","SAM":"6","SON":"7",
+      "mon":"1","die":"2","mit":"3","don":"4","fre":"5","sam":"6","son":"7",
+      "MO":"1","DI":"2","MI":"3","DO":"4","FR":"5","SA":"6","SO":"7"
+    }
   }
 }

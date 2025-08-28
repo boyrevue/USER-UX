@@ -14,7 +14,7 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-// Advanced Anti-Bot Techniques inspired by Bitwarden
+// Advanced Anti-Bot Techniques
 type AdvancedStealth struct {
 	HumanBehavior   HumanBehaviorProfile `json:"humanBehavior"`
 	SessionManager  SessionManager       `json:"sessionManager"`
@@ -107,7 +107,7 @@ type NetworkProfile struct {
 	DNSServers     []string      `json:"dnsServers"`     // DNS servers to use
 }
 
-// Initialize Advanced Stealth with Bitwarden-like profiles
+// Initialize Advanced Stealth with realistic profiles
 func NewAdvancedStealth() *AdvancedStealth {
 	return &AdvancedStealth{
 		HumanBehavior: HumanBehaviorProfile{
@@ -167,8 +167,8 @@ func NewAdvancedStealth() *AdvancedStealth {
 	}
 }
 
-// Apply Bitwarden-style stealth techniques
-func (as *AdvancedStealth) ApplyBitwardenStealth(ctx context.Context) error {
+// Apply advanced stealth techniques
+func (as *AdvancedStealth) ApplyAdvancedStealth(ctx context.Context) error {
 	var actions []chromedp.Action
 
 	// 1. Advanced Browser Fingerprint Masking
@@ -204,10 +204,10 @@ func (as *AdvancedStealth) ApplyBitwardenStealth(ctx context.Context) error {
 	return chromedp.Run(ctx, actions...)
 }
 
-// Generate advanced stealth script that mimics Bitwarden's approach
+// Generate advanced stealth script with realistic browser behavior
 func (as *AdvancedStealth) generateAdvancedStealthScript() string {
 	return `
-		// Bitwarden-style Advanced Stealth Techniques
+		// Advanced Stealth Techniques
 		
 		// 1. Deep Navigator Object Masking
 		(function() {
@@ -289,7 +289,7 @@ func (as *AdvancedStealth) generateAdvancedStealthScript() string {
 			}
 		};
 
-		// 3. Permission API Masking (Bitwarden technique)
+		// 3. Permission API Masking
 		const originalQuery = window.navigator.permissions.query;
 		window.navigator.permissions.query = function(parameters) {
 			const fakePermissions = {
@@ -433,7 +433,7 @@ func (as *AdvancedStealth) generateAdvancedStealthScript() string {
 			return originalAddEventListener.call(this, type, listener, options);
 		};
 
-		console.log('🥷 Advanced Bitwarden-style stealth activated');
+		console.log('🥷 Advanced stealth techniques activated');
 	`
 }
 
@@ -528,7 +528,7 @@ func (as *AdvancedStealth) generateTimingBehaviorScript() string {
 	`
 }
 
-// Human-like typing with Bitwarden-style patterns
+// Human-like typing with realistic patterns
 func (as *AdvancedStealth) HumanTypeText(ctx context.Context, selector, text string) error {
 	// Click the element first
 	err := chromedp.Run(ctx, chromedp.Click(selector))
@@ -703,7 +703,7 @@ func (as *AdvancedStealth) generateRandomChar() rune {
 	return rune(chars[n.Int64()])
 }
 
-// Session management like Bitwarden
+// Advanced session management
 func (as *AdvancedStealth) StartSession() {
 	session := SessionData{
 		StartTime:    time.Now(),

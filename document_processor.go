@@ -5,9 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
+	"image/color"
 	"image/jpeg"
 	"image/png"
 	"io"
+	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -20,6 +22,113 @@ import (
 
 	"github.com/otiai10/gosseract/v2"
 )
+
+// PassportEyeResult represents the result from PassportEye MRZ extraction
+type PassportEyeResult struct {
+	Success       bool                   `json:"success"`
+	Confidence    float64                `json:"confidence"`
+	Valid         bool                   `json:"valid"`
+	RawText       string                 `json:"raw_text"`
+	ExtractedData map[string]interface{} `json:"extracted_data"`
+	MRZLines      []string               `json:"mrz_lines"`
+	Validation    struct {
+		Valid  bool     `json:"valid"`
+		Errors []string `json:"errors"`
+	} `json:"validation"`
+	Error string `json:"error"`
+}
+
+// I18n structure for loading month mappings from JSON
+type I18nData struct {
+	Months struct {
+		Abbrev map[string]string `json:"abbrev"`
+	} `json:"months"`
+}
+
+// getI18nMonthMapping loads month mappings from all supported i18n files
+func getI18nMonthMapping() map[string]string {
+	monthMap := make(map[string]string)
+
+	// Load from multiple language files
+	languages := []string{"en", "de"}
+
+	for _, lang := range languages {
+		filePath := fmt.Sprintf("./i18n/%s.json", lang)
+		if data, err := ioutil.ReadFile(filePath); err == nil {
+			var i18nData I18nData
+			if err := json.Unmarshal(data, &i18nData); err == nil {
+				// Merge abbreviation mappings
+				for abbrev, monthNum := range i18nData.Months.Abbrev {
+					if monthNum != "" {
+						// Pad single digit months with zero
+						if len(monthNum) == 1 {
+							monthNum = "0" + monthNum
+						}
+						monthMap[abbrev] = monthNum
+					}
+				}
+				fmt.Printf("🌍 Loaded %d month mappings from %s\n", len(i18nData.Months.Abbrev), lang)
+			}
+		}
+	}
+
+	// Add fallback standard mappings if i18n files not found
+	if len(monthMap) == 0 {
+		fmt.Println("⚠️  No i18n files found, using fallback month mappings")
+		monthMap = map[string]string{
+			"JAN": "01", "FEB": "02", "MAR": "03", "APR": "04", "MAY": "05", "JUN": "06",
+			"JUL": "07", "AUG": "08", "SEP": "09", "OCT": "10", "NOV": "11", "DEC": "12",
+			"jan": "01", "feb": "02", "mar": "03", "apr": "04", "may": "05", "jun": "06",
+			"jul": "07", "aug": "08", "sep": "09", "oct": "10", "nov": "11", "dec": "12",
+		}
+	}
+
+	fmt.Printf("📅 Total month mappings loaded: %d\n", len(monthMap))
+	return monthMap
+}
+
+// ISO 3166-1 alpha-3 country code mapping for MRZ
+var countryCodeMap = map[string]string{
+	"AFG": "Afghanistan", "ALB": "Albania", "DZA": "Algeria", "AND": "Andorra", "AGO": "Angola",
+	"ATG": "Antigua and Barbuda", "ARG": "Argentina", "ARM": "Armenia", "AUS": "Australia", "AUT": "Austria",
+	"AZE": "Azerbaijan", "BHS": "Bahamas", "BHR": "Bahrain", "BGD": "Bangladesh", "BRB": "Barbados",
+	"BLR": "Belarus", "BEL": "Belgium", "BLZ": "Belize", "BEN": "Benin", "BTN": "Bhutan",
+	"BOL": "Bolivia", "BIH": "Bosnia and Herzegovina", "BWA": "Botswana", "BRA": "Brazil", "BRN": "Brunei",
+	"BGR": "Bulgaria", "BFA": "Burkina Faso", "BDI": "Burundi", "KHM": "Cambodia", "CMR": "Cameroon",
+	"CAN": "Canada", "CPV": "Cape Verde", "CAF": "Central African Republic", "TCD": "Chad", "CHL": "Chile",
+	"CHN": "China", "COL": "Colombia", "COM": "Comoros", "COG": "Congo", "COD": "Congo (Democratic Republic)",
+	"CRI": "Costa Rica", "CIV": "Côte d'Ivoire", "HRV": "Croatia", "CUB": "Cuba", "CYP": "Cyprus",
+	"CZE": "Czech Republic", "DNK": "Denmark", "DJI": "Djibouti", "DMA": "Dominica", "DOM": "Dominican Republic",
+	"ECU": "Ecuador", "EGY": "Egypt", "SLV": "El Salvador", "GNQ": "Equatorial Guinea", "ERI": "Eritrea",
+	"EST": "Estonia", "ETH": "Ethiopia", "FJI": "Fiji", "FIN": "Finland", "FRA": "France",
+	"GAB": "Gabon", "GMB": "Gambia", "GEO": "Georgia", "DEU": "Germany", "GHA": "Ghana",
+	"GRC": "Greece", "GRD": "Grenada", "GTM": "Guatemala", "GIN": "Guinea", "GNB": "Guinea-Bissau",
+	"GUY": "Guyana", "HTI": "Haiti", "HND": "Honduras", "HUN": "Hungary", "ISL": "Iceland",
+	"IND": "India", "IDN": "Indonesia", "IRN": "Iran", "IRQ": "Iraq", "IRL": "Ireland",
+	"ISR": "Israel", "ITA": "Italy", "JAM": "Jamaica", "JPN": "Japan", "JOR": "Jordan",
+	"KAZ": "Kazakhstan", "KEN": "Kenya", "KIR": "Kiribati", "PRK": "North Korea", "KOR": "South Korea",
+	"KWT": "Kuwait", "KGZ": "Kyrgyzstan", "LAO": "Laos", "LVA": "Latvia", "LBN": "Lebanon",
+	"LSO": "Lesotho", "LBR": "Liberia", "LBY": "Libya", "LIE": "Liechtenstein", "LTU": "Lithuania",
+	"LUX": "Luxembourg", "MKD": "North Macedonia", "MDG": "Madagascar", "MWI": "Malawi", "MYS": "Malaysia",
+	"MDV": "Maldives", "MLI": "Mali", "MLT": "Malta", "MHL": "Marshall Islands", "MRT": "Mauritania",
+	"MUS": "Mauritius", "MEX": "Mexico", "FSM": "Micronesia", "MDA": "Moldova", "MCO": "Monaco",
+	"MNG": "Mongolia", "MNE": "Montenegro", "MAR": "Morocco", "MOZ": "Mozambique", "MMR": "Myanmar",
+	"NAM": "Namibia", "NRU": "Nauru", "NPL": "Nepal", "NLD": "Netherlands", "NZL": "New Zealand",
+	"NIC": "Nicaragua", "NER": "Niger", "NGA": "Nigeria", "NOR": "Norway", "OMN": "Oman",
+	"PAK": "Pakistan", "PLW": "Palau", "PAN": "Panama", "PNG": "Papua New Guinea", "PRY": "Paraguay",
+	"PER": "Peru", "PHL": "Philippines", "POL": "Poland", "PRT": "Portugal", "QAT": "Qatar",
+	"ROU": "Romania", "RUS": "Russia", "RWA": "Rwanda", "KNA": "Saint Kitts and Nevis", "LCA": "Saint Lucia",
+	"VCT": "Saint Vincent and the Grenadines", "WSM": "Samoa", "SMR": "San Marino", "STP": "São Tomé and Príncipe",
+	"SAU": "Saudi Arabia", "SEN": "Senegal", "SRB": "Serbia", "SYC": "Seychelles", "SLE": "Sierra Leone",
+	"SGP": "Singapore", "SVK": "Slovakia", "SVN": "Slovenia", "SLB": "Solomon Islands", "SOM": "Somalia",
+	"ZAF": "South Africa", "SSD": "South Sudan", "ESP": "Spain", "LKA": "Sri Lanka", "SDN": "Sudan",
+	"SUR": "Suriname", "SWZ": "Eswatini", "SWE": "Sweden", "CHE": "Switzerland", "SYR": "Syria",
+	"TWN": "Taiwan", "TJK": "Tajikistan", "TZA": "Tanzania", "THA": "Thailand", "TLS": "Timor-Leste",
+	"TGO": "Togo", "TON": "Tonga", "TTO": "Trinidad and Tobago", "TUN": "Tunisia", "TUR": "Turkey",
+	"TKM": "Turkmenistan", "TUV": "Tuvalu", "UGA": "Uganda", "UKR": "Ukraine", "ARE": "United Arab Emirates",
+	"GBR": "United Kingdom", "USA": "United States", "URY": "Uruguay", "UZB": "Uzbekistan", "VUT": "Vanuatu",
+	"VAT": "Vatican City", "VEN": "Venezuela", "VNM": "Vietnam", "YEM": "Yemen", "ZMB": "Zambia", "ZWE": "Zimbabwe",
+}
 
 // DocumentData represents extracted document information
 type DocumentData struct {
@@ -245,21 +354,316 @@ func ocrWithOCRmyPDF(filePath string) (*OCRResult, error) {
 	}, nil
 }
 
-// ocrWithTesseract uses Tesseract directly
-func ocrWithTesseract(filePath string) (*OCRResult, error) {
+// extractIssueDateFromText attempts to extract issue date from passport page text
+func extractIssueDateFromText(text string) string {
+	// Common patterns for issue date on UK passports:
+	// "Date of issue: 01 JAN 2022"
+	// "Date of Issue 01/01/2022"
+	// "Issue Date: 01-01-2022"
+	// "01 JAN 22"
+
+	patterns := []string{
+		// Standard date formats
+		`(?i)date\s+of\s+issue[:\s]+(\d{1,2})\s+([A-Z]{3,4})\s+(\d{4})`,    // "Date of issue: 01 JAN 2022"
+		`(?i)date\s+of\s+issue[:\s]+(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})`, // "Date of issue: 01/01/2022"
+		`(?i)issue\s+date[:\s]+(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})`,      // "Issue date: 01/01/2022"
+		`(?i)issued[:\s]+(\d{1,2})\s+([A-Z]{3,4})\s+(\d{4})`,               // "Issued: 01 JAN 2022"
+
+		// UK Passport specific patterns
+		`(?i)date\s+of\s+issue\s*[:\-]?\s*(\d{1,2})\s+([A-Z]{3,4})\s+(\d{2,4})`, // "Date of issue 01 JAN 22"
+		`(?i)issued\s+on\s*[:\-]?\s*(\d{1,2})\s+([A-Z]{3,4})\s+(\d{2,4})`,       // "Issued on 01 JAN 22"
+		`(?i)authority\s+[\w\s]*\s+(\d{1,2})\s+([A-Z]{3,4})\s+(\d{2,4})`,        // "Authority ... 01 JAN 22"
+
+		// Specific UK passport format with bilingual text
+		`(\d{1,2})\s+([A-Z]{3,4})\s*[\/\\]\s*[A-Z]{3,4}\s+(\d{2})`, // "03 SEP /SEPT 22"
+		`(\d{1,2})\s+([A-Z]{3,4})\s+[\/\\]\s*[A-Z]{3,4}\s+(\d{2})`, // "03 SEP / SEPT 22"
+
+		// Standard 3-letter month codes
+		`(\d{1,2})\s+([A-Z]{3,4})\s+(\d{2,4})`, // "01 JAN 22" or "01 JAN 2022"
+
+		// More flexible patterns for OCR errors
+		`(?i)(\d{1,2})\s*[\/\-\.\s]\s*([A-Z]{3,4})\s*[\/\-\.\s]\s*(\d{2,4})`, // "01/JAN/22" or "01-JAN-22"
+
+		// English month variations (OCR errors)
+		`(?i)(\d{1,2})\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s*[\/\s]*[a-z]*\s*(\d{2})`, // "05 sep /seer 22"
+		`(?i)(\d{1,2})\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+(\d{2})`,           // "05 sep 22"
+
+		// German month variations
+		`(?i)(\d{1,2})\s+(jän|feb|mär|apr|mai|jun|jul|aug|sep|okt|nov|dez)\s*[\/\s]*[a-z]*\s*(\d{2})`, // German months
+
+		// French month variations
+		`(?i)(\d{1,2})\s+(janv|févr|mars|avr|mai|juin|juil|août|sept|oct|nov|déce)\s*[\/\s]*[a-z]*\s*(\d{2})`, // French months
+
+		// Spanish month variations
+		`(?i)(\d{1,2})\s+(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)\s*[\/\s]*[a-z]*\s*(\d{2})`, // Spanish months
+
+		// Italian month variations
+		`(?i)(\d{1,2})\s+(gen|feb|mar|apr|mag|giu|lug|ago|set|ott|nov|dic)\s*[\/\s]*[a-z]*\s*(\d{2})`, // Italian months
+
+		// Full month names (any language)
+		`(?i)(\d{1,2})\s+(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{2,4})`,
+		`(?i)(\d{1,2})\s+(januar|februar|märz|april|mai|juni|juli|august|september|oktober|november|dezember)\s+(\d{2,4})`,
+		`(?i)(\d{1,2})\s+(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+(\d{2,4})`,
+	}
+
+	// Load i18n-compliant month mapping from ontology
+	monthMap := getI18nMonthMapping()
+
+	for _, pattern := range patterns {
+		re := regexp.MustCompile(pattern)
+		matches := re.FindStringSubmatch(text)
+
+		if len(matches) >= 4 {
+			day := matches[1]
+			month := matches[2]
+			year := matches[3]
+
+			// Handle month names (try both original case and uppercase)
+			if monthNum, exists := monthMap[month]; exists {
+				month = monthNum
+			} else if monthNum, exists := monthMap[strings.ToUpper(month)]; exists {
+				month = monthNum
+			}
+
+			// Handle 2-digit years
+			if len(year) == 2 {
+				yearNum, _ := strconv.Atoi(year)
+				if yearNum <= 30 {
+					year = "20" + year
+				} else {
+					year = "19" + year
+				}
+			}
+
+			// Pad day and month with zeros
+			if len(day) == 1 {
+				day = "0" + day
+			}
+			if len(month) == 1 {
+				month = "0" + month
+			}
+
+			fmt.Printf("🗓️ Extracted issue date: %s-%s-%s\n", year, month, day)
+			return fmt.Sprintf("%s-%s-%s", year, month, day)
+		}
+	}
+
+	fmt.Printf("⚠️ No issue date pattern found in text\n")
+	fmt.Printf("📝 Text being searched for issue date:\n%s\n", text)
+	return ""
+}
+
+// preprocessMRZImage enhances MRZ image for better OCR by converting to high contrast black and white
+func preprocessMRZImage(inputPath string) (string, error) {
+	// Read the image
+	file, err := os.Open(inputPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to open image: %v", err)
+	}
+	defer file.Close()
+
+	img, _, err := image.Decode(file)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode image: %v", err)
+	}
+
+	bounds := img.Bounds()
+	width := bounds.Dx()
+	height := bounds.Dy()
+
+	// Create new grayscale image
+	grayImg := image.NewGray(bounds)
+
+	// First pass: convert to grayscale and calculate histogram
+	var histogram [256]int
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			originalColor := img.At(x, y)
+			r, g, b, _ := originalColor.RGBA()
+
+			// Convert to grayscale using luminance formula
+			gray := uint8((0.299*float64(r) + 0.587*float64(g) + 0.114*float64(b)) / 256)
+			grayImg.Set(x, y, color.Gray{Y: gray})
+			histogram[gray]++
+		}
+	}
+
+	// Calculate adaptive threshold using Otsu's method (simplified)
+	totalPixels := width * height
+	sum := 0
+	for i := 0; i < 256; i++ {
+		sum += i * histogram[i]
+	}
+
+	sumB := 0
+	wB := 0
+	maximum := 0.0
+	threshold := uint8(128) // fallback
+
+	for i := 0; i < 256; i++ {
+		wB += histogram[i]
+		if wB == 0 {
+			continue
+		}
+		wF := totalPixels - wB
+		if wF == 0 {
+			break
+		}
+
+		sumB += i * histogram[i]
+		mB := float64(sumB) / float64(wB)
+		mF := float64(sum-sumB) / float64(wF)
+
+		between := float64(wB) * float64(wF) * (mB - mF) * (mB - mF)
+		if between > maximum {
+			maximum = between
+			threshold = uint8(i)
+		}
+	}
+
+	fmt.Printf("🎯 Calculated adaptive threshold: %d\n", threshold)
+
+	// Second pass: apply adaptive threshold
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			gray := grayImg.GrayAt(x, y).Y
+
+			// Apply adaptive threshold for high contrast black and white
+			if gray < threshold {
+				grayImg.Set(x, y, color.Gray{Y: 0}) // Pure black for text
+			} else {
+				grayImg.Set(x, y, color.Gray{Y: 255}) // Pure white for background
+			}
+		}
+	}
+
+	// Apply additional noise reduction (median filter)
+	cleanImg := applyMedianFilter(grayImg)
+
+	// Save preprocessed image
+	preprocessedPath := strings.Replace(inputPath, ".png", "_preprocessed.png", 1)
+	outFile, err := os.Create(preprocessedPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to create preprocessed image: %v", err)
+	}
+	defer outFile.Close()
+
+	err = png.Encode(outFile, cleanImg)
+	if err != nil {
+		return "", fmt.Errorf("failed to encode preprocessed image: %v", err)
+	}
+
+	fmt.Printf("🎨 Preprocessed MRZ image saved: %s\n", preprocessedPath)
+	fmt.Printf("🔗 Preprocessed MRZ URL: http://localhost:3000/%s\n", strings.Replace(preprocessedPath, "\\", "/", -1))
+
+	return preprocessedPath, nil
+}
+
+// applyMedianFilter applies a 3x3 median filter to reduce noise
+func applyMedianFilter(img *image.Gray) *image.Gray {
+	bounds := img.Bounds()
+	width := bounds.Dx()
+	height := bounds.Dy()
+
+	filtered := image.NewGray(bounds)
+
+	for y := 1; y < height-1; y++ {
+		for x := 1; x < width-1; x++ {
+			// Get 3x3 neighborhood
+			var pixels []uint8
+			for dy := -1; dy <= 1; dy++ {
+				for dx := -1; dx <= 1; dx++ {
+					pixel := img.GrayAt(x+dx, y+dy)
+					pixels = append(pixels, pixel.Y)
+				}
+			}
+
+			// Sort pixels and get median
+			for i := 0; i < len(pixels); i++ {
+				for j := i + 1; j < len(pixels); j++ {
+					if pixels[i] > pixels[j] {
+						pixels[i], pixels[j] = pixels[j], pixels[i]
+					}
+				}
+			}
+
+			median := pixels[len(pixels)/2]
+			filtered.Set(x, y, color.Gray{Y: median})
+		}
+	}
+
+	// Copy edges
+	for y := 0; y < height; y++ {
+		filtered.Set(0, y, img.GrayAt(0, y))
+		filtered.Set(width-1, y, img.GrayAt(width-1, y))
+	}
+	for x := 0; x < width; x++ {
+		filtered.Set(x, 0, img.GrayAt(x, 0))
+		filtered.Set(x, height-1, img.GrayAt(x, height-1))
+	}
+
+	return filtered
+}
+
+// ocrWithPassportEyeFull uses enhanced PassportEye for full passport extraction including issue date
+func ocrWithPassportEyeFull(filePath string) (*PassportEyeResult, error) {
+	// Call Python enhanced PassportEye script
+	cmd := exec.Command("python3", "./passporteye_full_extractor.py", filePath)
+	output, err := cmd.CombinedOutput()
+
+	if err != nil {
+		return nil, fmt.Errorf("PassportEye full extraction failed: %v, output: %s", err, string(output))
+	}
+
+	// Parse JSON result
+	var result PassportEyeResult
+	err = json.Unmarshal(output, &result)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse PassportEye full result: %v, output: %s", err, string(output))
+	}
+
+	return &result, nil
+}
+
+// ocrWithPassportEye uses PassportEye for specialized MRZ extraction
+func ocrWithPassportEye(filePath string) (*PassportEyeResult, error) {
+	// Call Python PassportEye script
+	cmd := exec.Command("python3", "./passporteye_extractor.py", filePath)
+	output, err := cmd.CombinedOutput()
+
+	if err != nil {
+		return nil, fmt.Errorf("PassportEye execution failed: %v, output: %s", err, string(output))
+	}
+
+	// Parse JSON result
+	var result PassportEyeResult
+	err = json.Unmarshal(output, &result)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse PassportEye result: %v, output: %s", err, string(output))
+	}
+
+	return &result, nil
+}
+
+// ocrWithTesseractPassportText uses Tesseract optimized for passport text (not MRZ)
+func ocrWithTesseractPassportText(filePath string) (*OCRResult, error) {
 	client := gosseract.NewClient()
 	defer client.Close()
 
-	// Set image from file
-	err := client.SetImage(filePath)
-	if err != nil {
+	// Set image path
+	if err := client.SetImage(filePath); err != nil {
 		return nil, fmt.Errorf("failed to set image: %v", err)
 	}
 
-	// Configure Tesseract
-	client.SetLanguage("eng")
+	// Optimize for passport text (not MRZ)
 	client.SetPageSegMode(gosseract.PSM_AUTO)
-	client.SetVariable("tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>/ .-")
+
+	// Passport text whitelist (more permissive than MRZ)
+	client.SetVariable("tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,:-/")
+
+	// Improve OCR for small text
+	client.SetVariable("textord_min_linesize", "2.5")
+	client.SetVariable("preserve_interword_spaces", "1")
 
 	// Extract text
 	text, err := client.Text()
@@ -267,12 +671,119 @@ func ocrWithTesseract(filePath string) (*OCRResult, error) {
 		return nil, fmt.Errorf("tesseract OCR failed: %v", err)
 	}
 
+	// Clean up text
+	text = strings.TrimSpace(text)
+
+	// Calculate basic confidence (Tesseract Go binding doesn't expose confidence easily)
+	confidence := 0.8
+	if len(text) < 10 {
+		confidence = 0.4
+	}
+
+	return &OCRResult{
+		Text:       text,
+		Confidence: confidence,
+	}, nil
+}
+
+// ocrWithTesseract uses Tesseract directly with optimized passport configuration
+func ocrWithTesseract(filePath string) (*OCRResult, error) {
+	client := gosseract.NewClient()
+	defer client.Close()
+
+	// Preprocess image if it's an MRZ image for better OCR accuracy
+	var imageToProcess string
+	if strings.Contains(filePath, "mrz") {
+		fmt.Printf("🎨 Preprocessing MRZ image for better OCR...\n")
+		preprocessedPath, err := preprocessMRZImage(filePath)
+		if err != nil {
+			fmt.Printf("⚠️ Preprocessing failed, using original: %v\n", err)
+			imageToProcess = filePath
+		} else {
+			imageToProcess = preprocessedPath
+			fmt.Printf("✅ Using preprocessed image for OCR\n")
+		}
+	} else {
+		imageToProcess = filePath
+	}
+
+	// Set image from file
+	err := client.SetImage(imageToProcess)
+	if err != nil {
+		return nil, fmt.Errorf("failed to set image: %v", err)
+	}
+
+	// Configure Tesseract for passport OCR (optimized for MRZ)
+	client.SetLanguage("eng")
+
+	// Use different page segmentation for MRZ vs other parts
+	if strings.Contains(imageToProcess, "mrz") {
+		client.SetPageSegMode(gosseract.PSM_SINGLE_BLOCK) // Better for MRZ lines
+		// MRZ-specific character whitelist (no spaces, periods, or slashes)
+		client.SetVariable("tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<")
+		client.SetVariable("tessedit_pageseg_mode", "6")     // Uniform block of text
+		client.SetVariable("preserve_interword_spaces", "0") // No spaces in MRZ
+		// Additional MRZ-specific settings
+		client.SetVariable("textord_really_old_xheight", "1")
+		client.SetVariable("textord_min_xheight", "10")
+		client.SetVariable("classify_enable_learning", "0")
+		client.SetVariable("classify_enable_adaptive_matcher", "0")
+	} else {
+		client.SetPageSegMode(gosseract.PSM_AUTO)
+		// General passport text whitelist
+		client.SetVariable("tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>/ .-")
+		client.SetVariable("tessedit_pageseg_mode", "6")
+		client.SetVariable("preserve_interword_spaces", "1")
+	}
+
+	// Extract text
+	text, err := client.Text()
+	if err != nil {
+		return nil, fmt.Errorf("tesseract OCR failed: %v", err)
+	}
+
+	// Clean up common OCR noise for MRZ
+	text = cleanMRZNoise(text)
+
 	confidence := calculateOCRConfidence(text, "tesseract")
 	return &OCRResult{
 		Text:       text,
 		Confidence: confidence,
 		Engine:     "tesseract",
 	}, nil
+}
+
+// cleanMRZNoise removes common OCR noise from MRZ text
+func cleanMRZNoise(text string) string {
+	// Remove common OCR misreads
+	replacements := map[string]string{
+		"0": "O", // In names, 0 is usually O
+		"1": "I", // In names, 1 is usually I
+		"5": "S", // In names, 5 is usually S
+		"|": "I", // Vertical bar to I
+		"!": "I", // Exclamation to I
+		"@": "O", // At symbol to O
+	}
+
+	lines := strings.Split(text, "\n")
+	var cleanedLines []string
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if len(line) > 10 { // Only process substantial lines
+			// Apply replacements only to likely name portions
+			if strings.Contains(line, "P<") || len(line) > 30 {
+				for old, new := range replacements {
+					line = strings.ReplaceAll(line, old, new)
+				}
+			}
+		}
+		if line != "" {
+			cleanedLines = append(cleanedLines, line)
+		}
+	}
+
+	return strings.Join(cleanedLines, "\n")
 }
 
 // ocrWithPDFtoText tries to extract existing text from PDF (PDF files only)
@@ -556,7 +1067,7 @@ func calculateDrivingLicenceConfidence(data map[string]interface{}, uploadType s
 	return confidence
 }
 
-// processPassport processes passport documents using MRZ-only extraction
+// processPassport processes passport documents using advanced three-zone extraction
 func processPassport(file multipart.File, uploadType string) (map[string]interface{}, float64, error) {
 	// Read file content
 	fileBytes, err := io.ReadAll(file)
@@ -564,46 +1075,244 @@ func processPassport(file multipart.File, uploadType string) (map[string]interfa
 		return nil, 0, fmt.Errorf("failed to read file: %v", err)
 	}
 
-	fmt.Printf("🔍 STEP 1: Extracting MRZ area from passport image...\n")
+	fmt.Printf("🔍 STEP 1: Three-zone passport extraction...\n")
 
-	// Extract MRZ area only (bottom portion of passport)
-	mrzBytes, err := extractMRZArea(fileBytes)
+	// Extract three zones: Page 1, Page 2 Upper, Page 2 MRZ
+	page1Bytes, page2UpperBytes, _, page1Path, page2UpperPath, page2MrzPath, err := extractThreeZones(fileBytes)
 	if err != nil {
-		fmt.Printf("❌ MRZ extraction failed, falling back to full image: %v\n", err)
-		mrzBytes = fileBytes // Fallback to full image
+		fmt.Printf("❌ Three-zone extraction failed, falling back to simple MRZ: %v\n", err)
+		// Fallback to simple MRZ extraction
+		_, err := extractMRZAreaSimple(fileBytes)
+		if err != nil {
+			return nil, 0, fmt.Errorf("fallback MRZ extraction failed: %v", err)
+		}
 	} else {
-		fmt.Printf("✅ MRZ area extracted successfully\n")
+		fmt.Printf("✅ Three zones extracted successfully\n")
 	}
 
-	fmt.Printf("🔍 STEP 2: Running OCR on MRZ area only...\n")
+	fmt.Printf("🔍 STEP 2: Running OCR on all three zones...\n")
 
-	// Use multi-engine OCR on MRZ area only
-	ocrResult, err := runMultiEngineOCR(mrzBytes, "passport_mrz.jpg")
-	if err != nil {
-		return nil, 0, fmt.Errorf("MRZ OCR failed: %v", err)
+	// OCR Page 1 (Photo + Signature)
+	var page1Text string
+	if page1Bytes != nil {
+		if page1Result, err := ocrWithTesseractPassportText(page1Path); err == nil {
+			page1Text = page1Result.Text
+			fmt.Printf("📄 Page 1 OCR: %d characters extracted\n", len(page1Text))
+			fmt.Printf("=== PAGE 1 OCR TEXT START ===\n%s\n=== PAGE 1 OCR TEXT END ===\n", page1Text)
+		} else {
+			fmt.Printf("⚠️ Page 1 OCR failed: %v\n", err)
+		}
 	}
 
-	fmt.Printf("OCR Text extracted from MRZ using %s (confidence: %.2f):\n", ocrResult.Engine, ocrResult.Confidence)
-	fmt.Printf("=== MRZ OCR TEXT START ===\n%s\n=== MRZ OCR TEXT END ===\n", ocrResult.Text)
+	// OCR Page 2 Upper (Text area - contains issue date and other passport details)
+	var page2UpperText string
+	if page2UpperBytes != nil {
+		if page2UpperResult, err := ocrWithTesseractPassportText(page2UpperPath); err == nil {
+			page2UpperText = page2UpperResult.Text
+			fmt.Printf("📄 Page 2 Upper OCR: %d characters extracted\n", len(page2UpperText))
+			fmt.Printf("=== PAGE 2 UPPER OCR TEXT START ===\n%s\n=== PAGE 2 UPPER OCR TEXT END ===\n", page2UpperText)
+		} else {
+			fmt.Printf("⚠️ Page 2 Upper OCR failed: %v\n", err)
+		}
+	}
+
+	// OCR Page 2 MRZ (Most important for passport data) - Try enhanced PassportEye first on full passport
+	fmt.Printf("🎯 Attempting full passport extraction with enhanced PassportEye on original image...\n")
+
+	var passportEyeResult *PassportEyeResult
+
+	// Create a temporary file path for the original image (we need to save the original bytes first)
+	originalPath := strings.Replace(page2MrzPath, "page2_mrz_", "full_passport_", 1)
+	if writeErr := os.WriteFile(originalPath, fileBytes, 0644); writeErr == nil {
+		passportEyeResult, err = ocrWithPassportEyeFull(originalPath)
+		fmt.Printf("📄 Full passport extraction on original image: success=%t\n", err == nil && passportEyeResult.Success)
+	} else {
+		err = fmt.Errorf("failed to save original image: %v", writeErr)
+	}
+
+	// If full extraction fails, fallback to MRZ-only extraction
+	if err != nil || !passportEyeResult.Success {
+		fmt.Printf("⚠️ Full PassportEye extraction failed (%v), trying MRZ-only...\n", err)
+		passportEyeResult, err = ocrWithPassportEye(page2MrzPath)
+	}
+
+	var finalMRZText string
+	var finalConfidence float64
+	var engine string
+
+	if err == nil && passportEyeResult.Success {
+		// PassportEye succeeded
+		finalMRZText = passportEyeResult.RawText
+		finalConfidence = passportEyeResult.Confidence
+		engine = "passporteye"
+		fmt.Printf("✅ PassportEye extraction successful (confidence: %.2f, valid: %t)\n",
+			passportEyeResult.Confidence, passportEyeResult.Valid)
+		fmt.Printf("=== PASSPORTEYE MRZ TEXT START ===\n%s\n=== PASSPORTEYE MRZ TEXT END ===\n", finalMRZText)
+
+		// If PassportEye found valid MRZ, use its structured data directly
+		if passportEyeResult.Valid && len(passportEyeResult.ExtractedData) > 0 {
+			fmt.Printf("🎯 Using PassportEye structured data extraction\n")
+			// We'll use this structured data later
+		}
+	} else {
+		// PassportEye failed, fallback to Tesseract
+		fmt.Printf("⚠️ PassportEye failed (%v), falling back to Tesseract...\n", err)
+		ocrResult, tesseractErr := ocrWithTesseract(page2MrzPath)
+		if tesseractErr != nil {
+			return nil, 0, fmt.Errorf("both PassportEye and Tesseract MRZ OCR failed: PassportEye: %v, Tesseract: %v", err, tesseractErr)
+		}
+		finalMRZText = ocrResult.Text
+		finalConfidence = ocrResult.Confidence
+		engine = "tesseract"
+		fmt.Printf("📄 Page 2 MRZ OCR using %s (confidence: %.2f):\n", engine, finalConfidence)
+		fmt.Printf("=== MRZ OCR TEXT START ===\n%s\n=== MRZ OCR TEXT END ===\n", finalMRZText)
+	}
 
 	fmt.Printf("🔍 STEP 3: Parsing MRZ data...\n")
 
-	// Parse extracted MRZ text with enhanced processing
-	extractedData := parseMRZOnly(ocrResult.Text)
+	var extractedData map[string]interface{}
 
-	// Calculate final confidence combining OCR confidence and field extraction confidence
-	fieldConfidence := calculatePassportConfidence(extractedData)
-	finalConfidence := (ocrResult.Confidence + fieldConfidence) / 2.0
+	// Use PassportEye structured data if available and valid
+	if err == nil && passportEyeResult.Success && passportEyeResult.Valid && len(passportEyeResult.ExtractedData) > 0 {
+		fmt.Printf("🎯 Using PassportEye structured extraction\n")
+		extractedData = make(map[string]interface{})
 
-	// Add OCR metadata
-	extractedData["_ocrEngine"] = ocrResult.Engine
-	extractedData["_ocrConfidence"] = ocrResult.Confidence
+		// Copy PassportEye data with our field names
+		peData := passportEyeResult.ExtractedData
+		if surname, ok := peData["surname"].(string); ok && surname != "" {
+			extractedData["surname"] = surname
+		}
+		if givenNames, ok := peData["givenNames"].(string); ok && givenNames != "" {
+			extractedData["givenNames"] = givenNames
+		}
+		if passportNumber, ok := peData["passportNumber"].(string); ok && passportNumber != "" {
+			extractedData["passportNumber"] = passportNumber
+		}
+		if nationality, ok := peData["nationality"].(string); ok && nationality != "" {
+			// Map nationality code to full country name
+			if fullCountryName, exists := countryCodeMap[nationality]; exists {
+				extractedData["nationality"] = fullCountryName
+				fmt.Printf("🌍 Mapped nationality: %s -> %s\n", nationality, fullCountryName)
+			} else {
+				extractedData["nationality"] = nationality
+				fmt.Printf("⚠️ Unknown nationality code: %s\n", nationality)
+			}
+		}
+		if issuingCountry, ok := peData["issuingCountry"].(string); ok && issuingCountry != "" {
+			// Map country code to full country name
+			if fullCountryName, exists := countryCodeMap[issuingCountry]; exists {
+				extractedData["issuingCountry"] = fullCountryName
+				fmt.Printf("🌍 Mapped issuing country: %s -> %s\n", issuingCountry, fullCountryName)
+			} else {
+				extractedData["issuingCountry"] = issuingCountry
+				fmt.Printf("⚠️ Unknown country code: %s\n", issuingCountry)
+			}
+		}
+		if gender, ok := peData["gender"].(string); ok && gender != "" {
+			extractedData["gender"] = gender
+		}
+		if dateOfBirth, ok := peData["dateOfBirth"].(string); ok && dateOfBirth != "" {
+			extractedData["dateOfBirth"] = dateOfBirth
+		}
+		if expiryDate, ok := peData["expiryDate"].(string); ok && expiryDate != "" {
+			extractedData["expiryDate"] = expiryDate
+		}
+
+		// Add raw MRZ text
+		if len(passportEyeResult.MRZLines) > 0 {
+			extractedData["machineReadableZone"] = strings.Join(passportEyeResult.MRZLines, "\n")
+		}
+
+		fmt.Printf("📊 PassportEye extracted %d fields\n", len(extractedData))
+
+		// Try to extract issue date from page 1 text first (UK passports often have it there)
+		fmt.Printf("🔍 Checking for issue date in page 1 text (length: %d)\n", len(page1Text))
+		if page1Text != "" {
+			if issueDate := extractIssueDateFromText(page1Text); issueDate != "" {
+				extractedData["issueDate"] = issueDate
+				fmt.Printf("✅ Added issue date from page 1 text: %s\n", issueDate)
+			}
+		}
+
+		// If not found in page 1, try page 2 upper text
+		if _, hasIssueDate := extractedData["issueDate"]; !hasIssueDate {
+			fmt.Printf("🔍 Checking for issue date in page 2 upper text (length: %d)\n", len(page2UpperText))
+			if page2UpperText != "" {
+				if issueDate := extractIssueDateFromText(page2UpperText); issueDate != "" {
+					extractedData["issueDate"] = issueDate
+					fmt.Printf("✅ Added issue date from page 2 text: %s\n", issueDate)
+				}
+			} else {
+				fmt.Printf("⚠️ Page 2 upper text is empty - cannot extract issue date\n")
+			}
+		}
+	} else {
+		// Fallback to manual parsing of OCR text
+		fmt.Printf("🔍 Using manual MRZ parsing from OCR text\n")
+		extractedData = parseMRZOnly(finalMRZText)
+
+		// Try to extract issue date from page 1 text first (fallback case)
+		fmt.Printf("🔍 Checking for issue date in page 1 text - fallback (length: %d)\n", len(page1Text))
+		if page1Text != "" {
+			if issueDate := extractIssueDateFromText(page1Text); issueDate != "" {
+				extractedData["issueDate"] = issueDate
+				fmt.Printf("✅ Added issue date from page 1 text (fallback): %s\n", issueDate)
+			}
+		}
+
+		// If not found in page 1, try page 2 upper text (fallback case)
+		if _, hasIssueDate := extractedData["issueDate"]; !hasIssueDate {
+			fmt.Printf("🔍 Checking for issue date in page 2 upper text - fallback (length: %d)\n", len(page2UpperText))
+			if page2UpperText != "" {
+				if issueDate := extractIssueDateFromText(page2UpperText); issueDate != "" {
+					extractedData["issueDate"] = issueDate
+					fmt.Printf("✅ Added issue date from page 2 text (fallback): %s\n", issueDate)
+				}
+			} else {
+				fmt.Printf("⚠️ Page 2 upper text is empty - cannot extract issue date (fallback)\n")
+			}
+		}
+	}
+
+	// Calculate final confidence
+	var fieldConfidence float64
+	if err == nil && passportEyeResult.Success {
+		// PassportEye provides its own confidence
+		fieldConfidence = finalConfidence
+	} else {
+		// Calculate field confidence for Tesseract results
+		fieldConfidence = calculatePassportConfidence(extractedData)
+	}
+
+	finalConfidenceValue := (finalConfidence + fieldConfidence) / 2.0
+
+	// Add OCR metadata and image paths
+	extractedData["_ocrEngine"] = engine
+	extractedData["_ocrConfidence"] = finalConfidence
 	extractedData["_fieldConfidence"] = fieldConfidence
 	extractedData["_mrzExtracted"] = true
 
-	fmt.Printf("✅ STEP 4: Extraction complete - %d fields found\n", len(extractedData)-4) // -4 for metadata fields
+	// Add image paths for frontend access
+	if page1Path != "" {
+		extractedData["_page1ImagePath"] = page1Path
+		extractedData["_page1ImageUrl"] = "/static/mrz/" + filepath.Base(page1Path)
+	}
+	if page2UpperPath != "" {
+		extractedData["_page2UpperImagePath"] = page2UpperPath
+		extractedData["_page2UpperImageUrl"] = "/static/mrz/" + filepath.Base(page2UpperPath)
+	}
+	if page2MrzPath != "" {
+		extractedData["_page2MrzImagePath"] = page2MrzPath
+		extractedData["_page2MrzImageUrl"] = "/static/mrz/" + filepath.Base(page2MrzPath)
 
-	return extractedData, finalConfidence, nil
+		// Add preprocessed MRZ image URL
+		preprocessedMrzPath := strings.Replace(page2MrzPath, ".png", "_preprocessed.png", 1)
+		extractedData["_page2MrzPreprocessedUrl"] = "/static/mrz/" + filepath.Base(preprocessedMrzPath)
+	}
+
+	fmt.Printf("✅ STEP 4: Extraction complete - %d fields found\n", len(extractedData)-7) // -7 for metadata fields
+
+	return extractedData, finalConfidenceValue, nil
 }
 
 // extractMRZArea extracts the MRZ (Machine Readable Zone) from passport image
@@ -663,6 +1372,231 @@ func extractMRZArea(imageBytes []byte) ([]byte, error) {
 	}
 
 	return buf.Bytes(), nil
+}
+
+// extractThreeZones splits passport image into Page 1, Page 2 Upper, and Page 2 MRZ
+func extractThreeZones(imageBytes []byte) ([]byte, []byte, []byte, string, string, string, error) {
+	// Decode image
+	img, format, err := image.Decode(bytes.NewReader(imageBytes))
+	if err != nil {
+		return nil, nil, nil, "", "", "", fmt.Errorf("failed to decode image: %v", err)
+	}
+
+	bounds := img.Bounds()
+	width := bounds.Dx()
+	height := bounds.Dy()
+
+	fmt.Printf("📏 Original passport image: %dx%d pixels\n", width, height)
+
+	// Create static/mrz directory if it doesn't exist
+	mrzDir := "static/mrz"
+	if err := os.MkdirAll(mrzDir, 0755); err != nil {
+		fmt.Printf("⚠️ Could not create mrz directory: %v\n", err)
+	}
+
+	// Detect passport fold line (between pages)
+	foldLine := detectPassportFoldLine(img)
+	if foldLine == -1 {
+		// Fallback: assume fold is at 50% for standard passport
+		foldLine = height / 2
+		fmt.Printf("📏 Using fallback fold line at 50%% (%d pixels)\n", foldLine)
+	} else {
+		fmt.Printf("📏 Detected passport fold line at %d pixels\n", foldLine)
+	}
+
+	// Calculate zones
+	// Page 1: Top to fold line (photo + signature page)
+	page1Height := foldLine
+
+	// Page 2 Upper: Fold line to MRZ start (text area) - expand significantly to capture issue date
+	mrzStartY := int(float64(height) * 0.70) // MRZ typically starts at 70% down (was 75%)
+	page2UpperStartY := foldLine
+	page2UpperHeight := mrzStartY - foldLine
+
+	// Page 2 MRZ: MRZ lines only (bottom 25%)
+	page2MrzHeight := height - mrzStartY
+
+	fmt.Printf("📏 Zone calculations:\n")
+	fmt.Printf("  Page 1: 0-%d (%dx%d)\n", foldLine, width, page1Height)
+	fmt.Printf("  Page 2 Upper: %d-%d (%dx%d)\n", foldLine, mrzStartY, width, page2UpperHeight)
+	fmt.Printf("  Page 2 MRZ: %d-%d (%dx%d)\n", mrzStartY, height, width, page2MrzHeight)
+
+	timestamp := time.Now().Unix()
+
+	// Extract Page 1 (Photo + Signature)
+	var page1Bytes []byte
+	var page1Path string
+	if page1Height > 0 {
+		page1Img := image.NewRGBA(image.Rect(0, 0, width, page1Height))
+		for y := 0; y < page1Height; y++ {
+			for x := 0; x < width; x++ {
+				page1Img.Set(x, y, img.At(x, y))
+			}
+		}
+
+		page1Path = filepath.Join(mrzDir, fmt.Sprintf("page1_passport_%d.png", timestamp))
+		if err := saveImage(page1Img, page1Path, format); err == nil {
+			page1Bytes, _ = imageToBytes(page1Img, format)
+			fmt.Printf("💾 Page 1 saved: %s\n", page1Path)
+			fmt.Printf("🔗 Page 1 URL: http://localhost:3000/%s\n", strings.Replace(page1Path, "\\", "/", -1))
+		}
+	}
+
+	// Extract Page 2 Upper (Text area)
+	var page2UpperBytes []byte
+	var page2UpperPath string
+	if page2UpperHeight > 0 {
+		page2UpperImg := image.NewRGBA(image.Rect(0, 0, width, page2UpperHeight))
+		for y := page2UpperStartY; y < mrzStartY; y++ {
+			for x := 0; x < width; x++ {
+				page2UpperImg.Set(x, y-page2UpperStartY, img.At(x, y))
+			}
+		}
+
+		page2UpperPath = filepath.Join(mrzDir, fmt.Sprintf("page2_upper_passport_%d.png", timestamp))
+		if err := saveImage(page2UpperImg, page2UpperPath, format); err == nil {
+			page2UpperBytes, _ = imageToBytes(page2UpperImg, format)
+			fmt.Printf("💾 Page 2 Upper saved: %s\n", page2UpperPath)
+			fmt.Printf("🔗 Page 2 Upper URL: http://localhost:3000/%s\n", strings.Replace(page2UpperPath, "\\", "/", -1))
+		}
+	}
+
+	// Extract Page 2 MRZ (MRZ lines only)
+	var page2MrzBytes []byte
+	var page2MrzPath string
+	if page2MrzHeight > 0 {
+		page2MrzImg := image.NewRGBA(image.Rect(0, 0, width, page2MrzHeight))
+		for y := mrzStartY; y < height; y++ {
+			for x := 0; x < width; x++ {
+				page2MrzImg.Set(x, y-mrzStartY, img.At(x, y))
+			}
+		}
+
+		page2MrzPath = filepath.Join(mrzDir, fmt.Sprintf("page2_mrz_passport_%d.png", timestamp))
+		if err := saveImage(page2MrzImg, page2MrzPath, format); err == nil {
+			page2MrzBytes, _ = imageToBytes(page2MrzImg, format)
+			fmt.Printf("💾 Page 2 MRZ saved: %s\n", page2MrzPath)
+			fmt.Printf("🔗 Page 2 MRZ URL: http://localhost:3000/%s\n", strings.Replace(page2MrzPath, "\\", "/", -1))
+		}
+	}
+
+	return page1Bytes, page2UpperBytes, page2MrzBytes, page1Path, page2UpperPath, page2MrzPath, nil
+}
+
+// detectPassportFoldLine detects the fold line between passport pages
+func detectPassportFoldLine(img image.Image) int {
+	bounds := img.Bounds()
+	width := bounds.Dx()
+	height := bounds.Dy()
+
+	// Look for horizontal line patterns in the middle section (30-70% of height)
+	startY := int(float64(height) * 0.3)
+	endY := int(float64(height) * 0.7)
+
+	maxLineStrength := 0.0
+	bestFoldY := -1
+
+	for y := startY; y < endY; y++ {
+		lineStrength := 0.0
+
+		// Sample brightness changes across the width
+		for x := 1; x < width-1; x++ {
+			r1, g1, b1, _ := img.At(x-1, y).RGBA()
+			r2, g2, b2, _ := img.At(x+1, y).RGBA()
+
+			// Calculate brightness difference
+			brightness1 := (r1 + g1 + b1) / 3
+			brightness2 := (r2 + g2 + b2) / 3
+
+			diff := float64(brightness1) - float64(brightness2)
+			if diff < 0 {
+				diff = -diff
+			}
+			lineStrength += diff
+		}
+
+		// Normalize by width
+		lineStrength /= float64(width)
+
+		if lineStrength > maxLineStrength {
+			maxLineStrength = lineStrength
+			bestFoldY = y
+		}
+	}
+
+	// Only return fold line if we found a strong enough pattern
+	if maxLineStrength > 1000 { // Threshold for fold detection
+		return bestFoldY
+	}
+
+	return -1 // No fold detected
+}
+
+// extractMRZAreaSimple extracts just the MRZ area (fallback method)
+func extractMRZAreaSimple(imageBytes []byte) ([]byte, error) {
+	// Decode image
+	img, format, err := image.Decode(bytes.NewReader(imageBytes))
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode image: %v", err)
+	}
+
+	bounds := img.Bounds()
+	width := bounds.Dx()
+	height := bounds.Dy()
+
+	// Extract bottom 15% for MRZ (85-100%)
+	mrzStartY := int(float64(height) * 0.85)
+	mrzHeight := height - mrzStartY
+
+	fmt.Printf("📏 Simple MRZ extraction: %dx%d pixels (Y: %d-%d)\n", width, mrzHeight, mrzStartY, height)
+
+	// Create cropped image for MRZ area
+	mrzImg := image.NewRGBA(image.Rect(0, 0, width, mrzHeight))
+
+	// Copy MRZ area to new image
+	for y := mrzStartY; y < height; y++ {
+		for x := 0; x < width; x++ {
+			mrzImg.Set(x, y-mrzStartY, img.At(x, y))
+		}
+	}
+
+	// Encode cropped image back to bytes
+	return imageToBytes(mrzImg, format)
+}
+
+// saveImage saves an image to a file
+func saveImage(img image.Image, filePath, format string) error {
+	file, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	switch format {
+	case "jpeg":
+		return jpeg.Encode(file, img, &jpeg.Options{Quality: 95})
+	case "png":
+		return png.Encode(file, img)
+	default:
+		return png.Encode(file, img)
+	}
+}
+
+// imageToBytes converts an image to bytes
+func imageToBytes(img image.Image, format string) ([]byte, error) {
+	var buf bytes.Buffer
+
+	switch format {
+	case "jpeg":
+		err := jpeg.Encode(&buf, img, &jpeg.Options{Quality: 95})
+		return buf.Bytes(), err
+	case "png":
+		err := png.Encode(&buf, img)
+		return buf.Bytes(), err
+	default:
+		err := png.Encode(&buf, img)
+		return buf.Bytes(), err
+	}
 }
 
 // parseMRZOnly parses ONLY MRZ text (no visual inspection zone)
@@ -735,7 +1669,7 @@ func parseMRZOnly(text string) map[string]interface{} {
 	return extractedData
 }
 
-// isMRZLine checks if a line looks like an MRZ line
+// isMRZLine checks if a line looks like an MRZ line (enhanced detection)
 func isMRZLine(line string) bool {
 	line = strings.TrimSpace(line)
 
@@ -744,25 +1678,44 @@ func isMRZLine(line string) bool {
 		return true
 	}
 
-	// Check for passport number patterns (starts with letter+numbers)
-	passportPattern := regexp.MustCompile(`^[A-Z][A-Z0-9]{6,8}`)
-	if passportPattern.MatchString(line) {
-		return true
+	// Enhanced passport number patterns (both letter+numbers and numbers+letters)
+	passportPatterns := []*regexp.Regexp{
+		regexp.MustCompile(`^[A-Z][A-Z0-9]{6,9}`),    // Standard: letter + alphanumeric
+		regexp.MustCompile(`^[0-9]{8,10}[A-Z]{2,3}`), // Alternative: numbers + letters
+		regexp.MustCompile(`^[A-Z]{2,3}[0-9]{6,9}`),  // Country + numbers
 	}
 
-	// Check for typical MRZ length (44 characters for TD-3)
-	if len(line) >= 35 && len(line) <= 50 {
+	for _, pattern := range passportPatterns {
+		if pattern.MatchString(line) {
+			return true
+		}
+	}
+
+	// Check for typical MRZ length (44 characters for TD-3, but allow flexibility)
+	if len(line) >= 30 && len(line) <= 50 {
 		// Count alphanumeric characters vs spaces/symbols
 		alphaNum := 0
+		mrzChars := 0 // Count MRZ-specific characters
 		for _, char := range line {
 			if (char >= 'A' && char <= 'Z') || (char >= '0' && char <= '9') {
 				alphaNum++
 			}
+			if char == '<' || char == '>' || char == '/' {
+				mrzChars++
+			}
 		}
-		// MRZ lines should be mostly alphanumeric
-		if float64(alphaNum)/float64(len(line)) > 0.7 {
+
+		// MRZ lines should be mostly alphanumeric with some MRZ characters
+		alphaRatio := float64(alphaNum) / float64(len(line))
+		if alphaRatio > 0.6 && (mrzChars > 0 || alphaRatio > 0.8) {
 			return true
 		}
+	}
+
+	// Check for MRZ date patterns (YYMMDD)
+	datePattern := regexp.MustCompile(`[0-9]{6}[MF][0-9]{6}`)
+	if datePattern.MatchString(line) {
+		return true
 	}
 
 	return false

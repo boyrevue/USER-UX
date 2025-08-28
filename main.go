@@ -50,27 +50,47 @@ func main() {
 
 	r := mux.NewRouter()
 
-	// Static files with proper MIME types
-	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Set proper MIME types for different file extensions
+	// Static files with proper MIME types - PERMANENTLY FIXED
+	staticHandler := http.StripPrefix("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Get the file path
+		filePath := r.URL.Path
+
+		// Set proper MIME types BEFORE serving the file
 		switch {
-		case strings.HasSuffix(r.URL.Path, ".css"):
-			w.Header().Set("Content-Type", "text/css")
-		case strings.HasSuffix(r.URL.Path, ".js"):
-			w.Header().Set("Content-Type", "application/javascript")
-		case strings.HasSuffix(r.URL.Path, ".png"):
+		case strings.HasSuffix(filePath, ".css"):
+			w.Header().Set("Content-Type", "text/css; charset=utf-8")
+		case strings.HasSuffix(filePath, ".js"):
+			w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		case strings.HasSuffix(filePath, ".png"):
 			w.Header().Set("Content-Type", "image/png")
-		case strings.HasSuffix(r.URL.Path, ".jpg"), strings.HasSuffix(r.URL.Path, ".jpeg"):
+		case strings.HasSuffix(filePath, ".jpg"), strings.HasSuffix(filePath, ".jpeg"):
 			w.Header().Set("Content-Type", "image/jpeg")
-		case strings.HasSuffix(r.URL.Path, ".svg"):
+		case strings.HasSuffix(filePath, ".svg"):
 			w.Header().Set("Content-Type", "image/svg+xml")
-		case strings.HasSuffix(r.URL.Path, ".ico"):
+		case strings.HasSuffix(filePath, ".ico"):
 			w.Header().Set("Content-Type", "image/x-icon")
-		case strings.HasSuffix(r.URL.Path, ".json"):
-			w.Header().Set("Content-Type", "application/json")
+		case strings.HasSuffix(filePath, ".json"):
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		case strings.HasSuffix(filePath, ".woff2"):
+			w.Header().Set("Content-Type", "font/woff2")
+		case strings.HasSuffix(filePath, ".woff"):
+			w.Header().Set("Content-Type", "font/woff")
+		case strings.HasSuffix(filePath, ".ttf"):
+			w.Header().Set("Content-Type", "font/ttf")
+		default:
+			// For any other file, try to detect MIME type
+			w.Header().Set("Content-Type", "application/octet-stream")
 		}
+
+		// Add cache control headers for static assets
+		if strings.HasSuffix(filePath, ".js") || strings.HasSuffix(filePath, ".css") {
+			w.Header().Set("Cache-Control", "public, max-age=31536000") // 1 year
+		}
+
+		// Serve the file
 		http.FileServer(http.Dir("./static")).ServeHTTP(w, r)
-	})))
+	}))
+	r.PathPrefix("/static/").Handler(staticHandler)
 
 	// Serve all static files that React expects at root level
 	r.HandleFunc("/manifest.json", func(w http.ResponseWriter, r *http.Request) {
@@ -130,21 +150,11 @@ func main() {
 	// Stealth Browser routes
 	api.HandleFunc("/stealth-browser", StealthBrowserHandler).Methods("POST")
 
-	// Bitwarden Integration routes
-	api.HandleFunc("/bitwarden/status", BitwardenStatusHandler).Methods("GET")
-	api.HandleFunc("/bitwarden/login", BitwardenLoginHandler).Methods("POST")
-	api.HandleFunc("/bitwarden/login-apikey", BitwardenAPIKeyLoginHandler).Methods("POST")
-	api.HandleFunc("/bitwarden/unlock", BitwardenUnlockHandler).Methods("POST")
-	api.HandleFunc("/bitwarden/store-site", BitwardenStoreSiteHandler).Methods("POST")
-	api.HandleFunc("/bitwarden/store-banking", BitwardenStoreBankingHandler).Methods("POST")
-	api.HandleFunc("/bitwarden/get-site", BitwardenGetSiteHandler).Methods("GET")
-	api.HandleFunc("/bitwarden/get-banking", BitwardenGetBankingHandler).Methods("GET")
-	api.HandleFunc("/bitwarden/list-credentials", BitwardenListCredentialsHandler).Methods("GET")
-	api.HandleFunc("/bitwarden/sync", BitwardenSyncHandler).Methods("POST")
-	api.HandleFunc("/bitwarden/setup-templates", BitwardenSetupTemplatesHandler).Methods("POST")
-
 	// Money Supermarket Infiltration
 	api.HandleFunc("/infiltrate/moneysupermarket", MoneySupermarketInfiltrationHandler).Methods("POST")
+
+	// Debug endpoint for testing OCR on specific images
+	api.HandleFunc("/debug/ocr-test", app.handleDebugOCRTest).Methods("GET")
 
 	// UI
 	r.HandleFunc("/", app.handleHome).Methods("GET")
@@ -655,6 +665,58 @@ func simulateDVLA(reg string) map[string]interface{} {
 		"year":         year,
 		"vin":          vin,
 	}
+}
+
+// Debug handler for testing OCR on specific images
+func (app *App) handleDebugOCRTest(w http.ResponseWriter, r *http.Request) {
+	imagePath := r.URL.Query().Get("image")
+	if imagePath == "" {
+		http.Error(w, "Missing image parameter", http.StatusBadRequest)
+		return
+	}
+
+	// Test OCR on the specified image
+	result := map[string]interface{}{
+		"imagePath": imagePath,
+		"timestamp": time.Now().Format(time.RFC3339),
+	}
+
+	// Try to run OCR on the image if it exists
+	fullPath := "./static/mrz/" + imagePath
+	if _, err := os.Stat(fullPath); err == nil {
+		// File exists, try OCR - use passport text OCR for page2_upper images
+		var ocrResult *OCRResult
+		var err error
+		if strings.Contains(imagePath, "page2_upper") {
+			ocrResult, err = ocrWithTesseractPassportText(fullPath)
+		} else {
+			ocrResult, err = ocrWithTesseract(fullPath)
+		}
+
+		if err == nil {
+			result["ocrSuccess"] = true
+			result["ocrText"] = ocrResult.Text
+			result["ocrConfidence"] = ocrResult.Confidence
+			result["textLength"] = len(ocrResult.Text)
+
+			// Try to extract issue date from this text
+			if issueDate := extractIssueDateFromText(ocrResult.Text); issueDate != "" {
+				result["issueDateFound"] = true
+				result["issueDate"] = issueDate
+			} else {
+				result["issueDateFound"] = false
+			}
+		} else {
+			result["ocrSuccess"] = false
+			result["ocrError"] = err.Error()
+		}
+	} else {
+		result["fileExists"] = false
+		result["error"] = "Image file not found"
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(result)
 }
 
 // Utility

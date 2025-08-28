@@ -1,0 +1,376 @@
+@prefix : <http://example.org/i18n#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+# Internationalization Temporal Ontology
+# ISO 639-1 Language Codes and ISO 8601 Date/Time Standards
+
+# Base Classes
+:TemporalUnit a rdfs:Class ;
+    rdfs:label "Temporal Unit"@en ;
+    rdfs:label "Zeiteinheit"@de ;
+    rdfs:comment "Base class for temporal units like months and days" .
+
+:Month a rdfs:Class ;
+    rdfs:subClassOf :TemporalUnit ;
+    rdfs:label "Month"@en ;
+    rdfs:label "Monat"@de ;
+    rdfs:comment "Calendar month with multilingual support" .
+
+:DayOfWeek a rdfs:Class ;
+    rdfs:subClassOf :TemporalUnit ;
+    rdfs:label "Day of Week"@en ;
+    rdfs:label "Wochentag"@de ;
+    rdfs:comment "Day of the week with multilingual support" .
+
+# Properties
+:monthNumber a rdf:Property ;
+    rdfs:label "Month Number"@en ;
+    rdfs:label "Monatsnummer"@de ;
+    rdfs:domain :Month ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "ISO month number (1-12)" .
+
+:dayNumber a rdf:Property ;
+    rdfs:label "Day Number"@en ;
+    rdfs:label "Tagesnummer"@de ;
+    rdfs:domain :DayOfWeek ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "ISO day number (1=Monday, 7=Sunday)" .
+
+:abbreviation3 a rdf:Property ;
+    rdfs:label "3-Letter Abbreviation"@en ;
+    rdfs:label "3-Buchstaben-Abkürzung"@de ;
+    rdfs:comment "Standard 3-letter abbreviation" .
+
+:abbreviation2 a rdf:Property ;
+    rdfs:label "2-Letter Abbreviation"@en ;
+    rdfs:label "2-Buchstaben-Abkürzung"@de ;
+    rdfs:comment "Standard 2-letter abbreviation" .
+
+:languageCode a rdf:Property ;
+    rdfs:label "Language Code"@en ;
+    rdfs:label "Sprachcode"@de ;
+    rdfs:comment "ISO 639-1 language code" .
+
+# ========================================
+# MONTHS - MULTILINGUAL DEFINITIONS
+# ========================================
+
+# January
+:January a :Month ;
+    :monthNumber 1 ;
+    rdfs:label "January"@en ;
+    rdfs:label "Januar"@de ;
+    rdfs:label "Janvier"@fr ;
+    rdfs:label "Enero"@es ;
+    rdfs:label "Gennaio"@it ;
+    rdfs:label "Janeiro"@pt ;
+    rdfs:label "Januari"@nl ;
+    :abbreviation3 "JAN" ;
+    skos:altLabel "jan"@en, "jän"@de, "janv"@fr, "ene"@es, "gen"@it .
+
+# February  
+:February a :Month ;
+    :monthNumber 2 ;
+    rdfs:label "February"@en ;
+    rdfs:label "Februar"@de ;
+    rdfs:label "Février"@fr ;
+    rdfs:label "Febrero"@es ;
+    rdfs:label "Febbraio"@it ;
+    rdfs:label "Fevereiro"@pt ;
+    rdfs:label "Februari"@nl ;
+    :abbreviation3 "FEB" ;
+    skos:altLabel "feb"@en, "févr"@fr, "fev"@pt .
+
+# March
+:March a :Month ;
+    :monthNumber 3 ;
+    rdfs:label "March"@en ;
+    rdfs:label "März"@de ;
+    rdfs:label "Mars"@fr ;
+    rdfs:label "Marzo"@es ;
+    rdfs:label "Marzo"@it ;
+    rdfs:label "Março"@pt ;
+    rdfs:label "Maart"@nl ;
+    :abbreviation3 "MAR" ;
+    skos:altLabel "mar"@en, "mär"@de, "mars"@fr, "mrt"@nl .
+
+# April
+:April a :Month ;
+    :monthNumber 4 ;
+    rdfs:label "April"@en ;
+    rdfs:label "April"@de ;
+    rdfs:label "Avril"@fr ;
+    rdfs:label "Abril"@es ;
+    rdfs:label "Aprile"@it ;
+    rdfs:label "Abril"@pt ;
+    rdfs:label "April"@nl ;
+    :abbreviation3 "APR" ;
+    skos:altLabel "apr"@en, "avr"@fr, "abr"@es .
+
+# May
+:May a :Month ;
+    :monthNumber 5 ;
+    rdfs:label "May"@en ;
+    rdfs:label "Mai"@de ;
+    rdfs:label "Mai"@fr ;
+    rdfs:label "Mayo"@es ;
+    rdfs:label "Maggio"@it ;
+    rdfs:label "Maio"@pt ;
+    rdfs:label "Mei"@nl ;
+    :abbreviation3 "MAY" ;
+    skos:altLabel "may"@en, "mai"@de, "mag"@it, "mei"@nl .
+
+# June
+:June a :Month ;
+    :monthNumber 6 ;
+    rdfs:label "June"@en ;
+    rdfs:label "Juni"@de ;
+    rdfs:label "Juin"@fr ;
+    rdfs:label "Junio"@es ;
+    rdfs:label "Giugno"@it ;
+    rdfs:label "Junho"@pt ;
+    rdfs:label "Juni"@nl ;
+    :abbreviation3 "JUN" ;
+    skos:altLabel "jun"@en, "juin"@fr, "giu"@it .
+
+# July
+:July a :Month ;
+    :monthNumber 7 ;
+    rdfs:label "July"@en ;
+    rdfs:label "Juli"@de ;
+    rdfs:label "Juillet"@fr ;
+    rdfs:label "Julio"@es ;
+    rdfs:label "Luglio"@it ;
+    rdfs:label "Julho"@pt ;
+    rdfs:label "Juli"@nl ;
+    :abbreviation3 "JUL" ;
+    skos:altLabel "jul"@en, "juil"@fr, "lug"@it .
+
+# August
+:August a :Month ;
+    :monthNumber 8 ;
+    rdfs:label "August"@en ;
+    rdfs:label "August"@de ;
+    rdfs:label "Août"@fr ;
+    rdfs:label "Agosto"@es ;
+    rdfs:label "Agosto"@it ;
+    rdfs:label "Agosto"@pt ;
+    rdfs:label "Augustus"@nl ;
+    :abbreviation3 "AUG" ;
+    skos:altLabel "aug"@en, "août"@fr, "ago"@es .
+
+# September
+:September a :Month ;
+    :monthNumber 9 ;
+    rdfs:label "September"@en ;
+    rdfs:label "September"@de ;
+    rdfs:label "Septembre"@fr ;
+    rdfs:label "Septiembre"@es ;
+    rdfs:label "Settembre"@it ;
+    rdfs:label "Setembro"@pt ;
+    rdfs:label "September"@nl ;
+    :abbreviation3 "SEP" ;
+    skos:altLabel "sep"@en, "sept"@fr, "set"@it .
+
+# October
+:October a :Month ;
+    :monthNumber 10 ;
+    rdfs:label "October"@en ;
+    rdfs:label "Oktober"@de ;
+    rdfs:label "Octobre"@fr ;
+    rdfs:label "Octubre"@es ;
+    rdfs:label "Ottobre"@it ;
+    rdfs:label "Outubro"@pt ;
+    rdfs:label "Oktober"@nl ;
+    :abbreviation3 "OCT" ;
+    skos:altLabel "oct"@en, "okt"@de, "ott"@it, "out"@pt .
+
+# November
+:November a :Month ;
+    :monthNumber 11 ;
+    rdfs:label "November"@en ;
+    rdfs:label "November"@de ;
+    rdfs:label "Novembre"@fr ;
+    rdfs:label "Noviembre"@es ;
+    rdfs:label "Novembre"@it ;
+    rdfs:label "Novembro"@pt ;
+    rdfs:label "November"@nl ;
+    :abbreviation3 "NOV" ;
+    skos:altLabel "nov"@en .
+
+# December
+:December a :Month ;
+    :monthNumber 12 ;
+    rdfs:label "December"@en ;
+    rdfs:label "Dezember"@de ;
+    rdfs:label "Décembre"@fr ;
+    rdfs:label "Diciembre"@es ;
+    rdfs:label "Dicembre"@it ;
+    rdfs:label "Dezembro"@pt ;
+    rdfs:label "December"@nl ;
+    :abbreviation3 "DEC" ;
+    skos:altLabel "dec"@en, "dez"@de, "déce"@fr, "dic"@es .
+
+# ========================================
+# DAYS OF WEEK - MULTILINGUAL DEFINITIONS
+# ========================================
+
+# Monday (ISO 8601: Day 1)
+:Monday a :DayOfWeek ;
+    :dayNumber 1 ;
+    rdfs:label "Monday"@en ;
+    rdfs:label "Montag"@de ;
+    rdfs:label "Lundi"@fr ;
+    rdfs:label "Lunes"@es ;
+    rdfs:label "Lunedì"@it ;
+    rdfs:label "Segunda-feira"@pt ;
+    rdfs:label "Maandag"@nl ;
+    :abbreviation3 "MON" ;
+    :abbreviation2 "MO" ;
+    skos:altLabel "mon"@en, "mo"@de, "lun"@fr, "lun"@es, "lun"@it, "seg"@pt, "ma"@nl .
+
+# Tuesday (ISO 8601: Day 2)
+:Tuesday a :DayOfWeek ;
+    :dayNumber 2 ;
+    rdfs:label "Tuesday"@en ;
+    rdfs:label "Dienstag"@de ;
+    rdfs:label "Mardi"@fr ;
+    rdfs:label "Martes"@es ;
+    rdfs:label "Martedì"@it ;
+    rdfs:label "Terça-feira"@pt ;
+    rdfs:label "Dinsdag"@nl ;
+    :abbreviation3 "TUE" ;
+    :abbreviation2 "TU" ;
+    skos:altLabel "tue"@en, "di"@de, "mar"@fr, "mar"@es, "mar"@it, "ter"@pt, "di"@nl .
+
+# Wednesday (ISO 8601: Day 3)
+:Wednesday a :DayOfWeek ;
+    :dayNumber 3 ;
+    rdfs:label "Wednesday"@en ;
+    rdfs:label "Mittwoch"@de ;
+    rdfs:label "Mercredi"@fr ;
+    rdfs:label "Miércoles"@es ;
+    rdfs:label "Mercoledì"@it ;
+    rdfs:label "Quarta-feira"@pt ;
+    rdfs:label "Woensdag"@nl ;
+    :abbreviation3 "WED" ;
+    :abbreviation2 "WE" ;
+    skos:altLabel "wed"@en, "mi"@de, "mer"@fr, "mié"@es, "mer"@it, "qua"@pt, "wo"@nl .
+
+# Thursday (ISO 8601: Day 4)
+:Thursday a :DayOfWeek ;
+    :dayNumber 4 ;
+    rdfs:label "Thursday"@en ;
+    rdfs:label "Donnerstag"@de ;
+    rdfs:label "Jeudi"@fr ;
+    rdfs:label "Jueves"@es ;
+    rdfs:label "Giovedì"@it ;
+    rdfs:label "Quinta-feira"@pt ;
+    rdfs:label "Donderdag"@nl ;
+    :abbreviation3 "THU" ;
+    :abbreviation2 "TH" ;
+    skos:altLabel "thu"@en, "do"@de, "jeu"@fr, "jue"@es, "gio"@it, "qui"@pt, "do"@nl .
+
+# Friday (ISO 8601: Day 5)
+:Friday a :DayOfWeek ;
+    :dayNumber 5 ;
+    rdfs:label "Friday"@en ;
+    rdfs:label "Freitag"@de ;
+    rdfs:label "Vendredi"@fr ;
+    rdfs:label "Viernes"@es ;
+    rdfs:label "Venerdì"@it ;
+    rdfs:label "Sexta-feira"@pt ;
+    rdfs:label "Vrijdag"@nl ;
+    :abbreviation3 "FRI" ;
+    :abbreviation2 "FR" ;
+    skos:altLabel "fri"@en, "fr"@de, "ven"@fr, "vie"@es, "ven"@it, "sex"@pt, "vr"@nl .
+
+# Saturday (ISO 8601: Day 6)
+:Saturday a :DayOfWeek ;
+    :dayNumber 6 ;
+    rdfs:label "Saturday"@en ;
+    rdfs:label "Samstag"@de ;
+    rdfs:label "Samedi"@fr ;
+    rdfs:label "Sábado"@es ;
+    rdfs:label "Sabato"@it ;
+    rdfs:label "Sábado"@pt ;
+    rdfs:label "Zaterdag"@nl ;
+    :abbreviation3 "SAT" ;
+    :abbreviation2 "SA" ;
+    skos:altLabel "sat"@en, "sa"@de, "sam"@fr, "sáb"@es, "sab"@it, "sáb"@pt, "za"@nl .
+
+# Sunday (ISO 8601: Day 7)
+:Sunday a :DayOfWeek ;
+    :dayNumber 7 ;
+    rdfs:label "Sunday"@en ;
+    rdfs:label "Sonntag"@de ;
+    rdfs:label "Dimanche"@fr ;
+    rdfs:label "Domingo"@es ;
+    rdfs:label "Domenica"@it ;
+    rdfs:label "Domingo"@pt ;
+    rdfs:label "Zondag"@nl ;
+    :abbreviation3 "SUN" ;
+    :abbreviation2 "SU" ;
+    skos:altLabel "sun"@en, "so"@de, "dim"@fr, "dom"@es, "dom"@it, "dom"@pt, "zo"@nl .
+
+# ========================================
+# LANGUAGE COLLECTIONS
+# ========================================
+
+:SupportedLanguages a skos:ConceptScheme ;
+    rdfs:label "Supported Languages"@en ;
+    rdfs:label "Unterstützte Sprachen"@de ;
+    dct:description "ISO 639-1 language codes supported by the system" .
+
+:English a skos:Concept ;
+    skos:inScheme :SupportedLanguages ;
+    :languageCode "en" ;
+    rdfs:label "English"@en ;
+    skos:notation "en" .
+
+:German a skos:Concept ;
+    skos:inScheme :SupportedLanguages ;
+    :languageCode "de" ;
+    rdfs:label "German"@en ;
+    rdfs:label "Deutsch"@de ;
+    skos:notation "de" .
+
+:French a skos:Concept ;
+    skos:inScheme :SupportedLanguages ;
+    :languageCode "fr" ;
+    rdfs:label "French"@en ;
+    rdfs:label "Français"@fr ;
+    skos:notation "fr" .
+
+:Spanish a skos:Concept ;
+    skos:inScheme :SupportedLanguages ;
+    :languageCode "es" ;
+    rdfs:label "Spanish"@en ;
+    rdfs:label "Español"@es ;
+    skos:notation "es" .
+
+:Italian a skos:Concept ;
+    skos:inScheme :SupportedLanguages ;
+    :languageCode "it" ;
+    rdfs:label "Italian"@en ;
+    rdfs:label "Italiano"@it ;
+    skos:notation "it" .
+
+:Portuguese a skos:Concept ;
+    skos:inScheme :SupportedLanguages ;
+    :languageCode "pt" ;
+    rdfs:label "Portuguese"@en ;
+    rdfs:label "Português"@pt ;
+    skos:notation "pt" .
+
+:Dutch a skos:Concept ;
+    skos:inScheme :SupportedLanguages ;
+    :languageCode "nl" ;
+    rdfs:label "Dutch"@en ;
+    rdfs:label "Nederlands"@nl ;
+    skos:notation "nl" .

@@ -1,4 +1,4 @@
-package main
+package formgenerator
 
 import (
 	"bufio"
@@ -955,6 +955,3 @@ func main() {
 		fmt.Printf("   • %s: %d fields\n", category.Label, len(category.Fields))
 	}
 }
-
-
-

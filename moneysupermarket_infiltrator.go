@@ -183,8 +183,8 @@ func (msi *MoneySupermarketInfiltrator) ExecuteInfiltration(ctx context.Context,
 
 // Activate maximum stealth mode
 func (msi *MoneySupermarketInfiltrator) activateStealthMode(ctx context.Context) error {
-	// Apply all Bitwarden-style stealth techniques
-	err := msi.StealthBrowser.AdvancedStealth.ApplyBitwardenStealth(ctx)
+	// Apply all advanced stealth techniques
+	err := msi.StealthBrowser.AdvancedStealth.ApplyAdvancedStealth(ctx)
 	if err != nil {
 		return fmt.Errorf("advanced stealth activation failed: %v", err)
 	}

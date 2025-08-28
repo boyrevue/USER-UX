@@ -141,8 +141,20 @@
     rdfs:label "Dokumentland"@de ;
     rdfs:comment "Country that issued the document" ;
     insurance:isRequiredForInsurance false ;
+    insurance:mapsToField "driver.passportIssuingCountry" ;
     insurance:helpText "Country that issued this document"@en ;
     insurance:helpText "Land, das dieses Dokument ausgestellt hat"@de .
+
+:IssuingCountry a :PassportField ;
+    rdfs:label "Issuing Country"@en ;
+    rdfs:label "Ausstellungsland"@de ;
+    rdfs:comment "Country that issued the passport (from MRZ)" ;
+    insurance:isRequiredForInsurance false ;
+    insurance:mapsToField "driver.passportIssuingCountry" ;
+    insurance:helpText "Country that issued your passport"@en ;
+    insurance:helpText "Land, das Ihren Reisepass ausgestellt hat"@de ;
+    insurance:mrzField true ;
+    insurance:countryCodeMapping true .
 
 # SHACL Shapes for Validation
 :PassportShape a sh:NodeShape ;
