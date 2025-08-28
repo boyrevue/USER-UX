@@ -209,38 +209,19 @@ const translations: {[key: string]: {[key: string]: string}} = {
     paymentExtras: 'Insurance Payments',
     marketingPreferences: 'Marketing Preferences',
     personalDocuments: 'Personal Documents',
-    // Extract Data Menu
-    extractData: 'Extract Data',
-    extractDataDesc: 'Extract data from websites using AI-powered analysis',
-    webBrowser: 'Web Browser',
-    webBrowserDesc: 'Navigate websites with full browser functionality',
-    spiderConfiguration: 'Spider Configuration',
-    spiderConfigDesc: 'Configure web spider settings and options',
-    dataExtractor: 'Data Extractor',
-    dataExtractorDesc: 'AI-powered data extraction from web pages',
-    // Fill Forms Menu
-    fillForms: 'Fill Forms',
-    fillFormsDesc: 'Automatically fill forms with your saved data',
-    formFiller: 'Form Filler',
-    formFillerDesc: 'Automated form filling with saved data',
+
     bitwardenIntegration: 'Bitwarden Integration',
     bitwardenIntegrationDesc: 'Auto-fill forms using your Bitwarden vault data',
     smartMapping: 'Smart Mapping',
     smartMappingDesc: 'Intelligent field mapping with SHACL transformation',
     // Web Spider Features
     webSpider: 'Web Spider',
-    dataExtraction: 'Data Extraction',
-    dataExtractionComplete: 'Data extraction completed successfully',
-    formFillComplete: 'Form filling completed successfully',
-    extractFromWebsite: 'Extract from Website',
-    fillExternalForm: 'Fill External Form',
     headlessMode: 'Headless Mode',
     takeScreenshots: 'Take Screenshots',
     waitForLoad: 'Wait for Page Load',
     enableJavaScript: 'Enable JavaScript',
     cssSelectors: 'CSS Selectors',
-    extractDataAction: 'Extract Data',
-    fillFormAction: 'Fill Form',
+
     extractionResults: 'Extraction Results',
     recentTasks: 'Recent Tasks',
     // Bitwarden & Stealth Browser
@@ -384,38 +365,19 @@ const translations: {[key: string]: {[key: string]: string}} = {
     claimsHistory: 'Schadenshistorie',
     paymentExtras: 'Zahlung & Extras',
     marketingPreferences: 'Marketing-Einstellungen',
-    // Extract Data Menu
-    extractData: 'Daten extrahieren',
-    extractDataDesc: 'Daten von Websites mit KI-gestützter Analyse extrahieren',
-    webBrowser: 'Webbrowser',
-    webBrowserDesc: 'Navigieren Sie auf Websites mit voller Browser-Funktionalität',
-    spiderConfiguration: 'Spider-Konfiguration',
-    spiderConfigDesc: 'Web-Spider-Einstellungen und -Optionen konfigurieren',
-    dataExtractor: 'Datenextraktor',
-    dataExtractorDesc: 'KI-gestützte Datenextraktion von Webseiten',
-    // Fill Forms Menu
-    fillForms: 'Formulare ausfüllen',
-    fillFormsDesc: 'Formulare automatisch mit Ihren gespeicherten Daten ausfüllen',
-    formFiller: 'Formular-Ausfüller',
-    formFillerDesc: 'Automatisches Ausfüllen von Formularen mit gespeicherten Daten',
+
     bitwardenIntegration: 'Bitwarden-Integration',
     bitwardenIntegrationDesc: 'Formulare automatisch mit Ihren Bitwarden-Vault-Daten ausfüllen',
     smartMapping: 'Intelligente Zuordnung',
     smartMappingDesc: 'Intelligente Feldzuordnung mit SHACL-Transformation',
     // Web Spider Features
     webSpider: 'Web-Spider',
-    dataExtraction: 'Datenextraktion',
-    dataExtractionComplete: 'Datenextraktion erfolgreich abgeschlossen',
-    formFillComplete: 'Formular-Ausfüllung erfolgreich abgeschlossen',
-    extractFromWebsite: 'Von Website extrahieren',
-    fillExternalForm: 'Externes Formular ausfüllen',
     headlessMode: 'Headless-Modus',
     takeScreenshots: 'Screenshots erstellen',
     waitForLoad: 'Auf Seitenladen warten',
     enableJavaScript: 'JavaScript aktivieren',
     cssSelectors: 'CSS-Selektoren',
-    extractDataAction: 'Daten extrahieren',
-    fillFormAction: 'Formular ausfüllen',
+
     extractionResults: 'Extraktionsergebnisse',
     recentTasks: 'Letzte Aufgaben',
     // Bitwarden & Stealth Browser
@@ -1069,77 +1031,6 @@ function App() {
   };
 
   // Web Spider Functions
-  const extractDataFromWebsite = async (url: string, selectors: any[]) => {
-    setIsSpiderRunning(true);
-    try {
-      const response = await fetch('/api/extract-data', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          url,
-          selectors,
-          options: spiderConfig
-        }),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        setExtractionResults(result);
-        
-        // Auto-map extracted data to session if possible
-        if (result.extractedData) {
-          await mapExtractedDataToSession(result.extractedData);
-        }
-        
-        setNotification({
-          type: 'success',
-          message: translations[session.language].dataExtractionComplete || 'Data extraction completed'
-        });
-      } else {
-        console.error('Data extraction failed');
-      }
-    } catch (error) {
-      console.error('Data extraction error:', error);
-    } finally {
-      setIsSpiderRunning(false);
-    }
-  };
-
-  const fillExternalForm = async (url: string, formData: any, navigation?: any[]) => {
-    setIsSpiderRunning(true);
-    try {
-      const response = await fetch('/api/fill-form', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          url,
-          formData,
-          navigation: navigation || [],
-          options: spiderConfig
-        }),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log('Form fill result:', result);
-        
-        setNotification({
-          type: 'success',
-          message: translations[session.language].formFillComplete || 'Form filling completed'
-        });
-      } else {
-        console.error('Form filling failed');
-      }
-    } catch (error) {
-      console.error('Form filling error:', error);
-    } finally {
-      setIsSpiderRunning(false);
-    }
-  };
 
   const mapExtractedDataToSession = async (extractedData: any) => {
     // Intelligent mapping of extracted data to session fields
@@ -1650,28 +1541,6 @@ function App() {
       icon: Upload,
       isModal: true,
       categories: []
-    },
-    {
-      id: 'extract-data',
-      title: translations[session.language].extractData,
-      icon: Download,
-      categories: [
-        { id: 'web-browser-extract', title: translations[session.language].webBrowser, icon: Globe, order: 1, description: translations[session.language].webBrowserDesc },
-        { id: 'data-extractor', title: translations[session.language].dataExtractor, icon: Brain, order: 2, description: translations[session.language].dataExtractorDesc },
-        { id: 'spider-config-extract', title: translations[session.language].spiderConfiguration, icon: Settings, order: 3, description: translations[session.language].spiderConfigDesc }
-      ]
-    },
-    {
-      id: 'fill-forms',
-      title: translations[session.language].fillForms,
-      icon: Upload,
-      categories: [
-        { id: 'web-browser-fill', title: translations[session.language].webBrowser, icon: Globe, order: 1, description: translations[session.language].webBrowserDesc },
-        { id: 'form-filler', title: translations[session.language].formFiller, icon: Zap, order: 2, description: translations[session.language].formFillerDesc },
-        { id: 'bitwarden-integration', title: translations[session.language].bitwardenIntegration, icon: Key, order: 3, description: translations[session.language].bitwardenIntegrationDesc },
-        { id: 'smart-mapping', title: translations[session.language].smartMapping, icon: Target, order: 4, description: translations[session.language].smartMappingDesc },
-        { id: 'spider-config-fill', title: translations[session.language].spiderConfiguration, icon: Settings, order: 5, description: translations[session.language].spiderConfigDesc }
-      ]
     },
     {
       id: 'settings',
@@ -4197,619 +4066,26 @@ Insurance Quote System
 
 
   // Navigate and Fill Section Renderers
-  const renderFormAnalyzerSection = () => (
-    <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex items-center space-x-3 mb-6">
-          <Brain className="w-6 h-6 text-blue-600" />
-          <h2 className="text-xl font-semibold text-gray-900">{translations[session.language].formAnalyzer}</h2>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card className="p-4 cursor-pointer hover:bg-gray-50 border-2 border-dashed border-gray-300" 
-                onClick={() => setAnalysisType('document')}>
-            <div className="text-center">
-              <FileSearch className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-              <h3 className="font-medium">Document Analysis</h3>
-              <p className="text-sm text-gray-600">Upload PDF or image forms</p>
-            </div>
-          </Card>
-          
-          <Card className="p-4 cursor-pointer hover:bg-gray-50 border-2 border-dashed border-gray-300"
-                onClick={() => setAnalysisType('html')}>
-            <div className="text-center">
-              <Scan className="w-8 h-8 text-green-600 mx-auto mb-2" />
-              <h3 className="font-medium">HTML Analysis</h3>
-              <p className="text-sm text-gray-600">Paste HTML form code</p>
-            </div>
-          </Card>
-          
-          <Card className="p-4 cursor-pointer hover:bg-gray-50 border-2 border-dashed border-gray-300"
-                onClick={() => setAnalysisType('url')}>
-            <div className="text-center">
-              <MapPin className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-              <h3 className="font-medium">URL Analysis</h3>
-              <p className="text-sm text-gray-600">Analyze forms from website</p>
-            </div>
-          </Card>
 
-          <Card className="p-4 cursor-pointer hover:bg-gray-50 border-2 border-dashed border-gray-300"
-                onClick={() => setAnalysisType('stealth')}>
-            <div className="text-center">
-              <Navigation className="w-8 h-8 text-red-600 mx-auto mb-2" />
-              <h3 className="font-medium">🥷 Stealth Browser</h3>
-              <p className="text-sm text-gray-600">Navigate with anti-bot protection</p>
-            </div>
-          </Card>
-        </div>
 
-        {analysisType === 'document' && (
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-            <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-lg font-medium text-gray-900 mb-2">Upload Form Document</p>
-            <p className="text-gray-600 mb-4">Drag and drop a PDF or image file, or click to browse</p>
-            <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="form-upload" 
-                   onChange={(e) => e.target.files?.[0] && analyzeForm(e.target.files[0])} />
-            <Button onClick={() => document.getElementById('form-upload')?.click()}>
-              Choose File
-            </Button>
-          </div>
-        )}
 
-        {analysisType === 'html' && (
-          <div className="space-y-4">
-            <Label htmlFor="html-content">HTML Form Code</Label>
-            <textarea id="html-content" rows={8} className="w-full border rounded-lg p-3" 
-                      placeholder="Paste your HTML form code here..."></textarea>
-            <Button onClick={() => {
-              const htmlContent = (document.getElementById('html-content') as HTMLTextAreaElement)?.value;
-              if (htmlContent) analyzeForm(undefined, htmlContent);
-            }}>
-              Analyze HTML
-            </Button>
-          </div>
-        )}
 
-        {analysisType === 'url' && (
-          <div className="space-y-4">
-            <Label htmlFor="form-url">Website URL</Label>
-            <TextInput id="form-url" placeholder="https://example.com/form" />
-            <Button onClick={() => {
-              const url = (document.getElementById('form-url') as HTMLInputElement)?.value;
-              if (url) analyzeForm(undefined, undefined, url);
-            }}>
-              Analyze URL
-            </Button>
-          </div>
-        )}
 
-        {isAnalyzing && (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Analyzing form structure...</p>
-          </div>
-        )}
 
-        {analysisType === 'stealth' && (
-          <div className="space-y-6">
-            {/* Bitwarden Integration */}
-            <Card className="p-6 bg-gradient-to-r from-blue-50 to-purple-50">
-              <div className="flex items-center space-x-3 mb-4">
-                <Key className="w-6 h-6 text-blue-600" />
-                <h3 className="font-medium">🔐 Bitwarden Integration</h3>
-                <Badge color={bitwardenUnlocked ? 'success' : 'warning'}>
-                  {bitwardenUnlocked ? 'Unlocked' : 'Locked'}
-                </Badge>
-              </div>
-              
-              {!bitwardenUnlocked ? (
-                <div className="space-y-3">
-                  <p className="text-gray-600">Unlock your Bitwarden vault to access stored credentials</p>
-                  <div className="flex space-x-3">
-                    <TextInput 
-                      type="password" 
-                      placeholder="Master password" 
-                      id="bitwarden-password"
-                      className="flex-1"
-                    />
-                    <Button onClick={() => {
-                      const password = (document.getElementById('bitwarden-password') as HTMLInputElement)?.value;
-                      if (password) unlockBitwarden(password);
-                    }}>
-                      Unlock Vault
-                    </Button>
-                  </div>
-                  <Button 
-                    outline 
-                    onClick={setupBitwardenTemplates}
-                    className="w-full"
-                  >
-                    Setup Credential Templates
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <p className="text-green-700">✅ Vault unlocked - {availableCredentials.length} credentials available</p>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    {availableCredentials.slice(0, 8).map((cred, index) => (
-                      <Button 
-                        key={index}
-                        size="sm"
-                        outline
-                        onClick={() => setSelectedSite(cred)}
-                        className={selectedSite === cred ? 'bg-blue-100' : ''}
-                      >
-                        {cred.replace('Site Login - ', '')}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </Card>
 
-            {/* Stealth Browser Interface */}
-            <Card className="p-6">
-              <div className="flex items-center space-x-3 mb-4">
-                <Navigation className="w-6 h-6 text-red-600" />
-                <h3 className="font-medium">🥷 Stealth Browser</h3>
-                <Badge color={browserSession ? 'success' : 'gray'}>
-                  {browserSession ? 'Active' : 'Inactive'}
-                </Badge>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Browser Controls */}
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="site-url">Target Website</Label>
-                    <Select 
-                      id="site-url"
-                      value={selectedSite}
-                      onChange={(e) => setSelectedSite(e.target.value)}
-                    >
-                      <option value="moneysupermarket.com">Money Supermarket</option>
-                      <option value="comparethemarket.com">Compare the Market</option>
-                      <option value="gocompare.com">Go Compare</option>
-                      <option value="confused.com">Confused.com</option>
-                      <option value="custom">Custom URL...</option>
-                    </Select>
-                  </div>
-
-                  {selectedSite === 'custom' && (
-                    <div>
-                      <Label htmlFor="custom-url">Custom URL</Label>
-                      <TextInput 
-                        id="custom-url" 
-                        placeholder="https://example.com"
-                      />
-                    </div>
-                  )}
-
-                  <div className="flex space-x-3">
-                    <Button 
-                      onClick={() => {
-                        const url = selectedSite === 'custom' 
-                          ? (document.getElementById('custom-url') as HTMLInputElement)?.value
-                          : `https://www.${selectedSite}`;
-                        if (url) createStealthSession(url);
-                      }}
-                      disabled={isBrowserRunning}
-                      className="flex-1"
-                    >
-                      {isBrowserRunning ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Loading...
-                        </>
-                      ) : (
-                        <>
-                          <Navigation className="w-4 h-4 mr-2" />
-                          Navigate
-                        </>
-                      )}
-                    </Button>
-
-                    <Button 
-                      onClick={() => loginToSite(selectedSite)}
-                      disabled={isBrowserRunning || !bitwardenUnlocked}
-                      color="success"
-                    >
-                      <Key className="w-4 h-4 mr-2" />
-                      Auto Login
-                    </Button>
-                  </div>
-
-                  {/* Anti-Bot Features */}
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium text-sm mb-2">🛡️ Anti-Bot Protection</h4>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="flex items-center space-x-1">
-                        <CheckCircle className="w-3 h-3 text-green-500" />
-                        <span>User Agent Rotation</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <CheckCircle className="w-3 h-3 text-green-500" />
-                        <span>Canvas Fingerprint</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <CheckCircle className="w-3 h-3 text-green-500" />
-                        <span>Human-like Typing</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <CheckCircle className="w-3 h-3 text-green-500" />
-                        <span>WebRTC Blocking</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Browser Preview */}
-                <div className="space-y-4">
-                  <div className="aspect-video bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
-                    {browserScreenshot ? (
-                      <img 
-                        src={`/screenshots/${browserScreenshot}`} 
-                        alt="Browser Screenshot" 
-                        className="max-w-full max-h-full rounded"
-                      />
-                    ) : (
-                      <div className="text-center">
-                        <Navigation className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                        <p className="text-gray-500">Browser preview will appear here</p>
-                      </div>
-                    )}
-                  </div>
-
-                  {browserSession && (
-                    <div className="space-y-2">
-                      <div className="text-sm">
-                        <span className="font-medium">URL:</span> 
-                        <span className="text-blue-600 ml-1">{browserSession.url}</span>
-                      </div>
-                      <div className="text-sm">
-                        <span className="font-medium">Title:</span> 
-                        <span className="ml-1">{browserSession.title}</span>
-                      </div>
-                      <div className="text-sm">
-                        <span className="font-medium">Status:</span> 
-                        <Badge color={browserSession.success ? 'success' : 'failure'} className="ml-1">
-                          {browserSession.success ? 'Connected' : 'Error'}
-                        </Badge>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {analysisResults && (
-          <div className="mt-6 p-4 bg-green-50 rounded-lg">
-            <h3 className="font-medium text-green-900 mb-2">Analysis Complete</h3>
-            <p className="text-green-700">Found {analysisResults.fields?.length || 0} fields</p>
-            <p className="text-sm text-green-600">Form Type: {analysisResults.formType}</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  const renderBitwardenIntegrationSection = () => (
-    <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex items-center space-x-3 mb-6">
-          <Key className="w-6 h-6 text-blue-600" />
-          <h2 className="text-xl font-semibold text-gray-900">{translations[session.language].bitwardenIntegration}</h2>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="p-6">
-            <h3 className="font-medium mb-4">Connect Bitwarden</h3>
-            <p className="text-gray-600 mb-4">Link your Bitwarden vault to auto-fill forms with your saved data.</p>
-            <Button className="w-full" onClick={connectToBitwarden}>
-              <Key className="w-4 h-4 mr-2" />
-              Connect Vault
-            </Button>
-          </Card>
-          
-          <Card className="p-6">
-            <h3 className="font-medium mb-4">Sync Profile Data</h3>
-            <p className="text-gray-600 mb-4">Import your personal information from Bitwarden to populate insurance forms.</p>
-            <Button outline className="w-full">
-              <Zap className="w-4 h-4 mr-2" />
-              Sync Data
-            </Button>
-          </Card>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderSmartMappingSection = () => (
-    <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex items-center space-x-3 mb-6">
-          <Target className="w-6 h-6 text-blue-600" />
-          <h2 className="text-xl font-semibold text-gray-900">{translations[session.language].smartMapping}</h2>
-        </div>
-        
-        {fieldMappings.length > 0 ? (
-          <div className="space-y-4">
-            <h3 className="font-medium">Field Mappings</h3>
-            {fieldMappings.map((mapping, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <span className="font-medium">{mapping.sourceField.label}</span>
-                  <span className="text-gray-500 ml-2">→</span>
-                  <span className="text-blue-600 ml-2">{mapping.ontologyProp}</span>
-                </div>
-                <Badge color={mapping.confidence > 0.8 ? 'success' : 'warning'}>
-                  {Math.round(mapping.confidence * 100)}%
-                </Badge>
-              </div>
-            ))}
-            <Button onClick={applyFieldMappings} className="w-full">
-              <Wand2 className="w-4 h-4 mr-2" />
-              Apply Mappings
-            </Button>
-          </div>
-        ) : (
-          <div className="text-center py-8">
-            <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">No field mappings available. Analyze a form first.</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  const renderFormNavigatorSection = () => (
-    <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex items-center space-x-3 mb-6">
-          <MapPin className="w-6 h-6 text-blue-600" />
-          <h2 className="text-xl font-semibold text-gray-900">{translations[session.language].formNavigator}</h2>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Data Extraction */}
-          <Card className="p-6">
-            <div className="flex items-center space-x-3 mb-4">
-              <FileSearch className="w-6 h-6 text-green-600" />
-              <h3 className="font-medium">Extract Data from Website</h3>
-            </div>
-            <p className="text-gray-600 mb-4">Pull data from any website using CSS selectors or XPath.</p>
-            
-            <div className="space-y-3">
-              <div>
-                <Label htmlFor="extract-url">Website URL</Label>
-                <TextInput id="extract-url" placeholder="https://example.com" />
-              </div>
-              
-              <div>
-                <Label htmlFor="css-selectors">CSS Selectors (one per line)</Label>
-                <textarea 
-                  id="css-selectors" 
-                  rows={3} 
-                  className="w-full border rounded-lg p-3 text-sm"
-                  placeholder="name: .customer-name&#10;email: input[name='email']&#10;phone: .contact-phone"
-                ></textarea>
-              </div>
-              
-              <Button 
-                onClick={() => {
-                  const url = (document.getElementById('extract-url') as HTMLInputElement)?.value;
-                  const selectorsText = (document.getElementById('css-selectors') as HTMLTextAreaElement)?.value;
-                  
-                  if (url && selectorsText) {
-                    const selectors = selectorsText.split('\n').map(line => {
-                      const [name, css] = line.split(':').map(s => s.trim());
-                      return { name, css, text: true, required: false };
-                    }).filter(s => s.name && s.css);
-                    
-                    extractDataFromWebsite(url, selectors);
-                  }
-                }}
-                disabled={isSpiderRunning}
-                className="w-full"
-              >
-                {isSpiderRunning ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Extracting...
-                  </>
-                ) : (
-                  <>
-                    <FileSearch className="w-4 h-4 mr-2" />
-                    Extract Data
-                  </>
-                )}
-              </Button>
-            </div>
-          </Card>
-
-          {/* Form Filling */}
-          <Card className="p-6">
-            <div className="flex items-center space-x-3 mb-4">
-              <Zap className="w-6 h-6 text-blue-600" />
-              <h3 className="font-medium">Fill External Form</h3>
-            </div>
-            <p className="text-gray-600 mb-4">Automatically fill forms on external websites with your data.</p>
-            
-            <div className="space-y-3">
-              <div>
-                <Label htmlFor="fill-url">Form URL</Label>
-                <TextInput id="fill-url" placeholder="https://example.com/form" />
-              </div>
-              
-              <div>
-                <Label>Data to Fill</Label>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="flex items-center space-x-2">
-                    <input type="checkbox" id="fill-name" defaultChecked />
-                    <label htmlFor="fill-name">Name</label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input type="checkbox" id="fill-email" defaultChecked />
-                    <label htmlFor="fill-email">Email</label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input type="checkbox" id="fill-phone" defaultChecked />
-                    <label htmlFor="fill-phone">Phone</label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input type="checkbox" id="fill-address" defaultChecked />
-                    <label htmlFor="fill-address">Address</label>
-                  </div>
-                </div>
-              </div>
-              
-              <Button 
-                onClick={() => {
-                  const url = (document.getElementById('fill-url') as HTMLInputElement)?.value;
-                  
-                  if (url && session.drivers.length > 0) {
-                    const driver = session.drivers[0];
-                    const formData: any = {};
-                    
-                    if ((document.getElementById('fill-name') as HTMLInputElement)?.checked) {
-                      formData.firstName = driver.firstName;
-                      formData.lastName = driver.lastName;
-                    }
-                    if ((document.getElementById('fill-email') as HTMLInputElement)?.checked) {
-                      formData.email = driver.email;
-                    }
-                    if ((document.getElementById('fill-phone') as HTMLInputElement)?.checked) {
-                      formData.phone = driver.phone;
-                    }
-                    if ((document.getElementById('fill-address') as HTMLInputElement)?.checked) {
-                      formData.address = driver.address;
-                      formData.postcode = driver.postcode;
-                    }
-                    
-                    fillExternalForm(url, formData);
-                  }
-                }}
-                disabled={isSpiderRunning}
-                className="w-full"
-              >
-                {isSpiderRunning ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Filling...
-                  </>
-                ) : (
-                  <>
-                    <Zap className="w-4 h-4 mr-2" />
-                    Fill Form
-                  </>
-                )}
-              </Button>
-            </div>
-          </Card>
-        </div>
-
-        {/* Spider Configuration */}
-        <Card className="p-6 mt-6">
-          <h3 className="font-medium mb-4">Spider Configuration</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="flex items-center space-x-2">
-              <input 
-                type="checkbox" 
-                id="headless" 
-                checked={spiderConfig.headless}
-                onChange={(e) => setSpiderConfig({...spiderConfig, headless: e.target.checked})}
-              />
-              <label htmlFor="headless" className="text-sm">Headless Mode</label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <input 
-                type="checkbox" 
-                id="screenshots" 
-                checked={spiderConfig.screenshots}
-                onChange={(e) => setSpiderConfig({...spiderConfig, screenshots: e.target.checked})}
-              />
-              <label htmlFor="screenshots" className="text-sm">Take Screenshots</label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <input 
-                type="checkbox" 
-                id="wait-load" 
-                checked={spiderConfig.waitForLoad}
-                onChange={(e) => setSpiderConfig({...spiderConfig, waitForLoad: e.target.checked})}
-              />
-              <label htmlFor="wait-load" className="text-sm">Wait for Load</label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <input 
-                type="checkbox" 
-                id="javascript" 
-                checked={spiderConfig.javascript}
-                onChange={(e) => setSpiderConfig({...spiderConfig, javascript: e.target.checked})}
-              />
-              <label htmlFor="javascript" className="text-sm">Enable JavaScript</label>
-            </div>
-          </div>
-        </Card>
-
-        {/* Extraction Results */}
-        {extractionResults && (
-          <Card className="p-6 mt-6">
-            <h3 className="font-medium mb-4">Extraction Results</h3>
-            <div className="space-y-2">
-              {Object.entries(extractionResults.extractedData || {}).map(([key, value]) => (
-                <div key={key} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                  <span className="font-medium text-sm">{key}:</span>
-                  <span className="text-sm text-gray-600">{String(value)}</span>
-                </div>
-              ))}
-            </div>
-            {extractionResults.success && (
-              <div className="mt-4 p-3 bg-green-50 rounded-lg">
-                <p className="text-green-700 text-sm">
-                  ✅ Successfully extracted {Object.keys(extractionResults.extractedData || {}).length} fields
-                </p>
-              </div>
-            )}
-          </Card>
-        )}
-
-        {/* Spider Tasks */}
-        {spiderTasks.length > 0 && (
-          <Card className="p-6 mt-6">
-            <h3 className="font-medium mb-4">Recent Tasks</h3>
-            <div className="space-y-2">
-              {spiderTasks.slice(-5).map(task => (
-                <div key={task.id} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                  <div>
-                    <span className="font-medium text-sm">{task.type}</span>
-                    <span className="text-xs text-gray-500 ml-2">{task.createdAt.toLocaleTimeString()}</span>
-                  </div>
-                  <Badge color={task.status === 'completed' ? 'success' : task.status === 'failed' ? 'failure' : 'warning'}>
-                    {task.status}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </Card>
-        )}
-      </div>
-    </div>
-  );
 
   const renderAutoFillSection = () => (
     <div className="space-y-6">
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="flex items-center space-x-3 mb-6">
           <Zap className="w-6 h-6 text-blue-600" />
-          <h2 className="text-xl font-semibold text-gray-900">{translations[session.language].autoFill}</h2>
+          <h2 className="text-xl font-semibold text-gray-900">Auto-Fill Forms</h2>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="p-6">
             <h3 className="font-medium mb-4">Quick Fill</h3>
-            <p className="text-gray-600 mb-4">Instantly populate common form fields with your saved data.</p>
+            <p className="text-gray-600 mb-4">Instantly populate common form fields with your saved personal data.</p>
             <Button className="w-full">
               <Zap className="w-4 h-4 mr-2" />
               Fill Current Form
@@ -4817,119 +4093,37 @@ Insurance Quote System
           </Card>
           
           <Card className="p-6">
-            <h3 className="font-medium mb-4">Custom Templates</h3>
-            <p className="text-gray-600 mb-4">Create and manage custom auto-fill templates for different form types.</p>
+            <h3 className="font-medium mb-4">Personal Data</h3>
+            <p className="text-gray-600 mb-4">Auto-fill with email, phone, address, and personal details.</p>
             <Button outline className="w-full">
-              <FileText className="w-4 h-4 mr-2" />
-              Manage Templates
+              <User className="w-4 h-4 mr-2" />
+              Manage Personal Data
+            </Button>
+          </Card>
+
+          <Card className="p-6">
+            <h3 className="font-medium mb-4">Payment Details</h3>
+            <p className="text-gray-600 mb-4">Securely auto-fill credit card and bank details.</p>
+            <Button outline className="w-full">
+              <CreditCard className="w-4 h-4 mr-2" />
+              Manage Payment Info
             </Button>
           </Card>
         </div>
 
-        {/* Money Supermarket Infiltration */}
-        <div className="mt-8 bg-gradient-to-r from-red-50 to-orange-50 rounded-lg p-6 border-2 border-red-200">
-          <div className="flex items-center space-x-3 mb-6">
-            <Target className="w-8 h-8 text-red-600" />
-            <div>
-              <h2 className="text-2xl font-bold text-red-900">{translations[session.language].moneySupermarketInfiltration}</h2>
-              <p className="text-red-700">🥷 Advanced stealth infiltration with anti-bot protection</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Infiltration Control Panel */}
-            <Card className="p-6 bg-white border-red-200">
-              <h3 className="font-bold text-lg mb-4 text-red-900">🎯 Mission Control</h3>
-              
-              <div className="space-y-4">
-                <div className="bg-red-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-red-800 mb-2">{translations[session.language].targetAcquired}</h4>
-                  <p className="text-sm text-red-700">Money Supermarket Car Insurance</p>
-                  <p className="text-xs text-red-600 mt-1">🛡️ Stealth Level: MAXIMUM</p>
-                </div>
-
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-gray-700">Mission Data:</p>
-                  <div className="text-xs text-gray-600 space-y-1">
-                    <div>🚗 Vehicle: {session.vehicle?.registration || 'AB12 CDE'}</div>
-                    <div>📍 Postcode: {session.drivers?.[0]?.postcode || 'SW1A 1AA'}</div>
-                    <div>🎂 DOB: {session.drivers?.[0]?.dateOfBirth || '01/01/1990'}</div>
-                  </div>
-                </div>
-
-                <Button 
-                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3"
-                  onClick={infiltrateMoneySupermarket}
-                  disabled={infiltrationInProgress}
-                >
-                  {infiltrationInProgress ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      {translations[session.language].infiltrationInProgress}
-                    </>
-                  ) : (
-                    <>
-                      <Target className="w-4 h-4 mr-2" />
-                      {translations[session.language].infiltrateMoneySupermarket}
-                    </>
-                  )}
-                </Button>
-              </div>
-            </Card>
-
-            {/* Mission Logs */}
-            <Card className="p-6 bg-gray-900 text-green-400 font-mono">
-              <h3 className="font-bold text-lg mb-4 text-green-300">📡 Mission Logs</h3>
-              
-              <div className="h-64 overflow-y-auto bg-black p-3 rounded border border-green-600">
-                {infiltrationLogs.length === 0 ? (
-                  <div className="text-green-600 text-sm">
-                    <p>🥷 Stealth systems ready...</p>
-                    <p>🛡️ Anti-bot protection armed...</p>
-                    <p>🎯 Awaiting infiltration orders...</p>
-                  </div>
-                ) : (
-                  infiltrationLogs.map((log, index) => (
-                    <div key={index} className="text-xs mb-1 text-green-400">
-                      {log}
-                    </div>
-                  ))
-                )}
-              </div>
-            </Card>
-          </div>
-
-          {/* Extracted Quotes Display */}
-          {extractedQuotes.length > 0 && (
-            <div className="mt-6">
-              <h3 className="font-bold text-lg mb-4 text-red-900">
-                💰 {translations[session.language].quotesExtracted} ({extractedQuotes.length})
-              </h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {extractedQuotes.map((quote, index) => (
-                  <Card key={index} className="p-4 border-green-200 bg-green-50">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-bold text-green-800">{quote.provider}</span>
-                      <span className="text-xs text-green-600">#{quote.position}</span>
-                    </div>
-                    <div className="text-2xl font-bold text-green-900 mb-1">{quote.price}</div>
-                    <div className="text-xs text-green-700">{quote.details}</div>
-                    <div className="text-xs text-gray-500 mt-2">
-                      Extracted: {new Date(quote.extractedAt).toLocaleTimeString()}
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
+        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+          <h4 className="font-medium text-blue-900 mb-2">🔒 Secure Data Storage</h4>
+          <p className="text-blue-800 text-sm">
+            Your personal information is encrypted and stored securely. Use auto-fill to quickly complete insurance applications, 
+            web forms, and other documents while keeping your data safe.
+          </p>
         </div>
       </div>
     </div>
   );
 
   // Web Browser Component with Real Browser Integration
-  const renderWebBrowserSection = (mode: 'extract' | 'fill') => {
+  const renderWebBrowserSection = () => {
     const openRealBrowser = () => {
       const url = browserUrl || 'https://example.com';
       setIsBrowsing(true);
@@ -4967,7 +4161,7 @@ Insurance Quote System
           <div className="flex items-center gap-3 mb-6">
             <Globe className="w-6 h-6 text-blue-600" />
             <h2 className="text-xl font-semibold text-gray-900">
-              {translations[session.language].webBrowser} - {mode === 'extract' ? translations[session.language].extractData : translations[session.language].fillForms}
+              Web Browser
             </h2>
             {isBrowsing && (
               <Badge color="green" className="animate-pulse">
@@ -5024,7 +4218,7 @@ Insurance Quote System
                   <div>
                     <p className="text-lg font-medium text-gray-900">Browser Window Active</p>
                     <p className="text-sm text-gray-600">
-                      Real browser opened for {mode === 'extract' ? 'data extraction' : 'form filling'}
+                      Real browser opened for web navigation
                     </p>
                     <p className="text-xs text-gray-500 mt-2">
                       URL: {browserUrl || 'https://example.com'}
@@ -5048,7 +4242,7 @@ Insurance Quote System
                       Enter a URL above and click Navigate to open a real browser window
                     </p>
                     <p className="text-xs text-gray-500 mt-2">
-                      Floating controls will appear for {mode === 'extract' ? 'data extraction' : 'form filling'}
+                      Use the browser to navigate to insurance websites and forms
                     </p>
                   </div>
                 </div>
@@ -5061,43 +4255,24 @@ Insurance Quote System
             <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-center gap-2 mb-3">
                 <Zap className="w-5 h-5 text-blue-600" />
-                <h3 className="font-medium text-blue-900">Floating Controls Active</h3>
+                <h3 className="font-medium text-blue-900">Browser Tools</h3>
               </div>
               <div className="flex flex-wrap gap-2">
-                {mode === 'extract' ? (
-                  <>
-                    <Button size="xs" color="green">
-                      <Download className="w-3 h-3 mr-1" />
-                      Extract Data
-                    </Button>
-                    <Button size="xs" outline>
-                      <Settings className="w-3 h-3 mr-1" />
-                      Configure
-                    </Button>
-                    <Button size="xs" outline>
-                      <Scan className="w-3 h-3 mr-1" />
-                      Screenshot
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button size="xs" color="blue">
-                      <Wand2 className="w-3 h-3 mr-1" />
-                      Auto Fill
-                    </Button>
-                    <Button size="xs" outline>
-                      <Settings className="w-3 h-3 mr-1" />
-                      Configure
-                    </Button>
-                    <Button size="xs" outline>
-                      <Key className="w-3 h-3 mr-1" />
-                      Bitwarden
-                    </Button>
-                  </>
-                )}
+                <Button size="xs" color="blue">
+                  <Wand2 className="w-3 h-3 mr-1" />
+                  Auto Fill
+                </Button>
+                <Button size="xs" outline>
+                  <User className="w-3 h-3 mr-1" />
+                  Personal Data
+                </Button>
+                <Button size="xs" outline>
+                  <CreditCard className="w-3 h-3 mr-1" />
+                  Payment Info
+                </Button>
               </div>
               <p className="text-xs text-blue-700 mt-2">
-                These controls are available as floating overlay in the browser window
+                Use these tools to quickly fill forms with your saved data
               </p>
             </div>
           )}
@@ -5160,25 +4335,9 @@ Insurance Quote System
       case 'payment':
         return renderPaymentSection();
       
-      // Extract Data sections
-      case 'web-browser-extract':
-        return renderWebBrowserSection('extract');
-      case 'data-extractor':
-        return renderFormAnalyzerSection();
-      case 'spider-config-extract':
-        return renderWebBrowserSection('extract');
-      
-      // Fill Forms sections
-      case 'web-browser-fill':
-        return renderWebBrowserSection('fill');
+      // Auto-Fill section
       case 'form-filler':
         return renderAutoFillSection();
-      case 'bitwarden-integration':
-        return renderBitwardenIntegrationSection();
-      case 'smart-mapping':
-        return renderSmartMappingSection();
-      case 'spider-config-fill':
-        return renderWebBrowserSection('fill');
       
       // Settings
       case 'marketing':

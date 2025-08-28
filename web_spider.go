@@ -124,87 +124,9 @@ func WebSpiderHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
-// Data Extraction Handler
-func ExtractDataHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
 
-	var request struct {
-		URL       string        `json:"url"`
-		Selectors []Selector    `json:"selectors"`
-		Options   SpiderOptions `json:"options"`
-	}
 
-	err := json.NewDecoder(r.Body).Decode(&request)
-	if err != nil {
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
-		return
-	}
 
-	spider := NewWebSpider()
-	task := SpiderTask{
-		ID:        generateTaskID(),
-		Type:      "extract",
-		URL:       request.URL,
-		Selectors: request.Selectors,
-		Options:   request.Options,
-		Status:    "pending",
-		CreatedAt: time.Now(),
-	}
-
-	result, err := spider.ExecuteTask(task)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Data extraction failed: %v", err), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(result)
-}
-
-// Form Fill Handler
-func FillFormHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	var request struct {
-		URL        string            `json:"url"`
-		FormData   map[string]string `json:"formData"`
-		Navigation []NavigationStep  `json:"navigation"`
-		Options    SpiderOptions     `json:"options"`
-	}
-
-	err := json.NewDecoder(r.Body).Decode(&request)
-	if err != nil {
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
-		return
-	}
-
-	spider := NewWebSpider()
-	task := SpiderTask{
-		ID:         generateTaskID(),
-		Type:       "fill",
-		URL:        request.URL,
-		FormData:   request.FormData,
-		Navigation: request.Navigation,
-		Options:    request.Options,
-		Status:     "pending",
-		CreatedAt:  time.Now(),
-	}
-
-	result, err := spider.ExecuteTask(task)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Form filling failed: %v", err), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(result)
-}
 
 // Initialize Web Spider
 func NewWebSpider() *WebSpider {

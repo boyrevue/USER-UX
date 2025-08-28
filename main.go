@@ -144,8 +144,6 @@ func main() {
 
 	// Web Spider routes
 	api.HandleFunc("/web-spider", WebSpiderHandler).Methods("POST")
-	api.HandleFunc("/extract-data", ExtractDataHandler).Methods("POST")
-	api.HandleFunc("/fill-form", FillFormHandler).Methods("POST")
 
 	// Stealth Browser routes
 	api.HandleFunc("/stealth-browser", StealthBrowserHandler).Methods("POST")
