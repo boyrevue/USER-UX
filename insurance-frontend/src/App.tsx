@@ -43,6 +43,144 @@ import {
   BreadcrumbItem
 } from 'flowbite-react';
 
+// Date validation utilities with UK driving age and realistic human age limits
+const getDateLimits = () => {
+  const today = new Date();
+  const fiveYearsAgo = new Date();
+  fiveYearsAgo.setFullYear(today.getFullYear() - 5);
+  
+  // UK driving age restrictions and human age limits
+  const ukMinDrivingAge = 17; // UK minimum driving age
+  const maxHumanAge = 130; // Maximum realistic human age
+  const minDrivingDate = new Date(today.getFullYear() - ukMinDrivingAge, today.getMonth(), today.getDate());
+  const maxAgeDate = new Date(today.getFullYear() - maxHumanAge, today.getMonth(), today.getDate());
+  
+  return {
+    today: today.toISOString().split('T')[0],
+    fiveYearsAgo: fiveYearsAgo.toISOString().split('T')[0],
+    
+    // Birth date limits (17-130 years old)
+    maxBirthDate: minDrivingDate.toISOString().split('T')[0], // Must be at least 17 years old
+    minBirthDate: maxAgeDate.toISOString().split('T')[0], // Cannot be older than 130 years
+    
+    // UK driving licence issue date limits
+    earliestLicenceDate: new Date(1970, 0, 1).toISOString().split('T')[0], // UK DVLA records start ~1970
+    
+    // Age validation constants
+    ukMinDrivingAge,
+    maxHumanAge
+  };
+};
+
+// Validation function for birth dates (UK driving age and human age limits)
+const validateBirthDate = (dateString: string): { valid: boolean; error?: string } => {
+  if (!dateString) return { valid: true }; // Optional dates are valid when empty
+  
+  const inputDate = new Date(dateString);
+  const { today, maxBirthDate, minBirthDate, ukMinDrivingAge, maxHumanAge } = getDateLimits();
+  const todayDate = new Date(today);
+  const maxBirthDateObj = new Date(maxBirthDate);
+  const minBirthDateObj = new Date(minBirthDate);
+  
+  // Calculate age
+  const age = todayDate.getFullYear() - inputDate.getFullYear();
+  const monthDiff = todayDate.getMonth() - inputDate.getMonth();
+  const dayDiff = todayDate.getDate() - inputDate.getDate();
+  const actualAge = monthDiff < 0 || (monthDiff === 0 && dayDiff < 0) ? age - 1 : age;
+  
+  if (inputDate > todayDate) {
+    return { 
+      valid: false, 
+      error: "📅 Future birth dates are not allowed. Please enter a valid birth date." 
+    };
+  }
+  
+  if (actualAge < ukMinDrivingAge) {
+    return { 
+      valid: false, 
+      error: `🚗 Driver must be at least ${ukMinDrivingAge} years old to drive in the UK. This person is only ${actualAge} years old.` 
+    };
+  }
+  
+  if (actualAge > maxHumanAge) {
+    return { 
+      valid: false, 
+      error: `👴 Age cannot exceed ${maxHumanAge} years. Please check the birth date (calculated age: ${actualAge} years).` 
+    };
+  }
+  
+  return { valid: true };
+};
+
+// Validation function for historical dates (claims, accidents, convictions)
+const validateHistoricalDate = (dateString: string): { valid: boolean; error?: string } => {
+  if (!dateString) return { valid: true }; // Optional dates are valid when empty
+  
+  const inputDate = new Date(dateString);
+  const { today, fiveYearsAgo } = getDateLimits();
+  const todayDate = new Date(today);
+  const fiveYearsAgoDate = new Date(fiveYearsAgo);
+  
+  if (inputDate > todayDate) {
+    return { 
+      valid: false, 
+      error: "📅 Future dates are not allowed for historical events. Please select a date in the past." 
+    };
+  }
+  
+  if (inputDate < fiveYearsAgoDate) {
+    return { 
+      valid: false, 
+      error: `⚠️ This date is more than 5 years old (before ${fiveYearsAgo}). For insurance purposes, we only consider events from the last 5 years.` 
+    };
+  }
+  
+  return { valid: true };
+};
+
+// Validation function for licence dates
+const validateLicenceDate = (dateString: string, birthDate: string): { valid: boolean; error?: string } => {
+  if (!dateString) return { valid: true }; // Optional dates are valid when empty
+  
+  const inputDate = new Date(dateString);
+  const { today, earliestLicenceDate, ukMinDrivingAge } = getDateLimits();
+  const todayDate = new Date(today);
+  const earliestDate = new Date(earliestLicenceDate);
+  
+  if (inputDate > todayDate) {
+    return { 
+      valid: false, 
+      error: "📅 Future licence dates are not allowed. Please select a date in the past." 
+    };
+  }
+  
+  if (inputDate < earliestDate) {
+    return { 
+      valid: false, 
+      error: `📋 UK DVLA records start from 1970. Please enter a licence date after ${earliestLicenceDate}.` 
+    };
+  }
+  
+  // Check if licence was issued when person was old enough to drive
+  if (birthDate) {
+    const birthDateObj = new Date(birthDate);
+    const licenceDateObj = new Date(dateString);
+    const ageAtLicence = licenceDateObj.getFullYear() - birthDateObj.getFullYear();
+    const monthDiff = licenceDateObj.getMonth() - birthDateObj.getMonth();
+    const dayDiff = licenceDateObj.getDate() - birthDateObj.getDate();
+    const actualAgeAtLicence = monthDiff < 0 || (monthDiff === 0 && dayDiff < 0) ? ageAtLicence - 1 : ageAtLicence;
+    
+    if (actualAgeAtLicence < ukMinDrivingAge) {
+      return { 
+        valid: false, 
+        error: `🚗 Licence cannot be issued before age ${ukMinDrivingAge}. This licence was issued when the person was ${actualAgeAtLicence} years old.` 
+      };
+    }
+  }
+  
+  return { valid: true };
+};
+
 // Types based on the ontology
 interface Driver {
   id: string;
@@ -2537,8 +2675,18 @@ Insurance Quote System
               <TextInput
                 type="date"
                 value={driver.dateOfBirth}
-                onChange={(e) => updateDriver(index, 'dateOfBirth', e.target.value)}
+                min={getDateLimits().minBirthDate}
+                max={getDateLimits().maxBirthDate}
+                onChange={(e) => {
+                  const validation = validateBirthDate(e.target.value);
+                  if (validation.valid) {
+                    updateDriver(index, 'dateOfBirth', e.target.value);
+                  } else {
+                    alert(validation.error);
+                  }
+                }}
                 className="form-input"
+                title={`Select birth date between ${getDateLimits().minBirthDate} and ${getDateLimits().maxBirthDate} (Age 17-130)`}
               />
             </div>
 
@@ -2663,8 +2811,18 @@ Insurance Quote System
               <TextInput
                 type="date"
                 value={driver.licenceIssueDate}
-                onChange={(e) => updateLicenceIssueDate(index, e.target.value)}
+                min={getDateLimits().earliestLicenceDate}
+                max={getDateLimits().today}
+                onChange={(e) => {
+                  const validation = validateLicenceDate(e.target.value, driver.dateOfBirth);
+                  if (validation.valid) {
+                    updateLicenceIssueDate(index, e.target.value);
+                  } else {
+                    alert(validation.error);
+                  }
+                }}
                 className="form-input"
+                title={`Select licence issue date between ${getDateLimits().earliestLicenceDate} and ${getDateLimits().today} (Must be 17+ when issued)`}
               />
             </div>
 
@@ -3205,12 +3363,25 @@ Insurance Quote System
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="form-group">
-                          <Label className="form-label">Conviction Date</Label>
+                          <Label className="form-label">
+                            Conviction Date
+                            <span className="text-xs text-gray-500 ml-2">(Last 5 years only)</span>
+                          </Label>
                           <TextInput
                             type="date"
                             value={conviction.date}
-                            onChange={(e) => updateDriverConviction(index, convictionIndex, 'date', e.target.value)}
+                            min={getDateLimits().fiveYearsAgo}
+                            max={getDateLimits().today}
+                            onChange={(e) => {
+                              const validation = validateHistoricalDate(e.target.value);
+                              if (validation.valid) {
+                                updateDriverConviction(index, convictionIndex, 'date', e.target.value);
+                              } else {
+                                alert(validation.error);
+                              }
+                            }}
                             className="form-input"
+                            title={`Select a conviction date between ${getDateLimits().fiveYearsAgo} and ${getDateLimits().today}`}
                           />
                         </div>
 
@@ -3653,12 +3824,25 @@ Insurance Quote System
                   <div key={claim.id} className="p-4 border border-gray-200 rounded-lg">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="form-group">
-                        <Label className="form-label">{translations[session.language as keyof typeof translations].claimDate}</Label>
+                        <Label className="form-label">
+                          {translations[session.language as keyof typeof translations].claimDate}
+                          <span className="text-xs text-gray-500 ml-2">(Last 5 years only)</span>
+                        </Label>
                         <TextInput
                           type="date"
                           value={claim.date}
-                          onChange={(e) => updateClaim(index, 'date', e.target.value)}
+                          min={getDateLimits().fiveYearsAgo}
+                          max={getDateLimits().today}
+                          onChange={(e) => {
+                            const validation = validateHistoricalDate(e.target.value);
+                            if (validation.valid) {
+                              updateClaim(index, 'date', e.target.value);
+                            } else {
+                              alert(validation.error);
+                            }
+                          }}
                           className="form-input"
+                          title={`Select a claim date between ${getDateLimits().fiveYearsAgo} and ${getDateLimits().today}`}
                         />
                       </div>
                       <div className="form-group">
@@ -3745,12 +3929,25 @@ Insurance Quote System
                   <div key={accident.id} className="p-4 border border-gray-200 rounded-lg">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="form-group">
-                        <Label className="form-label">{translations[session.language as keyof typeof translations].accidentDate}</Label>
+                        <Label className="form-label">
+                          {translations[session.language as keyof typeof translations].accidentDate}
+                          <span className="text-xs text-gray-500 ml-2">(Last 5 years only)</span>
+                        </Label>
                         <TextInput
                           type="date"
                           value={accident.date}
-                          onChange={(e) => updateAccident(index, 'date', e.target.value)}
+                          min={getDateLimits().fiveYearsAgo}
+                          max={getDateLimits().today}
+                          onChange={(e) => {
+                            const validation = validateHistoricalDate(e.target.value);
+                            if (validation.valid) {
+                              updateAccident(index, 'date', e.target.value);
+                            } else {
+                              alert(validation.error);
+                            }
+                          }}
                           className="form-input"
+                          title={`Select an accident date between ${getDateLimits().fiveYearsAgo} and ${getDateLimits().today}`}
                         />
                       </div>
                       <div className="form-group">

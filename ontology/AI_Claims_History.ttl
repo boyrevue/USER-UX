@@ -892,5 +892,300 @@ autoins:ConvictionShape a sh:NodeShape ;
   ] .
 
 ############################################################
+## 5-YEAR HISTORICAL DATA VALIDATION CONSTRAINTS
+############################################################
+
+# 5-Year Claims History Validation Shape
+autoins:ClaimsHistoryValidationShape a sh:NodeShape ;
+  sh:targetClass autoins:Claim ;
+  rdfs:label "Claims History 5-Year Validation" ;
+  rdfs:comment "Ensures claims are within the last 5 years for insurance underwriting purposes" ;
+  sh:property [
+    sh:path autoins:claimDate ;
+    sh:name "Claim Date 5-Year Limit" ;
+    sh:description "Claims must be within the last 5 years" ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    # Date validation will be dynamically calculated in backend
+    sh:message "⚠️ CLAIM DATE ERROR: Claim date must be within the last 5 years (since {FIVE_YEARS_AGO}). Claims older than 5 years are not considered for current insurance underwriting and may affect your quote accuracy." ;
+    autoins:validationSeverity "ERROR" ;
+    autoins:validationCode "CLAIM_DATE_TOO_OLD" ;
+    autoins:validationRule "claimDate >= (TODAY - P5Y) AND claimDate <= TODAY" ;
+    autoins:gdprNote "Historical claims data older than 5 years may be subject to different retention policies under GDPR Article 17" ;
+    autoins:i18nKey "validation.claim_date.five_year_limit" ;
+    autoins:helpTextKey "validation.claim_date.five_year_help"
+  ] ;
+  sh:property [
+    sh:path autoins:claimAmount ;
+    sh:name "Claim Amount Validation" ;
+    sh:description "Claim amount must be positive and within reasonable limits" ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0.01 ;
+    sh:maxInclusive 1000000.00 ;
+    sh:message "💰 CLAIM AMOUNT ERROR: Claim amount must be between £0.01 and £1,000,000. Please enter a valid claim amount." ;
+    autoins:validationSeverity "ERROR" ;
+    autoins:validationCode "INVALID_CLAIM_AMOUNT" ;
+    autoins:i18nKey "validation.claim_amount.range" ;
+    autoins:helpTextKey "validation.claim_amount.help"
+  ] .
+
+# 5-Year Accident History Validation Shape  
+autoins:AccidentHistoryValidationShape a sh:NodeShape ;
+  sh:targetClass autoins:Accident ;
+  rdfs:label "Accident History 5-Year Validation" ;
+  rdfs:comment "Ensures accidents are within the last 5 years for insurance risk assessment" ;
+  sh:property [
+    sh:path autoins:accidentDate ;
+    sh:name "Accident Date 5-Year Limit" ;
+    sh:description "Accidents must be within the last 5 years" ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "🚗 ACCIDENT DATE ERROR: Accident date must be within the last 5 years (since {FIVE_YEARS_AGO}). Accidents older than 5 years are not considered for current insurance risk assessment." ;
+    autoins:validationSeverity "ERROR" ;
+    autoins:validationCode "ACCIDENT_DATE_TOO_OLD" ;
+    autoins:validationRule "accidentDate >= (TODAY - P5Y) AND accidentDate <= TODAY" ;
+    autoins:gdprNote "Historical accident data older than 5 years may be subject to different retention policies" ;
+    autoins:i18nKey "validation.accident_date.five_year_limit" ;
+    autoins:helpTextKey "validation.accident_date.five_year_help"
+  ] ;
+  sh:property [
+    sh:path autoins:estimatedCost ;
+    sh:name "Accident Cost Validation" ;
+    sh:description "Accident cost must be positive if provided" ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0.00 ;
+    sh:maxInclusive 1000000.00 ;
+    sh:message "💷 ACCIDENT COST WARNING: Accident cost must be between £0 and £1,000,000 if provided." ;
+    autoins:validationSeverity "WARNING" ;
+    autoins:validationCode "INVALID_ACCIDENT_COST" ;
+    autoins:i18nKey "validation.accident_cost.range" ;
+    autoins:helpTextKey "validation.accident_cost.help"
+  ] .
+
+# Conviction History Validation Shape (also 5-year limit)
+autoins:ConvictionHistoryValidationShape a sh:NodeShape ;
+  sh:targetClass autoins:DrivingConviction ;
+  rdfs:label "Conviction History 5-Year Validation" ;
+  rdfs:comment "Ensures driving convictions are within the last 5 years for insurance underwriting" ;
+  sh:property [
+    sh:path autoins:convictionDate ;
+    sh:name "Conviction Date 5-Year Limit" ;
+    sh:description "Driving convictions must be within the last 5 years" ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "⚖️ CONVICTION DATE ERROR: Conviction date must be within the last 5 years (since {FIVE_YEARS_AGO}). Convictions older than 5 years are typically spent under the Rehabilitation of Offenders Act and not considered for current insurance underwriting." ;
+    autoins:validationSeverity "ERROR" ;
+    autoins:validationCode "CONVICTION_DATE_TOO_OLD" ;
+    autoins:validationRule "convictionDate >= (TODAY - P5Y) AND convictionDate <= TODAY" ;
+    autoins:gdprNote "Spent convictions older than 5 years may be subject to rehabilitation of offenders legislation and GDPR right to erasure" ;
+    autoins:legalNote "Under the Rehabilitation of Offenders Act 1974, most convictions become spent after 5 years" ;
+    autoins:i18nKey "validation.conviction_date.five_year_limit" ;
+    autoins:helpTextKey "validation.conviction_date.five_year_help"
+  ] ;
+  sh:property [
+    sh:path autoins:penaltyPoints ;
+    sh:name "Penalty Points Validation" ;
+    sh:description "Penalty points must be within valid DVLA range" ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 12 ;
+    sh:message "🎯 PENALTY POINTS ERROR: Penalty points must be between 0 and 12 points as per DVLA regulations." ;
+    autoins:validationSeverity "ERROR" ;
+    autoins:validationCode "INVALID_PENALTY_POINTS" ;
+    autoins:i18nKey "validation.penalty_points.range" ;
+    autoins:helpTextKey "validation.penalty_points.help"
+  ] .
+
+# Future Date Validation (prevent future dates)
+autoins:FutureDateValidationShape a sh:NodeShape ;
+  sh:targetClass autoins:Claim, autoins:Accident, autoins:DrivingConviction ;
+  rdfs:label "Future Date Prevention" ;
+  rdfs:comment "Prevents entry of future dates for historical events" ;
+  sh:property [
+    sh:path autoins:claimDate, autoins:accidentDate, autoins:convictionDate ;
+    sh:name "No Future Dates" ;
+    sh:description "Historical events cannot have future dates" ;
+    sh:datatype xsd:date ;
+    sh:message "📅 FUTURE DATE ERROR: You cannot enter a future date for a historical event. Please check the date and try again." ;
+    autoins:validationSeverity "ERROR" ;
+    autoins:validationCode "FUTURE_DATE_NOT_ALLOWED" ;
+    autoins:validationRule "eventDate <= TODAY" ;
+    autoins:i18nKey "validation.future_date.not_allowed" ;
+    autoins:helpTextKey "validation.future_date.help"
+  ] .
+
+############################################################
+## VALIDATION ERROR MESSAGES & HELP TEXT
+############################################################
+
+# Validation Message Templates
+autoins:ValidationMessages a owl:Class ;
+  rdfs:label "Validation Messages" ;
+  rdfs:comment "Standardized validation error messages for user feedback" .
+
+autoins:ClaimDateTooOldMessage a autoins:ValidationMessage ;
+  rdfs:label "Claim Date Too Old" ;
+  autoins:messageTemplate "⚠️ The claim date you entered ({ENTERED_DATE}) is more than 5 years old. For accurate insurance quotes, we only consider claims from the last 5 years (since {FIVE_YEARS_AGO}). If this claim is still relevant to your insurance history, please contact our support team." ;
+  autoins:severity "ERROR" ;
+  autoins:code "CLAIM_DATE_TOO_OLD" ;
+  autoins:suggestedAction "Please enter a claim date within the last 5 years, or remove this claim if it's no longer relevant." .
+
+autoins:AccidentDateTooOldMessage a autoins:ValidationMessage ;
+  rdfs:label "Accident Date Too Old" ;
+  autoins:messageTemplate "🚗 The accident date you entered ({ENTERED_DATE}) is more than 5 years old. For current risk assessment, we only consider accidents from the last 5 years (since {FIVE_YEARS_AGO}). Older accidents typically don't affect your current insurance premium." ;
+  autoins:severity "ERROR" ;
+  autoins:code "ACCIDENT_DATE_TOO_OLD" ;
+  autoins:suggestedAction "Please enter an accident date within the last 5 years, or remove this accident if it's older than 5 years." .
+
+autoins:ConvictionDateTooOldMessage a autoins:ValidationMessage ;
+  rdfs:label "Conviction Date Too Old" ;
+  autoins:messageTemplate "⚖️ The conviction date you entered ({ENTERED_DATE}) is more than 5 years old. Under UK law, most driving convictions become 'spent' after 5 years and don't need to be declared for insurance purposes. We only consider convictions from the last 5 years (since {FIVE_YEARS_AGO})." ;
+  autoins:severity "ERROR" ;
+  autoins:code "CONVICTION_DATE_TOO_OLD" ;
+  autoins:suggestedAction "Please enter a conviction date within the last 5 years, or remove this conviction if it's spent (older than 5 years)." ;
+  autoins:legalReference "Rehabilitation of Offenders Act 1974" .
+
+############################################################
+## UK DRIVING AGE & HUMAN AGE VALIDATION CONSTRAINTS
+############################################################
+
+# UK Driving Age Validation Shape
+autoins:UKDrivingAgeValidationShape a sh:NodeShape ;
+  sh:targetClass autoins:Driver ;
+  rdfs:label "UK Driving Age Validation" ;
+  rdfs:comment "Ensures drivers meet UK minimum driving age requirements and realistic human age limits" ;
+  sh:property [
+    sh:path autoins:dateOfBirth ;
+    sh:name "UK Driving Age & Human Age Limits" ;
+    sh:description "Driver must be 17-130 years old" ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "🚗 DRIVING AGE ERROR: Driver must be between 17 and 130 years old to drive in the UK. Current age: {CALCULATED_AGE} years." ;
+    autoins:validationSeverity "ERROR" ;
+    autoins:validationCode "INVALID_DRIVING_AGE" ;
+    autoins:validationRule "age >= 17 AND age <= 130" ;
+    autoins:ukLegalNote "Road Traffic Act 1988 - Minimum driving age in UK is 17 years" ;
+    autoins:humanLimitNote "Maximum realistic human age set to 130 years for data integrity" ;
+    autoins:i18nKey "validation.driving_age.uk_limits" ;
+    autoins:helpTextKey "validation.driving_age.help"
+  ] .
+
+# Licence Issue Age Validation Shape
+autoins:LicenceIssueAgeValidationShape a sh:NodeShape ;
+  sh:targetClass autoins:Driver ;
+  rdfs:label "Licence Issue Age Validation" ;
+  rdfs:comment "Ensures driving licence was issued when driver was old enough" ;
+  sh:property [
+    sh:path autoins:licenceIssueDate ;
+    sh:name "Licence Issue Age Check" ;
+    sh:description "Licence cannot be issued before age 17" ;
+    sh:datatype xsd:date ;
+    sh:message "📋 LICENCE AGE ERROR: UK driving licence cannot be issued before age 17. This licence was issued when the driver was {AGE_AT_ISSUE} years old." ;
+    autoins:validationSeverity "ERROR" ;
+    autoins:validationCode "LICENCE_ISSUED_TOO_YOUNG" ;
+    autoins:validationRule "ageAtLicenceIssue >= 17" ;
+    autoins:ukLegalNote "DVLA regulations - Cannot issue licence before 17th birthday" ;
+    autoins:i18nKey "validation.licence_age.minimum" ;
+    autoins:helpTextKey "validation.licence_age.help"
+  ] .
+
+# Historical DVLA Records Validation
+autoins:DVLARecordsValidationShape a sh:NodeShape ;
+  sh:targetClass autoins:Driver ;
+  rdfs:label "DVLA Records Historical Validation" ;
+  rdfs:comment "Ensures licence dates are within DVLA record-keeping period" ;
+  sh:property [
+    sh:path autoins:licenceIssueDate ;
+    sh:name "DVLA Records Period" ;
+    sh:description "DVLA computerized records start from 1970" ;
+    sh:datatype xsd:date ;
+    sh:minInclusive "1970-01-01"^^xsd:date ;
+    sh:message "📋 DVLA RECORDS ERROR: UK DVLA computerized records start from 1970. Please enter a licence date after 1970-01-01." ;
+    autoins:validationSeverity "ERROR" ;
+    autoins:validationCode "LICENCE_DATE_BEFORE_DVLA_RECORDS" ;
+    autoins:validationRule "licenceIssueDate >= 1970-01-01" ;
+    autoins:historicalNote "DVLA computerized record-keeping began in the early 1970s" ;
+    autoins:i18nKey "validation.dvla_records.historical_limit" ;
+    autoins:helpTextKey "validation.dvla_records.help"
+  ] .
+
+############################################################
+## AGE CALCULATION & VALIDATION MESSAGES
+############################################################
+
+# Age Validation Message Templates
+autoins:AgeValidationMessages a owl:Class ;
+  rdfs:label "Age Validation Messages" ;
+  rdfs:comment "Standardized age validation error messages for UK driving requirements" .
+
+autoins:TooYoungToDriveMessage a autoins:ValidationMessage ;
+  rdfs:label "Too Young To Drive" ;
+  autoins:messageTemplate "🚗 The driver is only {CALCULATED_AGE} years old. In the UK, you must be at least 17 years old to drive. Please check the birth date or wait until the driver reaches the minimum age." ;
+  autoins:severity "ERROR" ;
+  autoins:code "TOO_YOUNG_TO_DRIVE" ;
+  autoins:suggestedAction "Verify the birth date is correct, or wait until the driver turns 17." ;
+  autoins:legalReference "Road Traffic Act 1988, Section 101" .
+
+autoins:TooOldToBeRealisticMessage a autoins:ValidationMessage ;
+  rdfs:label "Age Exceeds Realistic Limits" ;
+  autoins:messageTemplate "👴 The calculated age is {CALCULATED_AGE} years old, which exceeds our maximum age limit of 130 years. Please check the birth date for accuracy." ;
+  autoins:severity "ERROR" ;
+  autoins:code "AGE_EXCEEDS_REALISTIC_LIMITS" ;
+  autoins:suggestedAction "Please verify the birth date is entered correctly (DD/MM/YYYY format)." .
+
+autoins:LicenceIssuedTooYoungMessage a autoins:ValidationMessage ;
+  rdfs:label "Licence Issued Too Young" ;
+  autoins:messageTemplate "📋 This driving licence was issued when the driver was {AGE_AT_ISSUE} years old. UK law requires drivers to be at least 17 years old when their licence is issued." ;
+  autoins:severity "ERROR" ;
+  autoins:code "LICENCE_ISSUED_TOO_YOUNG" ;
+  autoins:suggestedAction "Please check the licence issue date and birth date for accuracy." ;
+  autoins:legalReference "DVLA licensing regulations" .
+
+############################################################
+## BACKEND VALIDATION IMPLEMENTATION NOTES
+############################################################
+
+# Implementation Guidelines for Backend Developers
+autoins:ValidationImplementationNotes a owl:Class ;
+  rdfs:label "Validation Implementation Notes" ;
+  rdfs:comment "Guidelines for implementing 5-year date validation in the backend" ;
+  autoins:implementationNote """
+    BACKEND IMPLEMENTATION REQUIREMENTS:
+    
+    1. DYNAMIC DATE CALCULATION:
+       - Calculate 5 years ago from current date: TODAY - P5Y (ISO 8601 duration)
+       - Use server-side date to prevent client-side manipulation
+       
+    2. VALIDATION LOGIC:
+       - Claims: claimDate >= (TODAY - 5 years) AND claimDate <= TODAY
+       - Accidents: accidentDate >= (TODAY - 5 years) AND accidentDate <= TODAY  
+       - Convictions: convictionDate >= (TODAY - 5 years) AND convictionDate <= TODAY
+       
+    3. ERROR RESPONSE FORMAT:
+       {
+         "valid": false,
+         "errors": [
+           {
+             "field": "claimDate",
+             "code": "CLAIM_DATE_TOO_OLD", 
+             "message": "Claim date must be within the last 5 years",
+             "enteredDate": "2018-01-15",
+             "fiveYearsAgo": "2020-01-24",
+             "severity": "ERROR"
+           }
+         ]
+       }
+       
+    4. GDPR COMPLIANCE:
+       - Log validation attempts for audit purposes
+       - Respect user's right to explanation for automated decisions
+       - Provide clear guidance on data retention policies
+  """ .
+
+############################################################
 ## END OF CLAIMS HISTORY MODULE
 ############################################################
