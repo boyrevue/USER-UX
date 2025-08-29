@@ -1,50 +1,64 @@
-# 🏗️ Insurance Quote Application - Ontology-Driven Architecture
+# 🏗️ CLIENT-UX Personal Data Manager - TTL-Driven Architecture
 
 ## 🎯 Overview
-This application uses **ontology-driven development** where the application structure, forms, validation, and UI are all defined in ontology files (RDF/TTL + JSON) and interpreted by a Go backend to serve a React frontend.
+CLIENT-UX is a **semantic web application** where ALL form definitions, field types, validation rules, and UI behavior are defined in TTL ontology files and dynamically interpreted by the system. **The TTL ontology is the single source of truth.**
+
+## 📜 SYSTEM DOCTRINE
+> **⚠️ CRITICAL**: Read [`SYSTEM_DOCTRINE.md`](SYSTEM_DOCTRINE.md) before making ANY changes. The TTL-as-single-source-of-truth principle is mandatory.
+
+**Quick References:**
+- 📖 [`SYSTEM_DOCTRINE.md`](SYSTEM_DOCTRINE.md) - Core principles and rules
+- 🔧 [`TTL_IMPLEMENTATION_GUIDE.md`](TTL_IMPLEMENTATION_GUIDE.md) - Technical implementation
+- ⚡ [`TTL_QUICK_REFERENCE.md`](TTL_QUICK_REFERENCE.md) - Developer cheat sheet
 
 ## 🏗️ Architecture
 
-### Core Components
+### TTL-Driven Architecture
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   ONTOLOGY      │    │   GO BACKEND    │    │  REACT FRONTEND │
-│   FILES         │    │   (Interpreter) │    │   (UI Renderer) │
+│   TTL ONTOLOGY  │    │   GO BACKEND    │    │  REACT FRONTEND │
+│  (Single Source)│    │ (TTL Interpreter)│   │ (Dynamic Renderer)│
 ├─────────────────┤    ├─────────────────┤    ├─────────────────┤
-│ • autoins.ttl   │───▶│ • LoadOntology()│───▶│ • Sidebar Menu  │
-│ • categories.json│   │ • API Endpoints │   │ • Form Builder  │
-│ • fields.json   │   │ • SHACL Validation│   │ • State Mgmt    │
-│ • subforms.json │   │ • Session Mgmt   │   │ • Validation    │
-│ • settings.ttl  │   │ • File Serving   │   │                 │
+│ • autoins.ttl   │───▶│ • ttl_parser.go │───▶│ • Dynamic Forms │
+│   - Fields      │    │ • /api/ontology │    │ • Auto-generated│
+│   - Labels      │    │ • Field Types   │    │ • TTL-driven UI │
+│   - Validation  │    │ • Validation    │    │ • No hardcoding │
+│   - Help Text   │    │ • OCR Engine    │    │                 │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
 ### Key Principles
-1. **Ontology-First**: All application structure defined in RDF/TTL + JSON
-2. **Go Interpreter**: Backend reads ontology, serves API, validates with SHACL
-3. **React Renderer**: Frontend consumes API, builds UI dynamically
-4. **Static File Structure**: React build → `static/` → Go serves correctly
+1. **TTL Supremacy**: ALL form definitions MUST be in autoins.ttl
+2. **Dynamic Extraction**: Go parses TTL at runtime, builds API dynamically  
+3. **Zero Hardcoding**: No field definitions in Go/JavaScript code
+4. **Semantic Web**: True RDF/OWL ontology-driven architecture
 
 ## 📁 File Structure
 ```
-insurance-quote-app/
-├── ontology/           # 🧠 BRAIN - Application Definition
-│   ├── autoins.ttl    # Main insurance ontology (RDF/OWL)
-│   ├── categories.json # Menu structure & navigation
-│   ├── fields.json    # Form field definitions
-│   ├── subforms.json  # Dynamic form components
-│   └── settings.ttl   # Configuration & validation
-├── main.go            # 🚀 SERVER - Go backend
-├── parser.go          # 📖 INTERPRETER - Ontology loader
-├── types.go           # 🏗️ STRUCTURES - Go data models
-├── insurance-frontend/ # 🎨 UI - React application
-│   ├── src/App.tsx    # Main React component
-│   └── build/         # Compiled React files
-└── static/            # 🌐 SERVED - Go serves React build
-    ├── index.html     # React entry point
-    ├── js/            # React JavaScript
-    └── css/           # React stylesheets
+client-ux/
+├── ontology/              # 🧠 SINGLE SOURCE OF TRUTH
+│   └── autoins.ttl       # ⭐ THE ontology - ALL fields defined here
+├── main.go               # 🚀 SERVER - Go backend + API
+├── ttl_parser.go         # 🔍 TTL PARSER - Dynamic ontology interpreter  
+├── types.go              # 🏗️ STRUCTURES - Go data models
+├── document_processor.go # 📄 OCR ENGINE - Passport/document processing
+├── insurance-frontend/   # 🎨 UI - React application
+│   ├── src/App.tsx      # Dynamic form renderer
+│   └── build/           # Compiled React files
+├── static/              # 🌐 SERVED - Go serves React build
+│   ├── index.html       # React entry point
+│   ├── js/              # React JavaScript
+│   └── css/             # React stylesheets
+├── SYSTEM_DOCTRINE.md   # 📜 CORE PRINCIPLES - READ FIRST
+├── TTL_IMPLEMENTATION_GUIDE.md # 🔧 Technical guide
+└── TTL_QUICK_REFERENCE.md      # ⚡ Developer cheat sheet
 ```
+
+### 🚨 ELIMINATED FILES (TTL Doctrine Compliance)
+- ❌ `categories.json` - Removed (redundant with TTL)
+- ❌ `fields.json` - Removed (redundant with TTL)  
+- ❌ `subforms.json` - Removed (redundant with TTL)
+- ❌ `parser.go` - Removed (replaced with ttl_parser.go)
 
 ## 🚀 Quick Start
 
@@ -154,6 +168,35 @@ const menuStructure = [
 
 ---
 
-**Remember**: This is an ontology-driven application. The ontology files are the source of truth for all application behavior!
+## 🎯 TTL DOCTRINE SUMMARY
+
+### ✅ WHAT WE ACHIEVED
+- **Single Source of Truth**: `autoins.ttl` is the ONLY place where fields are defined
+- **Dynamic Extraction**: 82 driver fields, 45 UK conviction codes, all extracted from TTL
+- **Zero Hardcoding**: No field definitions in Go/JavaScript code
+- **Semantic Web Compliance**: True RDF/OWL ontology-driven architecture
+
+### 🚨 DEVELOPER RULES
+1. **BEFORE** adding any field → Add to `autoins.ttl` first
+2. **NEVER** hardcode field definitions in code
+3. **ALWAYS** use `/api/ontology` for form structure
+4. **READ** `SYSTEM_DOCTRINE.md` before making changes
+
+### 🔧 QUICK FIELD ADDITION
+```turtle
+# Add to autoins.ttl
+autoins:newField a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:string ;
+  rdfs:label "New Field" ;
+  autoins:isRequired "true"^^xsd:boolean .
+```
+```bash
+# Restart & verify
+pkill -f client-ux && ./client-ux &
+curl -s http://localhost:3000/api/ontology | jq '.drivers.fields[] | select(.property == "newField")'
+```
+
+**The TTL ontology is the single source of truth. This is not negotiable.** 🎯
 
 

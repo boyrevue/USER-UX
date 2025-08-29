@@ -1,0 +1,616 @@
+@prefix docs: <http://client-ux.example.org/documents#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+############################################################
+## USER DOCUMENTS ONTOLOGY - COMPREHENSIVE DOCUMENT MANAGEMENT
+############################################################
+
+docs: a owl:Ontology ;
+  rdfs:label "CLIENT-UX User Documents Ontology" ;
+  owl:versionInfo "v1.0.0-2025-01-28" ;
+  dct:creator "CLIENT-UX" ;
+  dct:description """Complete ontology for personal document management covering:
+    1. Passport Documents (MRZ extraction, OCR processing)
+    2. Driving Licence Documents (UK DVLA format)
+    3. Identity Cards (National ID, EU ID cards)
+    4. Utility Bills (Proof of address)
+    5. Bank Statements (Financial verification)
+    6. Medical Certificates (Health documentation)
+    7. Vehicle Registration (V5C, ownership documents)
+    8. Insurance Documents (Policies, quotes, claims)
+    
+    Includes OCR field extraction, validation rules, and multi-language support.""" ;
+  dct:rights "Copyright 2025 CLIENT-UX" ;
+  dct:license <https://creativecommons.org/licenses/by/4.0/> .
+
+############################################################
+## DOCUMENT BASE CLASSES
+############################################################
+
+docs:PersonalDocument a owl:Class ;
+  rdfs:label "Personal Document"@en ;
+  rdfs:label "Persönliches Dokument"@de ;
+  rdfs:comment "Base class for all personal documents that can be processed by CLIENT-UX" .
+
+docs:IdentityDocument a owl:Class ;
+  rdfs:subClassOf docs:PersonalDocument ;
+  rdfs:label "Identity Document"@en ;
+  rdfs:label "Ausweisdokument"@de ;
+  rdfs:comment "Documents that establish identity (passport, driving licence, ID card)" .
+
+docs:ProofOfAddress a owl:Class ;
+  rdfs:subClassOf docs:PersonalDocument ;
+  rdfs:label "Proof of Address"@en ;
+  rdfs:label "Adressnachweis"@de ;
+  rdfs:comment "Documents that prove residential address" .
+
+docs:FinancialDocument a owl:Class ;
+  rdfs:subClassOf docs:PersonalDocument ;
+  rdfs:label "Financial Document"@en ;
+  rdfs:label "Finanzdokument"@de ;
+  rdfs:comment "Financial statements, bank documents, insurance policies" .
+
+############################################################
+## PASSPORT DOCUMENT CLASS
+############################################################
+
+docs:PassportDocument a owl:Class ;
+  rdfs:subClassOf docs:IdentityDocument ;
+  rdfs:label "Passport Document"@en ;
+  rdfs:label "Reisedokument"@de ;
+  rdfs:comment "Passport document with MRZ (Machine Readable Zone) extraction capabilities" ;
+  docs:ocrSupported "true"^^xsd:boolean ;
+  docs:mrzSupported "true"^^xsd:boolean ;
+  docs:confidenceThreshold "0.85"^^xsd:decimal .
+
+############################################################
+## DRIVING LICENCE DOCUMENT CLASS
+############################################################
+
+docs:DrivingLicenceDocument a owl:Class ;
+  rdfs:subClassOf docs:IdentityDocument ;
+  rdfs:label "Driving Licence Document"@en ;
+  rdfs:label "Führerscheindokument"@de ;
+  rdfs:comment "UK DVLA driving licence with photo and entitlement extraction" ;
+  docs:ocrSupported "true"^^xsd:boolean ;
+  docs:dvlaCompliant "true"^^xsd:boolean ;
+  docs:confidenceThreshold "0.80"^^xsd:decimal .
+
+############################################################
+## OTHER DOCUMENT CLASSES
+############################################################
+
+docs:IdentityCardDocument a owl:Class ;
+  rdfs:subClassOf docs:IdentityDocument ;
+  rdfs:label "Identity Card Document"@en ;
+  rdfs:label "Personalausweis"@de ;
+  rdfs:comment "National identity card or EU ID card" .
+
+docs:UtilityBillDocument a owl:Class ;
+  rdfs:subClassOf docs:ProofOfAddress ;
+  rdfs:label "Utility Bill Document"@en ;
+  rdfs:label "Versorgerrechnung"@de ;
+  rdfs:comment "Utility bill for proof of address" .
+
+docs:BankStatementDocument a owl:Class ;
+  rdfs:subClassOf docs:FinancialDocument ;
+  rdfs:label "Bank Statement Document"@en ;
+  rdfs:label "Kontoauszug"@de ;
+  rdfs:comment "Bank statement for financial verification" .
+
+docs:MedicalCertificateDocument a owl:Class ;
+  rdfs:subClassOf docs:PersonalDocument ;
+  rdfs:label "Medical Certificate Document"@en ;
+  rdfs:label "Ärztliches Attest"@de ;
+  rdfs:comment "Medical certificate or fitness documentation" .
+
+docs:VehicleRegistrationDocument a owl:Class ;
+  rdfs:subClassOf docs:PersonalDocument ;
+  rdfs:label "Vehicle Registration Document"@en ;
+  rdfs:label "Fahrzeugschein"@de ;
+  rdfs:comment "Vehicle registration document (V5C)" .
+
+docs:InsuranceDocument a owl:Class ;
+  rdfs:subClassOf docs:FinancialDocument ;
+  rdfs:label "Insurance Document"@en ;
+  rdfs:label "Versicherungsdokument"@de ;
+  rdfs:comment "Insurance policy, quote, or claims document" .
+
+############################################################
+## PASSPORT PROPERTIES
+############################################################
+
+docs:passportNumber a owl:DatatypeProperty ;
+  rdfs:domain docs:PassportDocument ;
+  rdfs:range xsd:string ;
+  rdfs:label "passport number"@en ;
+  rdfs:label "Reisepassnummer"@de ;
+  docs:isRequired "true"^^xsd:boolean ;
+  docs:formHelpText "Passport number from MRZ or visual inspection"@en ;
+  docs:formHelpText "Reisepassnummer aus MRZ oder visueller Prüfung"@de ;
+  docs:extractionMethod "MRZ_PRIMARY" ;
+  docs:ocrConfidence "0.95"^^xsd:decimal .
+
+docs:givenNames a owl:DatatypeProperty ;
+  rdfs:domain docs:PassportDocument ;
+  rdfs:range xsd:string ;
+  rdfs:label "given names"@en ;
+  rdfs:label "Vornamen"@de ;
+  docs:isRequired "true"^^xsd:boolean ;
+  docs:formHelpText "All given names as they appear on passport"@en ;
+  docs:extractionMethod "MRZ_AND_VISUAL" .
+
+docs:surname a owl:DatatypeProperty ;
+  rdfs:domain docs:PassportDocument ;
+  rdfs:range xsd:string ;
+  rdfs:label "surname"@en ;
+  rdfs:label "Nachname"@de ;
+  docs:isRequired "true"^^xsd:boolean ;
+  docs:formHelpText "Family name/surname from passport"@en ;
+  docs:extractionMethod "MRZ_AND_VISUAL" .
+
+docs:dateOfBirth a owl:DatatypeProperty ;
+  rdfs:domain docs:PassportDocument ;
+  rdfs:range xsd:date ;
+  rdfs:label "date of birth"@en ;
+  rdfs:label "Geburtsdatum"@de ;
+  docs:isRequired "true"^^xsd:boolean ;
+  docs:formHelpText "Date of birth in YYYY-MM-DD format"@en ;
+  docs:extractionMethod "MRZ_PRIMARY" ;
+  docs:dateFormat "YYMMDD" .
+
+docs:dateOfExpiry a owl:DatatypeProperty ;
+  rdfs:domain docs:PassportDocument ;
+  rdfs:range xsd:date ;
+  rdfs:label "date of expiry"@en ;
+  rdfs:label "Ablaufdatum"@de ;
+  docs:isRequired "true"^^xsd:boolean ;
+  docs:formHelpText "Passport expiry date"@en ;
+  docs:extractionMethod "MRZ_PRIMARY" ;
+  docs:dateFormat "YYMMDD" .
+
+docs:dateOfIssue a owl:DatatypeProperty ;
+  rdfs:domain docs:PassportDocument ;
+  rdfs:range xsd:date ;
+  rdfs:label "date of issue"@en ;
+  rdfs:label "Ausstellungsdatum"@de ;
+  docs:isRequired "false"^^xsd:boolean ;
+  docs:formHelpText "Passport issue date (found on page 2)"@en ;
+  docs:extractionMethod "OCR_PAGE2" ;
+  docs:ocrRegion "upper_half" .
+
+docs:issuingAuthority a owl:DatatypeProperty ;
+  rdfs:domain docs:PassportDocument ;
+  rdfs:range xsd:string ;
+  rdfs:label "issuing authority"@en ;
+  rdfs:label "Ausstellende Behörde"@de ;
+  docs:isRequired "false"^^xsd:boolean ;
+  docs:formHelpText "Authority that issued the passport"@en ;
+  docs:extractionMethod "OCR_VISUAL" .
+
+docs:placeOfBirth a owl:DatatypeProperty ;
+  rdfs:domain docs:PassportDocument ;
+  rdfs:range xsd:string ;
+  rdfs:label "place of birth"@en ;
+  rdfs:label "Geburtsort"@de ;
+  docs:isRequired "false"^^xsd:boolean ;
+  docs:formHelpText "Place of birth as shown on passport"@en ;
+  docs:extractionMethod "OCR_VISUAL" .
+
+docs:nationality a owl:DatatypeProperty ;
+  rdfs:domain docs:PassportDocument ;
+  rdfs:range xsd:string ;
+  rdfs:label "nationality"@en ;
+  rdfs:label "Staatsangehörigkeit"@de ;
+  docs:isRequired "true"^^xsd:boolean ;
+  docs:formHelpText "Nationality/citizenship"@en ;
+  docs:extractionMethod "MRZ_PRIMARY" ;
+  docs:enumerationValues ("GBR" "USA" "DEU" "FRA" "ESP" "ITA" "NLD" "BEL" "IRL" "Other") .
+
+docs:gender a owl:DatatypeProperty ;
+  rdfs:domain docs:PassportDocument ;
+  rdfs:range xsd:string ;
+  rdfs:label "gender"@en ;
+  rdfs:label "Geschlecht"@de ;
+  docs:isRequired "false"^^xsd:boolean ;
+  docs:formHelpText "Gender as indicated on passport"@en ;
+  docs:extractionMethod "MRZ_PRIMARY" ;
+  docs:enumerationValues ("M" "F" "X") .
+
+############################################################
+## DRIVING LICENCE PROPERTIES
+############################################################
+
+docs:licenceNumber a owl:DatatypeProperty ;
+  rdfs:domain docs:DrivingLicenceDocument ;
+  rdfs:range xsd:string ;
+  rdfs:label "licence number"@en ;
+  rdfs:label "Führerscheinnummer"@de ;
+  docs:isRequired "true"^^xsd:boolean ;
+  docs:formHelpText "UK driving licence number"@en ;
+  docs:extractionMethod "OCR_PRIMARY" ;
+  docs:validationPattern "^[A-Z]{5}[0-9]{6}[A-Z]{2}[0-9]{2}$" .
+
+docs:licenceIssueDate a owl:DatatypeProperty ;
+  rdfs:domain docs:DrivingLicenceDocument ;
+  rdfs:range xsd:date ;
+  rdfs:label "licence issue date"@en ;
+  rdfs:label "Führerschein Ausstellungsdatum"@de ;
+  docs:isRequired "true"^^xsd:boolean ;
+  docs:formHelpText "Date licence was issued"@en ;
+  docs:extractionMethod "OCR_DATE_FIELD" .
+
+docs:licenceExpiryDate a owl:DatatypeProperty ;
+  rdfs:domain docs:DrivingLicenceDocument ;
+  rdfs:range xsd:date ;
+  rdfs:label "licence expiry date"@en ;
+  rdfs:label "Führerschein Ablaufdatum"@de ;
+  docs:isRequired "true"^^xsd:boolean ;
+  docs:formHelpText "Date licence expires"@en ;
+  docs:extractionMethod "OCR_DATE_FIELD" .
+
+docs:licenceCategories a owl:DatatypeProperty ;
+  rdfs:domain docs:DrivingLicenceDocument ;
+  rdfs:range xsd:string ;
+  rdfs:label "licence categories"@en ;
+  rdfs:label "Führerscheinklassen"@de ;
+  docs:isRequired "true"^^xsd:boolean ;
+  docs:formHelpText "Driving licence categories (A, B, C, D, etc.)"@en ;
+  docs:extractionMethod "OCR_CATEGORIES" ;
+  docs:enumerationValues ("A" "A1" "A2" "B" "B1" "BE" "C" "C1" "CE" "C1E" "D" "D1" "DE" "D1E") .
+
+############################################################
+## ADDITIONAL DRIVING LICENCE PROPERTIES (from driving_licence.ttl)
+############################################################
+
+docs:licenceGivenNames a owl:DatatypeProperty ;
+  rdfs:domain docs:DrivingLicenceDocument ;
+  rdfs:range xsd:string ;
+  rdfs:label "given names"@en ;
+  rdfs:label "Vornamen"@de ;
+  docs:isRequired "true"^^xsd:boolean ;
+  docs:formHelpText "First and middle names from driving licence"@en ;
+  docs:formHelpText "Vor- und Zweitnamen vom Führerschein"@de ;
+  docs:extractionMethod "OCR_PRIMARY" .
+
+docs:licenceSurname a owl:DatatypeProperty ;
+  rdfs:domain docs:DrivingLicenceDocument ;
+  rdfs:range xsd:string ;
+  rdfs:label "surname"@en ;
+  rdfs:label "Nachname"@de ;
+  docs:isRequired "true"^^xsd:boolean ;
+  docs:formHelpText "Family name from driving licence"@en ;
+  docs:formHelpText "Familienname vom Führerschein"@de ;
+  docs:extractionMethod "OCR_PRIMARY" .
+
+docs:licenceDateOfBirth a owl:DatatypeProperty ;
+  rdfs:domain docs:DrivingLicenceDocument ;
+  rdfs:range xsd:date ;
+  rdfs:label "date of birth"@en ;
+  rdfs:label "Geburtsdatum"@de ;
+  docs:isRequired "true"^^xsd:boolean ;
+  docs:formHelpText "Date of birth from driving licence"@en ;
+  docs:formHelpText "Geburtsdatum vom Führerschein"@de ;
+  docs:extractionMethod "OCR_DATE_FIELD" .
+
+docs:licencePlaceOfBirth a owl:DatatypeProperty ;
+  rdfs:domain docs:DrivingLicenceDocument ;
+  rdfs:range xsd:string ;
+  rdfs:label "place of birth"@en ;
+  rdfs:label "Geburtsort"@de ;
+  docs:isRequired "false"^^xsd:boolean ;
+  docs:formHelpText "City and country of birth from driving licence"@en ;
+  docs:formHelpText "Stadt und Land der Geburt vom Führerschein"@de ;
+  docs:extractionMethod "OCR_VISUAL" .
+
+docs:licenceAuthority a owl:DatatypeProperty ;
+  rdfs:domain docs:DrivingLicenceDocument ;
+  rdfs:range xsd:string ;
+  rdfs:label "issuing authority"@en ;
+  rdfs:label "Ausstellende Behörde"@de ;
+  docs:isRequired "false"^^xsd:boolean ;
+  docs:formHelpText "Government authority that issued the licence"@en ;
+  docs:formHelpText "Regierungsbehörde, die den Führerschein ausgestellt hat"@de ;
+  docs:extractionMethod "OCR_VISUAL" ;
+  docs:defaultValue "DVLA" .
+
+############################################################
+## DRIVING LICENCE ENTITLEMENTS (Back of Licence)
+############################################################
+
+docs:entitlementA a owl:DatatypeProperty ;
+  rdfs:domain docs:DrivingLicenceDocument ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Category A - Motorcycles"@en ;
+  rdfs:label "Kategorie A - Motorräder"@de ;
+  docs:isRequired "false"^^xsd:boolean ;
+  docs:formHelpText "Motorcycle entitlement"@en ;
+  docs:formHelpText "Motorradberechtigung"@de ;
+  docs:extractionMethod "OCR_CATEGORIES" .
+
+docs:entitlementB a owl:DatatypeProperty ;
+  rdfs:domain docs:DrivingLicenceDocument ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Category B - Cars"@en ;
+  rdfs:label "Kategorie B - Autos"@de ;
+  docs:isRequired "true"^^xsd:boolean ;
+  docs:formHelpText "Car entitlement (required for car insurance)"@en ;
+  docs:formHelpText "Autoberechtigung (erforderlich für Autoversicherung)"@de ;
+  docs:extractionMethod "OCR_CATEGORIES" .
+
+docs:entitlementC a owl:DatatypeProperty ;
+  rdfs:domain docs:DrivingLicenceDocument ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Category C - Large Vehicles"@en ;
+  rdfs:label "Kategorie C - Große Fahrzeuge"@de ;
+  docs:isRequired "false"^^xsd:boolean ;
+  docs:formHelpText "Large vehicle entitlement"@en ;
+  docs:formHelpText "Großfahrzeugberechtigung"@de ;
+  docs:extractionMethod "OCR_CATEGORIES" .
+
+docs:entitlementD a owl:DatatypeProperty ;
+  rdfs:domain docs:DrivingLicenceDocument ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Category D - Buses"@en ;
+  rdfs:label "Kategorie D - Busse"@de ;
+  docs:isRequired "false"^^xsd:boolean ;
+  docs:formHelpText "Bus entitlement"@en ;
+  docs:formHelpText "Busberechtigung"@de ;
+  docs:extractionMethod "OCR_CATEGORIES" .
+
+docs:entitlementBE a owl:DatatypeProperty ;
+  rdfs:domain docs:DrivingLicenceDocument ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Category BE - Car + Trailer"@en ;
+  rdfs:label "Kategorie BE - Auto + Anhänger"@de ;
+  docs:isRequired "false"^^xsd:boolean ;
+  docs:formHelpText "Car with trailer entitlement"@en ;
+  docs:formHelpText "Auto mit Anhänger Berechtigung"@de ;
+  docs:extractionMethod "OCR_CATEGORIES" .
+
+docs:entitlementCE a owl:DatatypeProperty ;
+  rdfs:domain docs:DrivingLicenceDocument ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Category CE - Large Vehicle + Trailer"@en ;
+  rdfs:label "Kategorie CE - Großfahrzeug + Anhänger"@de ;
+  docs:isRequired "false"^^xsd:boolean ;
+  docs:formHelpText "Large vehicle with trailer entitlement"@en ;
+  docs:formHelpText "Großfahrzeug mit Anhänger Berechtigung"@de ;
+  docs:extractionMethod "OCR_CATEGORIES" .
+
+docs:entitlementDE a owl:DatatypeProperty ;
+  rdfs:domain docs:DrivingLicenceDocument ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Category DE - Bus + Trailer"@en ;
+  rdfs:label "Kategorie DE - Bus + Anhänger"@de ;
+  docs:isRequired "false"^^xsd:boolean ;
+  docs:formHelpText "Bus with trailer entitlement"@en ;
+  docs:formHelpText "Bus mit Anhänger Berechtigung"@de ;
+  docs:extractionMethod "OCR_CATEGORIES" .
+
+############################################################
+## DRIVING LICENCE RESTRICTIONS AND ENDORSEMENTS
+############################################################
+
+docs:licenceRestrictions a owl:DatatypeProperty ;
+  rdfs:domain docs:DrivingLicenceDocument ;
+  rdfs:range xsd:string ;
+  rdfs:label "licence restrictions"@en ;
+  rdfs:label "Führerscheinbeschränkungen"@de ;
+  docs:isRequired "false"^^xsd:boolean ;
+  docs:formHelpText "Any restrictions on the driving licence"@en ;
+  docs:formHelpText "Einschränkungen auf dem Führerschein"@de ;
+  docs:extractionMethod "OCR_VISUAL" .
+
+docs:licenceEndorsements a owl:DatatypeProperty ;
+  rdfs:domain docs:DrivingLicenceDocument ;
+  rdfs:range xsd:string ;
+  rdfs:label "licence endorsements"@en ;
+  rdfs:label "Führerscheineintragungen"@de ;
+  docs:isRequired "false"^^xsd:boolean ;
+  docs:formHelpText "Any endorsements on the driving licence"@en ;
+  docs:formHelpText "Eintragungen auf dem Führerschein"@de ;
+  docs:extractionMethod "OCR_VISUAL" .
+
+docs:yearsLicenceHeld a owl:DatatypeProperty ;
+  rdfs:domain docs:DrivingLicenceDocument ;
+  rdfs:range xsd:integer ;
+  rdfs:label "years licence held"@en ;
+  rdfs:label "Jahre Führerschein besessen"@de ;
+  docs:isRequired "false"^^xsd:boolean ;
+  docs:formHelpText "Number of years licence has been held"@en ;
+  docs:formHelpText "Anzahl der Jahre, in denen der Führerschein besessen wurde"@de ;
+  docs:extractionMethod "CALCULATED" .
+
+############################################################
+## DOCUMENT PROCESSING PROPERTIES
+############################################################
+
+docs:ocrSupported a owl:DatatypeProperty ;
+  rdfs:domain docs:PersonalDocument ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "OCR supported"@en ;
+  rdfs:label "OCR unterstützt"@de ;
+  docs:isRequired "true"^^xsd:boolean ;
+  docs:formHelpText "Whether this document type supports OCR extraction"@en .
+
+docs:mrzSupported a owl:DatatypeProperty ;
+  rdfs:domain docs:PersonalDocument ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "MRZ supported"@en ;
+  rdfs:label "MRZ unterstützt"@de ;
+  docs:isRequired "false"^^xsd:boolean ;
+  docs:formHelpText "Whether this document has Machine Readable Zone"@en .
+
+docs:confidenceThreshold a owl:DatatypeProperty ;
+  rdfs:domain docs:PersonalDocument ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "confidence threshold"@en ;
+  rdfs:label "Vertrauensschwelle"@de ;
+  docs:isRequired "true"^^xsd:boolean ;
+  docs:formHelpText "Minimum confidence level for OCR extraction"@en ;
+  docs:defaultValue "0.80"^^xsd:decimal .
+
+docs:extractionMethod a owl:DatatypeProperty ;
+  rdfs:domain owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  rdfs:label "extraction method"@en ;
+  rdfs:label "Extraktionsmethode"@de ;
+  docs:isRequired "false"^^xsd:boolean ;
+  docs:formHelpText "Method used to extract this field"@en ;
+  docs:enumerationValues ("MRZ_PRIMARY" "MRZ_AND_VISUAL" "OCR_PRIMARY" "OCR_VISUAL" "OCR_PAGE2" "OCR_DATE_FIELD" "OCR_CATEGORIES") .
+
+docs:ocrRegion a owl:DatatypeProperty ;
+  rdfs:domain owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  rdfs:label "OCR region"@en ;
+  rdfs:label "OCR-Region"@de ;
+  docs:isRequired "false"^^xsd:boolean ;
+  docs:formHelpText "Specific region of document for OCR extraction"@en ;
+  docs:enumerationValues ("full_page" "upper_half" "lower_half" "mrz_zone" "photo_area" "signature_area") .
+
+docs:dateFormat a owl:DatatypeProperty ;
+  rdfs:domain owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  rdfs:label "date format"@en ;
+  rdfs:label "Datumsformat"@de ;
+  docs:isRequired "false"^^xsd:boolean ;
+  docs:formHelpText "Expected date format in source document"@en ;
+  docs:enumerationValues ("YYMMDD" "DDMMYY" "MMDDYY" "DD/MM/YYYY" "MM/DD/YYYY" "YYYY-MM-DD") .
+
+docs:ocrConfidence a owl:DatatypeProperty ;
+  rdfs:domain owl:DatatypeProperty ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "OCR confidence"@en ;
+  rdfs:label "OCR-Vertrauen"@de ;
+  docs:isRequired "false"^^xsd:boolean ;
+  docs:formHelpText "Expected OCR confidence for this field"@en ;
+  docs:defaultValue "0.85"^^xsd:decimal .
+
+############################################################
+## FORM PROCESSING PROPERTIES
+############################################################
+
+docs:isRequired a owl:DatatypeProperty ;
+  rdfs:domain owl:DatatypeProperty ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "is required"@en ;
+  rdfs:label "ist erforderlich"@de ;
+  docs:formHelpText "Whether this field is required for form completion"@en .
+
+docs:formHelpText a owl:DatatypeProperty ;
+  rdfs:domain owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  rdfs:label "form help text"@en ;
+  rdfs:label "Formular-Hilfetext"@de ;
+  docs:formHelpText "Help text displayed to users for this field"@en .
+
+docs:validationPattern a owl:DatatypeProperty ;
+  rdfs:domain owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  rdfs:label "validation pattern"@en ;
+  rdfs:label "Validierungsmuster"@de ;
+  docs:formHelpText "Regular expression pattern for field validation"@en .
+
+docs:enumerationValues a owl:DatatypeProperty ;
+  rdfs:domain owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  rdfs:label "enumeration values"@en ;
+  rdfs:label "Aufzählungswerte"@de ;
+  docs:formHelpText "List of valid values for this field"@en .
+
+docs:defaultValue a owl:DatatypeProperty ;
+  rdfs:domain owl:DatatypeProperty ;
+  rdfs:range xsd:string ;
+  rdfs:label "default value"@en ;
+  rdfs:label "Standardwert"@de ;
+  docs:formHelpText "Default value for this field"@en .
+
+############################################################
+## SHACL VALIDATION SHAPES
+############################################################
+
+docs:PassportDocumentShape a sh:NodeShape ;
+  sh:targetClass docs:PassportDocument ;
+  sh:property [
+    sh:path docs:passportNumber ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Passport number is required"@en ;
+  ] ;
+  sh:property [
+    sh:path docs:givenNames ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Given names are required"@en ;
+  ] ;
+  sh:property [
+    sh:path docs:surname ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Surname is required"@en ;
+  ] ;
+  sh:property [
+    sh:path docs:dateOfBirth ;
+    sh:minCount 1 ;
+    sh:datatype xsd:date ;
+    sh:message "Date of birth is required"@en ;
+  ] ;
+  sh:property [
+    sh:path docs:dateOfExpiry ;
+    sh:minCount 1 ;
+    sh:datatype xsd:date ;
+    sh:message "Expiry date is required"@en ;
+  ] ;
+  sh:property [
+    sh:path docs:nationality ;
+    sh:minCount 1 ;
+    sh:in ("GBR" "USA" "DEU" "FRA" "ESP" "ITA" "NLD" "BEL" "IRL" "Other") ;
+    sh:message "Valid nationality code is required"@en ;
+  ] .
+
+docs:DrivingLicenceDocumentShape a sh:NodeShape ;
+  sh:targetClass docs:DrivingLicenceDocument ;
+  sh:property [
+    sh:path docs:licenceNumber ;
+    sh:minCount 1 ;
+    sh:pattern "^[A-Z]{5}[0-9]{6}[A-Z]{2}[0-9]{2}$" ;
+    sh:message "Valid UK driving licence number is required"@en ;
+  ] ;
+  sh:property [
+    sh:path docs:licenceIssueDate ;
+    sh:minCount 1 ;
+    sh:datatype xsd:date ;
+    sh:message "Licence issue date is required"@en ;
+  ] ;
+  sh:property [
+    sh:path docs:licenceExpiryDate ;
+    sh:minCount 1 ;
+    sh:datatype xsd:date ;
+    sh:message "Licence expiry date is required"@en ;
+  ] ;
+  sh:property [
+    sh:path docs:licenceCategories ;
+    sh:minCount 1 ;
+    sh:message "At least one licence category is required"@en ;
+  ] .
+
+docs:DocumentProcessingShape a sh:NodeShape ;
+  sh:targetClass docs:PersonalDocument ;
+  sh:property [
+    sh:path docs:ocrSupported ;
+    sh:datatype xsd:boolean ;
+    sh:message "OCR support flag must be boolean"@en ;
+  ] ;
+  sh:property [
+    sh:path docs:confidenceThreshold ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0.0 ;
+    sh:maxInclusive 1.0 ;
+    sh:message "Confidence threshold must be between 0.0 and 1.0"@en ;
+  ] .

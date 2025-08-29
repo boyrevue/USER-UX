@@ -1,9 +1,0 @@
-{
-  "drivers":{"id":"drivers","title":"categories.drivers.title","icon":"👤","section":"autoins:SECTION_DRIVERS","order":1,"description":"categories.drivers.description"},
-  "vehicle":{"id":"vehicle","title":"categories.vehicle.title","icon":"🚗","section":"autoins:SECTION_VEHICLE","order":2,"description":"categories.vehicle.description"},
-  "policy":{"id":"policy","title":"categories.policy.title","icon":"📋","section":"autoins:SECTION_POLICY","order":3,"description":"categories.policy.description"},
-  "claims":{"id":"claims","title":"categories.claims.title","icon":"📊","section":"autoins:SECTION_CLAIMS","order":4,"description":"categories.claims.description"},
-  "payment":{"id":"payment","title":"categories.payment.title","icon":"💳","section":"autoins:SECTION_PAYMENT","order":5,"description":"categories.payment.description"},
-  "extras":{"id":"extras","title":"categories.extras.title","icon":"➕","section":"autoins:SECTION_EXTRAS","order":6,"description":"categories.extras.description"},
-  "marketing":{"id":"marketing","title":"categories.marketing.title","icon":"📧","section":"autoins:SECTION_MARKETING","order":7,"description":"categories.marketing.description"}
-}

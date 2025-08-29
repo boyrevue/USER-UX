@@ -1,640 +1,307 @@
 package main
 
 import (
-	"bufio"
+	"encoding/json"
 	"fmt"
-	"log"
-	"os"
+	"io/ioutil"
+	"net/http"
 	"regexp"
-	"sort"
 	"strings"
-	"text/template"
 )
 
-// TTL Parser structures
-type TTLField struct {
-	Property     string
-	Label        string
-	Type         string
-	Required     bool
-	Pattern      string
-	HelpText     string
-	Options      []FieldOption
-	Min          string
-	Max          string
-	DefaultValue string
-	Conditional  string
+type OntologyField struct {
+	Property string        `json:"property"`
+	Label    string        `json:"label"`
+	Type     string        `json:"type"`
+	Required bool          `json:"required"`
+	HelpText string        `json:"helpText,omitempty"`
+	Options  []FieldOption `json:"options,omitempty"`
+	Domain   string        `json:"domain,omitempty"`
 }
 
 type FieldOption struct {
-	Value string
-	Label string
+	Value string `json:"value"`
+	Label string `json:"label"`
 }
 
-type TTLCategory struct {
-	ID          string
-	Title       string
-	Icon        string
-	Order       int
-	Description string
-	Fields      []TTLField
+type OntologySection struct {
+	ID     string          `json:"id"`
+	Label  string          `json:"label"`
+	Fields []OntologyField `json:"fields"`
 }
 
-type TTLParser struct {
-	Categories map[string]*TTLCategory
-	Fields     map[string]*TTLField
-	Prefixes   map[string]string
-}
-
-func NewTTLParser() *TTLParser {
-	return &TTLParser{
-		Categories: make(map[string]*TTLCategory),
-		Fields:     make(map[string]*TTLField),
-		Prefixes:   make(map[string]string),
-	}
-}
-
-func (p *TTLParser) ParseTTLFile(filepath string) error {
-	file, err := os.Open(filepath)
+// ParseTTLOntology - parses all TTL ontology files (insurance, app config, documents)
+func ParseTTLOntology() (map[string]OntologySection, error) {
+	// Read the modular auto insurance ontologies
+	driverData, err := ioutil.ReadFile("ontology/AI_Driver_Details.ttl")
 	if err != nil {
-		return fmt.Errorf("failed to open TTL file: %v", err)
+		return nil, fmt.Errorf("failed to read AI_Driver_Details.ttl: %v", err)
 	}
-	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
-	lineNum := 0
+	vehicleData, err := ioutil.ReadFile("ontology/AI_Vehicle_Details.ttl")
+	if err != nil {
+		return nil, fmt.Errorf("failed to read AI_Vehicle_Details.ttl: %v", err)
+	}
 
-	for scanner.Scan() {
-		lineNum++
-		line := strings.TrimSpace(scanner.Text())
+	policyData, err := ioutil.ReadFile("ontology/AI_Policy_Details.ttl")
+	if err != nil {
+		return nil, fmt.Errorf("failed to read AI_Policy_Details.ttl: %v", err)
+	}
 
-		// Skip comments and empty lines
-		if strings.HasPrefix(line, "#") || line == "" {
+	claimsData, err := ioutil.ReadFile("ontology/AI_Claims_History.ttl")
+	if err != nil {
+		return nil, fmt.Errorf("failed to read AI_Claims_History.ttl: %v", err)
+	}
+
+	paymentsData, err := ioutil.ReadFile("ontology/AI_Insurance_Payments.ttl")
+	if err != nil {
+		return nil, fmt.Errorf("failed to read AI_Insurance_Payments.ttl: %v", err)
+	}
+
+	// Read the GDPR compliance ontology
+	complianceData, err := ioutil.ReadFile("ontology/AI_Data_Compliance.ttl")
+	if err != nil {
+		return nil, fmt.Errorf("failed to read AI_Data_Compliance.ttl: %v", err)
+	}
+
+	// Read the USER-UX app configuration TTL file
+	userUxData, err := ioutil.ReadFile("ontology/user_ux.ttl")
+	if err != nil {
+		return nil, fmt.Errorf("failed to read user_ux.ttl: %v", err)
+	}
+
+	// Read the user documents TTL file
+	documentsData, err := ioutil.ReadFile("ontology/user_documents.ttl")
+	if err != nil {
+		return nil, fmt.Errorf("failed to read user_documents.ttl: %v", err)
+	}
+
+	// Read the comprehensive personal documents ontology
+	personalDocsData, err := ioutil.ReadFile("ontology/personal_documents_ontology.ttl")
+	if err != nil {
+		return nil, fmt.Errorf("failed to read personal_documents_ontology.ttl: %v", err)
+	}
+
+	// Combine all TTL files for parsing
+	content := string(driverData) + "\n" + string(vehicleData) + "\n" + string(policyData) + "\n" + string(claimsData) + "\n" + string(paymentsData) + "\n" + string(complianceData) + "\n" + string(userUxData) + "\n" + string(documentsData) + "\n" + string(personalDocsData)
+
+	// Extract properties by parsing TTL patterns
+	driverFields := []OntologyField{}
+	vehicleFields := []OntologyField{}
+	claimsFields := []OntologyField{}
+	settingsFields := []OntologyField{}
+	documentsFields := []OntologyField{}
+
+	// Regex patterns for TTL parsing (handles autoins:, settings:, docs:, banking:, comms: prefixes)
+	propertyPattern := regexp.MustCompile(`(autoins|settings|banking|comms|docs):(\w+)\s+a\s+owl:DatatypeProperty\s*;`)
+	labelPattern := regexp.MustCompile(`rdfs:label\s+"([^"]+)"\s*;`)
+	domainPattern := regexp.MustCompile(`rdfs:domain\s+(autoins|settings|docs|foaf):(\w+)\s*;`)
+	rangePattern := regexp.MustCompile(`rdfs:range\s+xsd:(\w+)\s*;`)
+	requiredPattern := regexp.MustCompile(`(autoins|docs):isRequired\s+"(true|false)"\^\^xsd:boolean\s*;`)
+	helpTextPattern := regexp.MustCompile(`(autoins|docs):formHelpText\s+"([^"]+)"\s*;`)
+	enumPattern := regexp.MustCompile(`(autoins|docs):enumerationValues\s+\(([^)]+)\)\s*;`)
+
+	// Find all properties
+	propertyMatches := propertyPattern.FindAllStringSubmatch(content, -1)
+
+	for _, match := range propertyMatches {
+		if len(match) < 3 {
 			continue
 		}
 
-		// Parse prefixes
-		if strings.HasPrefix(line, "@prefix") {
-			p.parsePrefix(line)
+		// propPrefix := match[1]  // autoins, settings, banking, comms (not used currently)
+		propName := match[2]
+
+		// Find the property block (from property declaration to next property or end)
+		propStart := strings.Index(content, match[0])
+		if propStart == -1 {
 			continue
 		}
 
-		// Parse triples
-		if strings.Contains(line, " ;") || strings.Contains(line, " .") {
-			p.parseTriple(line)
+		// Find the end of this property block (ends with a period)
+		var propBlock string
+		blockEnd := strings.Index(content[propStart:], " .")
+		if blockEnd == -1 {
+			// Try to find next property as fallback
+			nextPropIndex := strings.Index(content[propStart+1:], "autoins:")
+			if nextPropIndex == -1 {
+				propBlock = content[propStart:]
+			} else {
+				propBlock = content[propStart : propStart+1+nextPropIndex]
+			}
+		} else {
+			propBlock = content[propStart : propStart+blockEnd+2]
+		}
+
+		// Extract information from this property block
+		var label, domain, range_, helpText string
+		var required bool
+		var enumValues []string
+
+		if labelMatch := labelPattern.FindStringSubmatch(propBlock); len(labelMatch) > 1 {
+			label = labelMatch[1]
+		}
+
+		if domainMatch := domainPattern.FindStringSubmatch(propBlock); len(domainMatch) > 2 {
+			domain = domainMatch[2] // Extract the class name (Driver, Vehicle, etc.)
+		}
+
+		if rangeMatch := rangePattern.FindStringSubmatch(propBlock); len(rangeMatch) > 1 {
+			range_ = rangeMatch[1]
+		}
+
+		if requiredMatch := requiredPattern.FindStringSubmatch(propBlock); len(requiredMatch) > 2 {
+			required = requiredMatch[2] == "true"
+		}
+
+		if helpMatch := helpTextPattern.FindStringSubmatch(propBlock); len(helpMatch) > 2 {
+			helpText = helpMatch[2]
+		}
+
+		if enumMatch := enumPattern.FindStringSubmatch(propBlock); len(enumMatch) > 2 {
+			enumStr := strings.ReplaceAll(enumMatch[2], `"`, "")
+			enumValues = strings.Fields(enumStr)
+		}
+
+		// Skip if no domain or label
+		if domain == "" || label == "" {
+			fmt.Printf("DEBUG: Skipping field %s - domain: '%s', label: '%s'\n", propName, domain, label)
+			continue
+		}
+
+		fmt.Printf("DEBUG: Processing field %s - domain: '%s', label: '%s'\n", propName, domain, label)
+
+		// Determine field type
+		fieldType := "text"
+		switch range_ {
+		case "boolean":
+			fieldType = "radio"
+		case "date":
+			fieldType = "date"
+		default:
+			if strings.Contains(propName, "email") {
+				fieldType = "email"
+			} else if strings.Contains(propName, "phone") {
+				fieldType = "tel"
+			}
+		}
+
+		// Handle enumeration values
+		var options []FieldOption
+		if len(enumValues) > 0 {
+			for _, value := range enumValues {
+				if strings.TrimSpace(value) != "" {
+					options = append(options, FieldOption{
+						Value: strings.TrimSpace(value),
+						Label: strings.TrimSpace(value),
+					})
+				}
+			}
+			if len(options) > 0 {
+				if len(options) <= 3 {
+					fieldType = "radio"
+				} else {
+					fieldType = "select"
+				}
+			}
+		}
+
+		// Create field
+		field := OntologyField{
+			Property: propName,
+			Label:    label,
+			Type:     fieldType,
+			Required: required,
+			HelpText: helpText,
+			Options:  options,
+			Domain:   domain,
+		}
+
+		// Add to appropriate section based on domain
+		switch domain {
+		case "Driver":
+			driverFields = append(driverFields, field)
+		case "Vehicle":
+			vehicleFields = append(vehicleFields, field)
+		case "Claims", "ClaimsHistory":
+			claimsFields = append(claimsFields, field)
+		case "Settings", "BankAccount", "CreditCard", "InsurancePayments", "CommunicationChannel":
+			settingsFields = append(settingsFields, field)
+		case "PassportDocument", "DrivingLicenceDocument", "IdentityCardDocument", "UtilityBillDocument", "BankStatementDocument", "MedicalCertificateDocument", "InsuranceDocument", "PersonalDocument":
+			documentsFields = append(documentsFields, field)
+		// Comprehensive Insurance Entity Classes
+		case "InsuranceEntity", "MotorInsuranceDocument", "DriverDocument", "VehicleDocument", "ClaimsDocument", "PolicyDocument", "FinancialDocument":
+			// Assign to appropriate section based on document type
+			if strings.Contains(strings.ToLower(domain), "driver") {
+				driverFields = append(driverFields, field)
+			} else if strings.Contains(strings.ToLower(domain), "vehicle") {
+				vehicleFields = append(vehicleFields, field)
+			} else if strings.Contains(strings.ToLower(domain), "claim") {
+				claimsFields = append(claimsFields, field)
+			} else {
+				// Default insurance documents to documents section
+				documentsFields = append(documentsFields, field)
+			}
+		// Specific Insurance Document Sub-classes
+		case "InsuranceCertificate", "InsuranceSchedule", "ProofOfNoClaims", "QuoteDocument", "RenewalNotice":
+			documentsFields = append(documentsFields, field)
+		case "DrivingLicence", "ConvictionCertificate", "MedicalCertificate", "PassPlusCertificate":
+			driverFields = append(driverFields, field)
+		case "VehicleRegistrationDocument", "MOTCertificate", "VehicleValuation", "ModificationCertificate", "SecurityDeviceCertificate":
+			vehicleFields = append(vehicleFields, field)
+		case "ClaimForm", "AccidentReport", "PoliceReport", "RepairEstimate", "SettlementLetter":
+			claimsFields = append(claimsFields, field)
+		case "PolicyWording", "EndorsementDocument", "CancellationNotice":
+			documentsFields = append(documentsFields, field)
+		case "PremiumInvoice", "PaymentReceipt", "RefundNotice", "DirectDebitMandate":
+			documentsFields = append(documentsFields, field)
+		// FOAF classes (Person, Organization)
+		case "Person", "Organization":
+			// These are typically used as ranges for object properties, not domains for datatype properties
+			// But if they appear as domains, add to settings
+			settingsFields = append(settingsFields, field)
 		}
 	}
 
-	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("error reading TTL file: %v", err)
+	// Build sections
+	sections := map[string]OntologySection{
+		"drivers": {
+			ID:     "drivers",
+			Label:  "Driver Details",
+			Fields: driverFields,
+		},
+		"vehicles": {
+			ID:     "vehicles",
+			Label:  "Vehicle Details",
+			Fields: vehicleFields,
+		},
+		"claims": {
+			ID:     "claims",
+			Label:  "Claims History",
+			Fields: claimsFields,
+		},
+		"settings": {
+			ID:     "settings",
+			Label:  "Application Settings",
+			Fields: settingsFields,
+		},
+		"documents": {
+			ID:     "documents",
+			Label:  "Personal Documents",
+			Fields: documentsFields,
+		},
 	}
 
-	return nil
+	return sections, nil
 }
 
-func (p *TTLParser) parsePrefix(line string) {
-	// Parse @prefix autoins: <https://autoins.example/ontology#> .
-	re := regexp.MustCompile(`@prefix\s+(\w+):\s+<([^>]+)>`)
-	matches := re.FindStringSubmatch(line)
-	if len(matches) == 3 {
-		p.Prefixes[matches[1]] = matches[2]
-	}
-}
-
-func (p *TTLParser) parseTriple(line string) {
-	// Parse triples like: autoins:firstName a owl:DatatypeProperty ;
-	parts := strings.Split(line, " ")
-	if len(parts) < 3 {
+func HandleOntologyAPI(w http.ResponseWriter, r *http.Request) {
+	sections, err := ParseTTLOntology()
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to parse ontology: %v", err), http.StatusInternalServerError)
 		return
 	}
 
-	subject := parts[0]
-	predicate := parts[1]
-	object := strings.Join(parts[2:], " ")
-
-	// Remove trailing semicolon or period
-	object = strings.TrimSuffix(object, ";")
-	object = strings.TrimSuffix(object, ".")
-
-	// Parse field definitions
-	if strings.Contains(subject, "autoins:") && strings.Contains(predicate, "a") {
-		fieldName := strings.TrimPrefix(subject, "autoins:")
-		if _, exists := p.Fields[fieldName]; !exists {
-			p.Fields[fieldName] = &TTLField{Property: fieldName}
-		}
-	}
-
-	// Parse field properties
-	if strings.Contains(predicate, "rdfs:label") {
-		fieldName := strings.TrimPrefix(subject, "autoins:")
-		if field, exists := p.Fields[fieldName]; exists {
-			field.Label = strings.Trim(object, `"`)
-		}
-	}
-
-	// Parse field types
-	if strings.Contains(predicate, "rdfs:range") {
-		fieldName := strings.TrimPrefix(subject, "autoins:")
-		if field, exists := p.Fields[fieldName]; exists {
-			field.Type = p.parseFieldType(object)
-		}
-	}
-
-	// Parse validation patterns
-	if strings.Contains(predicate, "autoins:validationPattern") {
-		fieldName := strings.TrimPrefix(subject, "autoins:")
-		if field, exists := p.Fields[fieldName]; exists {
-			field.Pattern = strings.Trim(object, `"`)
-		}
-	}
-
-	// Parse help text
-	if strings.Contains(predicate, "autoins:formHelpText") {
-		fieldName := strings.TrimPrefix(subject, "autoins:")
-		if field, exists := p.Fields[fieldName]; exists {
-			field.HelpText = strings.Trim(object, `"`)
-		}
-	}
-
-	// Parse required fields
-	if strings.Contains(predicate, "autoins:isRequired") {
-		fieldName := strings.TrimPrefix(subject, "autoins:")
-		if field, exists := p.Fields[fieldName]; exists {
-			field.Required = object == "true"
-		}
-	}
-}
-
-func (p *TTLParser) parseFieldType(object string) string {
-	switch {
-	case strings.Contains(object, "xsd:string"):
-		return "text"
-	case strings.Contains(object, "xsd:integer"):
-		return "number"
-	case strings.Contains(object, "xsd:date"):
-		return "date"
-	case strings.Contains(object, "xsd:boolean"):
-		return "checkbox"
-	case strings.Contains(object, "autoins:"):
-		return "select"
-	default:
-		return "text"
-	}
-}
-
-func (p *TTLParser) OrganizeIntoCategories() {
-	// Define category mappings based on field prefixes
-	categoryMappings := map[string]string{
-		"firstName":     "drivers",
-		"lastName":      "drivers",
-		"dateOfBirth":   "drivers",
-		"licenseNumber": "drivers",
-		"licenseType":   "drivers",
-		"relationship":  "drivers",
-
-		"make":            "vehicle",
-		"model":           "vehicle",
-		"year":            "vehicle",
-		"vin":             "vehicle",
-		"color":           "vehicle",
-		"bodyType":        "vehicle",
-		"engineSize":      "vehicle",
-		"fuelType":        "vehicle",
-		"annualMileage":   "vehicle",
-		"primaryUse":      "vehicle",
-		"garageLocation":  "vehicle",
-		"antiTheftDevice": "vehicle",
-
-		"liabilityCoverage":       "coverage",
-		"collisionDeductible":     "coverage",
-		"comprehensiveDeductible": "coverage",
-		"medicalPayments":         "coverage",
-		"uninsuredMotorist":       "coverage",
-		"rentalReimbursement":     "coverage",
-		"roadsideAssistance":      "coverage",
-		"gapInsurance":            "coverage",
-
-		"atFaultAccidents":       "claims",
-		"notAtFaultAccidents":    "claims",
-		"trafficViolations":      "claims",
-		"duiConvictions":         "claims",
-		"licenseSuspensions":     "claims",
-		"insuranceCancellations": "claims",
-
-		"paymentMethod":    "payment",
-		"paymentFrequency": "payment",
-		"cardNumber":       "payment",
-		"expiryDate":       "payment",
-		"cvv":              "payment",
-		"billingAddress":   "payment",
-		"autoPay":          "payment",
-
-		"communicationPreference":      "preferences",
-		"paperlessDocuments":           "preferences",
-		"marketingCommunications":      "preferences",
-		"emergencyContactName":         "preferences",
-		"emergencyContactPhone":        "preferences",
-		"emergencyContactRelationship": "preferences",
-		"preferredAgent":               "preferences",
-
-		"policyType":       "summary",
-		"policyTerm":       "summary",
-		"effectiveDate":    "summary",
-		"expirationDate":   "summary",
-		"estimatedPremium": "summary",
-		"discountsApplied": "summary",
-	}
-
-	// Initialize categories
-	categoryConfigs := map[string]struct {
-		title string
-		icon  string
-		order int
-	}{
-		"drivers":     {"Driver Details", "👥", 1},
-		"vehicle":     {"Vehicle Information", "🚗", 2},
-		"coverage":    {"Coverage Options", "🛡️", 3},
-		"claims":      {"Claims History", "📋", 4},
-		"payment":     {"Payment Information", "💳", 5},
-		"preferences": {"Preferences", "⚙️", 6},
-		"summary":     {"Summary", "📊", 7},
-	}
-
-	for categoryID, config := range categoryConfigs {
-		p.Categories[categoryID] = &TTLCategory{
-			ID:          categoryID,
-			Title:       config.title,
-			Icon:        config.icon,
-			Order:       config.order,
-			Description: fmt.Sprintf("Configure %s", config.title),
-			Fields:      []TTLField{},
-		}
-	}
-
-	// Organize fields into categories
-	for fieldName, field := range p.Fields {
-		if categoryID, exists := categoryMappings[fieldName]; exists {
-			if category, exists := p.Categories[categoryID]; exists {
-				category.Fields = append(category.Fields, *field)
-			}
-		}
-	}
-
-	// Sort fields within each category
-	for _, category := range p.Categories {
-		sort.Slice(category.Fields, func(i, j int) bool {
-			return category.Fields[i].Property < category.Fields[j].Property
-		})
-	}
-}
-
-func (p *TTLParser) GenerateHTMLForms() (string, error) {
-	// Sort categories by order
-	var sortedCategories []*TTLCategory
-	for _, category := range p.Categories {
-		sortedCategories = append(sortedCategories, category)
-	}
-	sort.Slice(sortedCategories, func(i, j int) bool {
-		return sortedCategories[i].Order < sortedCategories[j].Order
-	})
-
-	// Generate HTML template
-	tmpl := `
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Ontology-Driven Insurance Forms</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        * { box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            margin: 0; 
-            background: linear-gradient(135deg, #333333 0%, #666666 100%);
-            min-height: 100vh;
-            padding: 20px;
-            font-size: 18px;
-        }
-        .container { 
-            max-width: 1400px; 
-            margin: 0 auto; 
-            background: white; 
-            border-radius: 15px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-        .header { 
-            background: linear-gradient(135deg, #333333, #666666); 
-            color: white; 
-            padding: 30px; 
-            text-align: center;
-        }
-        .header h1 { margin: 0; font-size: 2.8em; font-weight: 300; }
-        .header p { margin: 10px 0 0 0; opacity: 0.9; font-size: 1.3em; }
-        
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            min-height: 600px;
-        }
-        
-        .left-panel {
-            padding: 20px;
-            background: #fafafa;
-            overflow-y: auto;
-            max-height: 70vh;
-        }
-
-        .category-tabs {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #cccccc;
-        }
-
-        .category-tab {
-            padding: 12px 16px;
-            background: #f0f0f0;
-            border: 1px solid #cccccc;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-            min-width: 100px;
-            text-align: center;
-            font-weight: 500;
-        }
-
-        .category-tab.active {
-            background: linear-gradient(135deg, #666666, #333333);
-            color: white;
-            border-color: #333333;
-        }
-
-        .category-tab:hover:not(.active) {
-            background: #e0e0e0;
-        }
-
-        .category-content {
-            display: none;
-        }
-
-        .category-content.active {
-            display: block;
-        }
-
-        .form-section {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            border: 2px solid #cccccc;
-            margin: 20px 0;
-        }
-
-        .form-section h3 {
-            margin: 0 0 20px 0;
-            font-size: 1.4em;
-            color: #333333;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .form-field {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-field.full-width {
-            grid-column: 1 / -1;
-        }
-
-        .form-field label {
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #333333;
-        }
-
-        .form-field input,
-        .form-field select,
-        .form-field textarea {
-            padding: 12px 15px;
-            border: 2px solid #cccccc;
-            border-radius: 8px;
-            font-size: 16px;
-            background: white;
-            color: #333333;
-        }
-
-        .form-field input:focus,
-        .form-field select:focus,
-        .form-field textarea:focus {
-            outline: none;
-            border-color: #666666;
-        }
-
-        .form-field .help-text {
-            font-size: 12px;
-            color: #666666;
-            margin-top: 4px;
-        }
-
-        .required {
-            color: #ff4444;
-        }
-
-        @media (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            .category-tabs {
-                flex-direction: column;
-            }
-            .category-tab {
-                min-width: auto;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>🚗📄 Ontology-Driven Insurance Forms</h1>
-            <p>Dynamically generated from TTL ontology</p>
-        </div>
-
-        <div class="main-content">
-            <div class="left-panel">
-                <!-- Category Tabs -->
-                <div class="category-tabs" id="categoryTabs">
-                    {{range $index, $category := .Categories}}
-                    <div class="category-tab {{if eq $index 0}}active{{end}}" onclick="switchCategory('{{$category.ID}}')">
-                        {{$category.Icon}} {{$category.Title}}
-                    </div>
-                    {{end}}
-                </div>
-
-                <!-- Category Contents -->
-                {{range $index, $category := .Categories}}
-                <div class="category-content {{if eq $index 0}}active{{end}}" id="{{$category.ID}}Content">
-                    <div class="form-section">
-                        <h3>{{$category.Icon}} {{$category.Title}}</h3>
-                        <div class="form-grid">
-                            {{range $field := $category.Fields}}
-                            <div class="form-field {{if eq $field.Type "textarea"}}full-width{{end}}">
-                                <label>
-                                    {{$field.Label}}
-                                    {{if $field.Required}}<span class="required">*</span>{{end}}
-                                </label>
-                                
-                                {{if eq $field.Type "text"}}
-                                <input type="text" 
-                                       name="{{$field.Property}}" 
-                                       placeholder="{{$field.Label}}"
-                                       {{if $field.Pattern}}pattern="{{$field.Pattern}}"{{end}}
-                                       {{if $field.Required}}required{{end}}>
-                                
-                                {{else if eq $field.Type "number"}}
-                                <input type="number" 
-                                       name="{{$field.Property}}"
-                                       {{if $field.Min}}min="{{$field.Min}}"{{end}}
-                                       {{if $field.Max}}max="{{$field.Max}}"{{end}}
-                                       {{if $field.Required}}required{{end}}>
-                                
-                                {{else if eq $field.Type "date"}}
-                                <input type="date" 
-                                       name="{{$field.Property}}"
-                                       {{if $field.Required}}required{{end}}>
-                                
-                                {{else if eq $field.Type "email"}}
-                                <input type="email" 
-                                       name="{{$field.Property}}"
-                                       {{if $field.Required}}required{{end}}>
-                                
-                                {{else if eq $field.Type "tel"}}
-                                <input type="tel" 
-                                       name="{{$field.Property}}"
-                                       {{if $field.Pattern}}pattern="{{$field.Pattern}}"{{end}}
-                                       {{if $field.Required}}required{{end}}>
-                                
-                                {{else if eq $field.Type "select"}}
-                                <select name="{{$field.Property}}" {{if $field.Required}}required{{end}}>
-                                    <option value="">Select {{$field.Label}}</option>
-                                    {{range $option := $field.Options}}
-                                    <option value="{{$option.Value}}">{{$option.Label}}</option>
-                                    {{end}}
-                                </select>
-                                
-                                {{else if eq $field.Type "textarea"}}
-                                <textarea name="{{$field.Property}}" 
-                                          rows="3" 
-                                          placeholder="{{$field.Label}}"
-                                          {{if $field.Required}}required{{end}}></textarea>
-                                
-                                {{else if eq $field.Type "checkbox"}}
-                                <input type="checkbox" 
-                                       name="{{$field.Property}}"
-                                       {{if $field.Required}}required{{end}}>
-                                
-                                {{else}}
-                                <input type="text" 
-                                       name="{{$field.Property}}" 
-                                       placeholder="{{$field.Label}}"
-                                       {{if $field.Required}}required{{end}}>
-                                {{end}}
-                                
-                                {{if $field.HelpText}}
-                                <div class="help-text">{{$field.HelpText}}</div>
-                                {{end}}
-                            </div>
-                            {{end}}
-                        </div>
-                    </div>
-                </div>
-                {{end}}
-            </div>
-        </div>
-    </div>
-
-    <script>
-        function switchCategory(category) {
-            // Hide all category contents
-            const categoryContents = document.querySelectorAll('.category-content');
-            categoryContents.forEach(content => {
-                content.classList.remove('active');
-            });
-
-            // Show the selected category content
-            const selectedContent = document.getElementById(category + 'Content');
-            if (selectedContent) {
-                selectedContent.classList.add('active');
-            }
-
-            // Update tab states
-            const tabs = document.querySelectorAll('.category-tab');
-            tabs.forEach(tab => {
-                tab.classList.remove('active');
-            });
-
-            const activeTab = document.querySelector("[onclick=\"switchCategory('" + category + "')\"]");
-            if (activeTab) {
-                activeTab.classList.add('active');
-            }
-        }
-    </script>
-</body>
-</html>`
-
-	// Parse and execute template
-	t, err := template.New("forms").Parse(tmpl)
-	if err != nil {
-		return "", fmt.Errorf("failed to parse template: %v", err)
-	}
-
-	var buf strings.Builder
-	err = t.Execute(&buf, map[string]interface{}{
-		"Categories": sortedCategories,
-	})
-	if err != nil {
-		return "", fmt.Errorf("failed to execute template: %v", err)
-	}
-
-	return buf.String(), nil
-}
-
-// Main function to generate forms from TTL
-func GenerateFormsFromTTL(ttlPath, outputPath string) error {
-	parser := NewTTLParser()
-
-	// Parse TTL file
-	err := parser.ParseTTLFile(ttlPath)
-	if err != nil {
-		return fmt.Errorf("failed to parse TTL file: %v", err)
-	}
-
-	// Organize fields into categories
-	parser.OrganizeIntoCategories()
-
-	// Generate HTML
-	html, err := parser.GenerateHTMLForms()
-	if err != nil {
-		return fmt.Errorf("failed to generate HTML: %v", err)
-	}
-
-	// Write to file
-	err = os.WriteFile(outputPath, []byte(html), 0644)
-	if err != nil {
-		return fmt.Errorf("failed to write HTML file: %v", err)
-	}
-
-	log.Printf("✅ Generated forms from TTL ontology: %s", outputPath)
-	return nil
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(sections)
 }

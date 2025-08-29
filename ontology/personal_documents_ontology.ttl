@@ -1,0 +1,695 @@
+# SECTION 1: THE ONTOLOGY
+# Personal Documents Ontology - Comprehensive Framework for Individual Document Management
+# Compatible with CLIENT-UX Personal Data Manager
+
+@prefix : <http://example.org/ontology/personal_documents#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <https://schema.org/> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ========================================
+# CORE ONTOLOGY CLASSES
+# ========================================
+
+# Root Document Class
+:PersonalDocument a owl:Class ;
+    rdfs:label "Personal Document" ;
+    rdfs:comment "The root class for all personal, legal, and official documents belonging to an individual" ;
+    rdfs:subClassOf owl:Thing .
+
+# ========================================
+# PRIMARY DOCUMENT CATEGORIES
+# ========================================
+
+# Identity Documents
+:IdentityDocument a owl:Class ;
+    rdfs:label "Identity Document" ;
+    rdfs:comment "Documents that establish or verify a person's identity" ;
+    rdfs:subClassOf :PersonalDocument .
+
+# Financial Documents  
+:FinancialDocument a owl:Class ;
+    rdfs:label "Financial Document" ;
+    rdfs:comment "Documents related to financial accounts, transactions, and obligations" ;
+    rdfs:subClassOf :PersonalDocument .
+
+# Educational Documents
+:EducationalDocument a owl:Class ;
+    rdfs:label "Educational Document" ;
+    rdfs:comment "Certificates, diplomas, transcripts, and other educational credentials" ;
+    rdfs:subClassOf :PersonalDocument .
+
+# Employment Documents
+:EmploymentDocument a owl:Class ;
+    rdfs:label "Employment Document" ;
+    rdfs:comment "Work-related documents including contracts, pay stubs, and references" ;
+    rdfs:subClassOf :PersonalDocument .
+
+# Property Documents
+:PropertyDocument a owl:Class ;
+    rdfs:label "Property Document" ;
+    rdfs:comment "Documents related to real estate, personal property ownership, and transfers" ;
+    rdfs:subClassOf :PersonalDocument .
+
+# Medical Documents
+:MedicalDocument a owl:Class ;
+    rdfs:label "Medical Document" ;
+    rdfs:comment "Health records, medical certificates, and healthcare-related documents" ;
+    rdfs:subClassOf :PersonalDocument .
+
+# Travel Documents
+:TravelDocument a owl:Class ;
+    rdfs:label "Travel Document" ;
+    rdfs:comment "Documents required for or related to travel and immigration" ;
+    rdfs:subClassOf :PersonalDocument .
+
+# Vehicle Documents
+:VehicleDocument a owl:Class ;
+    rdfs:label "Vehicle Document" ;
+    rdfs:comment "Documents related to vehicle ownership, registration, and operation" ;
+    rdfs:subClassOf :PersonalDocument .
+
+# Legal Documents
+:LegalDocument a owl:Class ;
+    rdfs:label "Legal Document" ;
+    rdfs:comment "Contracts, wills, court documents, and other legal instruments" ;
+    rdfs:subClassOf :PersonalDocument .
+
+# Insurance Documents
+:InsuranceDocument a owl:Class ;
+    rdfs:label "Insurance Document" ;
+    rdfs:comment "Insurance policies, claims, and coverage documents" ;
+    rdfs:subClassOf :PersonalDocument .
+
+# ========================================
+# IDENTITY DOCUMENT SUB-CLASSES
+# ========================================
+
+:Passport a owl:Class ;
+    rdfs:label "Passport" ;
+    rdfs:comment "Official travel document issued by a government" ;
+    rdfs:subClassOf :IdentityDocument, :TravelDocument .
+
+:NationalIDCard a owl:Class ;
+    rdfs:label "National ID Card" ;
+    rdfs:comment "Government-issued identity card for citizens" ;
+    rdfs:subClassOf :IdentityDocument .
+
+:DriversLicense a owl:Class ;
+    rdfs:label "Driver's License" ;
+    rdfs:comment "License permitting operation of motor vehicles" ;
+    rdfs:subClassOf :IdentityDocument, :VehicleDocument .
+
+:SocialSecurityCard a owl:Class ;
+    rdfs:label "Social Security Card" ;
+    rdfs:comment "Card showing social security number for benefits and taxation" ;
+    rdfs:subClassOf :IdentityDocument .
+
+:BirthCertificate a owl:Class ;
+    rdfs:label "Birth Certificate" ;
+    rdfs:comment "Official record of birth issued by civil registration authority" ;
+    rdfs:subClassOf :IdentityDocument, :LegalDocument .
+
+:MarriageCertificate a owl:Class ;
+    rdfs:label "Marriage Certificate" ;
+    rdfs:comment "Official record of marriage" ;
+    rdfs:subClassOf :IdentityDocument, :LegalDocument .
+
+# ========================================
+# FINANCIAL DOCUMENT SUB-CLASSES
+# ========================================
+
+:BankStatement a owl:Class ;
+    rdfs:label "Bank Statement" ;
+    rdfs:comment "Record of bank account transactions over a period" ;
+    rdfs:subClassOf :FinancialDocument .
+
+:TaxReturn a owl:Class ;
+    rdfs:label "Tax Return" ;
+    rdfs:comment "Annual tax filing document" ;
+    rdfs:subClassOf :FinancialDocument, :LegalDocument .
+
+:CreditReport a owl:Class ;
+    rdfs:label "Credit Report" ;
+    rdfs:comment "Report detailing credit history and score" ;
+    rdfs:subClassOf :FinancialDocument .
+
+:InvestmentStatement a owl:Class ;
+    rdfs:label "Investment Statement" ;
+    rdfs:comment "Statement of investment account holdings and performance" ;
+    rdfs:subClassOf :FinancialDocument .
+
+:LoanAgreement a owl:Class ;
+    rdfs:label "Loan Agreement" ;
+    rdfs:comment "Contract for borrowed funds" ;
+    rdfs:subClassOf :FinancialDocument, :LegalDocument .
+
+:MortgageDeed a owl:Class ;
+    rdfs:label "Mortgage Deed" ;
+    rdfs:comment "Legal document for property loan secured by real estate" ;
+    rdfs:subClassOf :FinancialDocument, :PropertyDocument, :LegalDocument .
+
+# ========================================
+# EDUCATIONAL DOCUMENT SUB-CLASSES
+# ========================================
+
+:UniversityDegree a owl:Class ;
+    rdfs:label "University Degree" ;
+    rdfs:comment "Academic degree awarded by university or college" ;
+    rdfs:subClassOf :EducationalDocument .
+
+:HighSchoolDiploma a owl:Class ;
+    rdfs:label "High School Diploma" ;
+    rdfs:comment "Certificate of secondary education completion" ;
+    rdfs:subClassOf :EducationalDocument .
+
+:ProfessionalCertificate a owl:Class ;
+    rdfs:label "Professional Certificate" ;
+    rdfs:comment "Certification for professional skills or qualifications" ;
+    rdfs:subClassOf :EducationalDocument .
+
+:Transcript a owl:Class ;
+    rdfs:label "Academic Transcript" ;
+    rdfs:comment "Official record of courses and grades" ;
+    rdfs:subClassOf :EducationalDocument .
+
+# ========================================
+# EMPLOYMENT DOCUMENT SUB-CLASSES
+# ========================================
+
+:EmploymentContract a owl:Class ;
+    rdfs:label "Employment Contract" ;
+    rdfs:comment "Legal agreement between employer and employee" ;
+    rdfs:subClassOf :EmploymentDocument, :LegalDocument .
+
+:PayStub a owl:Class ;
+    rdfs:label "Pay Stub" ;
+    rdfs:comment "Record of salary payment and deductions" ;
+    rdfs:subClassOf :EmploymentDocument, :FinancialDocument .
+
+:EmploymentReference a owl:Class ;
+    rdfs:label "Employment Reference" ;
+    rdfs:comment "Letter of recommendation from previous employer" ;
+    rdfs:subClassOf :EmploymentDocument .
+
+:WorkVisa a owl:Class ;
+    rdfs:label "Work Visa" ;
+    rdfs:comment "Permission to work in a foreign country" ;
+    rdfs:subClassOf :EmploymentDocument, :TravelDocument, :LegalDocument .
+
+# ========================================
+# PROPERTY DOCUMENT SUB-CLASSES
+# ========================================
+
+:PropertyDeed a owl:Class ;
+    rdfs:label "Property Deed" ;
+    rdfs:comment "Legal document establishing property ownership" ;
+    rdfs:subClassOf :PropertyDocument, :LegalDocument .
+
+:LeaseAgreement a owl:Class ;
+    rdfs:label "Lease Agreement" ;
+    rdfs:comment "Contract for rental of property" ;
+    rdfs:subClassOf :PropertyDocument, :LegalDocument .
+
+:UtilityBill a owl:Class ;
+    rdfs:label "Utility Bill" ;
+    rdfs:comment "Bill for utilities like electricity, gas, water" ;
+    rdfs:subClassOf :PropertyDocument, :FinancialDocument .
+
+# ========================================
+# MEDICAL DOCUMENT SUB-CLASSES
+# ========================================
+
+:MedicalRecord a owl:Class ;
+    rdfs:label "Medical Record" ;
+    rdfs:comment "Patient health information and treatment history" ;
+    rdfs:subClassOf :MedicalDocument .
+
+:VaccinationRecord a owl:Class ;
+    rdfs:label "Vaccination Record" ;
+    rdfs:comment "Record of immunizations received" ;
+    rdfs:subClassOf :MedicalDocument .
+
+:PrescriptionRecord a owl:Class ;
+    rdfs:label "Prescription Record" ;
+    rdfs:comment "Record of prescribed medications" ;
+    rdfs:subClassOf :MedicalDocument .
+
+:MedicalCertificate a owl:Class ;
+    rdfs:label "Medical Certificate" ;
+    rdfs:comment "Official medical statement for legal or employment purposes" ;
+    rdfs:subClassOf :MedicalDocument, :LegalDocument .
+
+# ========================================
+# VEHICLE DOCUMENT SUB-CLASSES
+# ========================================
+
+:VehicleRegistration a owl:Class ;
+    rdfs:label "Vehicle Registration" ;
+    rdfs:comment "Official registration of vehicle with authorities" ;
+    rdfs:subClassOf :VehicleDocument, :LegalDocument .
+
+:VehicleTitle a owl:Class ;
+    rdfs:label "Vehicle Title" ;
+    rdfs:comment "Legal document establishing vehicle ownership" ;
+    rdfs:subClassOf :VehicleDocument, :LegalDocument .
+
+:VehicleInsurance a owl:Class ;
+    rdfs:label "Vehicle Insurance" ;
+    rdfs:comment "Insurance policy for vehicle coverage" ;
+    rdfs:subClassOf :VehicleDocument, :InsuranceDocument .
+
+# ========================================
+# INSURANCE DOCUMENT SUB-CLASSES
+# ========================================
+
+:HealthInsurance a owl:Class ;
+    rdfs:label "Health Insurance" ;
+    rdfs:comment "Medical coverage insurance policy" ;
+    rdfs:subClassOf :InsuranceDocument .
+
+:LifeInsurance a owl:Class ;
+    rdfs:label "Life Insurance" ;
+    rdfs:comment "Life coverage insurance policy" ;
+    rdfs:subClassOf :InsuranceDocument .
+
+:PropertyInsurance a owl:Class ;
+    rdfs:label "Property Insurance" ;
+    rdfs:comment "Property coverage insurance policy" ;
+    rdfs:subClassOf :InsuranceDocument .
+
+# ========================================
+# ANCILLARY CLASSES
+# ========================================
+
+:Person a owl:Class ;
+    rdfs:label "Person" ;
+    rdfs:comment "Individual human being" ;
+    owl:equivalentClass foaf:Person .
+
+:Organization a owl:Class ;
+    rdfs:label "Organization" ;
+    rdfs:comment "Organized group or institution" ;
+    owl:equivalentClass foaf:Organization .
+
+:GoverningBody a owl:Class ;
+    rdfs:label "Governing Body" ;
+    rdfs:comment "Government agency or authority" ;
+    rdfs:subClassOf :Organization .
+
+:EducationalInstitution a owl:Class ;
+    rdfs:label "Educational Institution" ;
+    rdfs:comment "School, college, or university" ;
+    rdfs:subClassOf :Organization .
+
+:FinancialInstitution a owl:Class ;
+    rdfs:label "Financial Institution" ;
+    rdfs:comment "Bank, credit union, or financial service provider" ;
+    rdfs:subClassOf :Organization .
+
+:HealthcareProvider a owl:Class ;
+    rdfs:label "Healthcare Provider" ;
+    rdfs:comment "Medical professional or healthcare organization" ;
+    rdfs:subClassOf :Organization .
+
+:Address a owl:Class ;
+    rdfs:label "Address" ;
+    rdfs:comment "Physical or postal address" ;
+    owl:equivalentClass vcard:Address .
+
+:Country a owl:Class ;
+    rdfs:label "Country" ;
+    rdfs:comment "Nation or sovereign state" .
+
+# ========================================
+# CORE DATATYPE PROPERTIES
+# ========================================
+
+# Document Identification
+:documentID a owl:DatatypeProperty ;
+    rdfs:label "document ID" ;
+    rdfs:comment "Unique identifier for the document" ;
+    rdfs:domain :PersonalDocument ;
+    rdfs:range xsd:string .
+
+:documentNumber a owl:DatatypeProperty ;
+    rdfs:label "document number" ;
+    rdfs:comment "Official number assigned to the document" ;
+    rdfs:domain :PersonalDocument ;
+    rdfs:range xsd:string .
+
+# Temporal Properties
+:issueDate a owl:DatatypeProperty ;
+    rdfs:label "issue date" ;
+    rdfs:comment "Date when the document was issued" ;
+    rdfs:domain :PersonalDocument ;
+    rdfs:range xsd:date .
+
+:expiryDate a owl:DatatypeProperty ;
+    rdfs:label "expiry date" ;
+    rdfs:comment "Date when the document expires" ;
+    rdfs:domain :PersonalDocument ;
+    rdfs:range xsd:date .
+
+:validFrom a owl:DatatypeProperty ;
+    rdfs:label "valid from" ;
+    rdfs:comment "Date from which the document is valid" ;
+    rdfs:domain :PersonalDocument ;
+    rdfs:range xsd:date .
+
+:validUntil a owl:DatatypeProperty ;
+    rdfs:label "valid until" ;
+    rdfs:comment "Date until which the document is valid" ;
+    rdfs:domain :PersonalDocument ;
+    rdfs:range xsd:date .
+
+# Document Content
+:documentTitle a owl:DatatypeProperty ;
+    rdfs:label "document title" ;
+    rdfs:comment "Official title or name of the document" ;
+    rdfs:domain :PersonalDocument ;
+    rdfs:range xsd:string .
+
+:documentType a owl:DatatypeProperty ;
+    rdfs:label "document type" ;
+    rdfs:comment "Category or classification of the document" ;
+    rdfs:domain :PersonalDocument ;
+    rdfs:range xsd:string .
+
+:documentStatus a owl:DatatypeProperty ;
+    rdfs:label "document status" ;
+    rdfs:comment "Current status of the document (active, expired, suspended, etc.)" ;
+    rdfs:domain :PersonalDocument ;
+    rdfs:range xsd:string .
+
+# Personal Information
+:fullName a owl:DatatypeProperty ;
+    rdfs:label "full name" ;
+    rdfs:comment "Complete legal name of the person" ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:string .
+
+:firstName a owl:DatatypeProperty ;
+    rdfs:label "first name" ;
+    rdfs:comment "Given name of the person" ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:string .
+
+:middleName a owl:DatatypeProperty ;
+    rdfs:label "middle name" ;
+    rdfs:comment "Middle name or initial of the person" ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:string .
+
+:lastName a owl:DatatypeProperty ;
+    rdfs:label "last name" ;
+    rdfs:comment "Family name or surname of the person" ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:string .
+
+:dateOfBirth a owl:DatatypeProperty ;
+    rdfs:label "date of birth" ;
+    rdfs:comment "Birth date of the person" ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:date .
+
+:placeOfBirth a owl:DatatypeProperty ;
+    rdfs:label "place of birth" ;
+    rdfs:comment "Location where the person was born" ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:string .
+
+:gender a owl:DatatypeProperty ;
+    rdfs:label "gender" ;
+    rdfs:comment "Gender of the person" ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:string .
+
+:nationality a owl:DatatypeProperty ;
+    rdfs:label "nationality" ;
+    rdfs:comment "Nationality or citizenship of the person" ;
+    rdfs:domain :Person ;
+    rdfs:range xsd:string .
+
+# Financial Properties
+:amount a owl:DatatypeProperty ;
+    rdfs:label "amount" ;
+    rdfs:comment "Monetary amount" ;
+    rdfs:domain :FinancialDocument ;
+    rdfs:range xsd:decimal .
+
+:currency a owl:DatatypeProperty ;
+    rdfs:label "currency" ;
+    rdfs:comment "Currency code (ISO 4217)" ;
+    rdfs:domain :FinancialDocument ;
+    rdfs:range xsd:string .
+
+:accountNumber a owl:DatatypeProperty ;
+    rdfs:label "account number" ;
+    rdfs:comment "Financial account identifier" ;
+    rdfs:domain :FinancialDocument ;
+    rdfs:range xsd:string .
+
+# Educational Properties
+:degreeName a owl:DatatypeProperty ;
+    rdfs:label "degree name" ;
+    rdfs:comment "Name of the academic degree or qualification" ;
+    rdfs:domain :EducationalDocument ;
+    rdfs:range xsd:string .
+
+:fieldOfStudy a owl:DatatypeProperty ;
+    rdfs:label "field of study" ;
+    rdfs:comment "Academic discipline or major" ;
+    rdfs:domain :EducationalDocument ;
+    rdfs:range xsd:string .
+
+:graduationDate a owl:DatatypeProperty ;
+    rdfs:label "graduation date" ;
+    rdfs:comment "Date of graduation or completion" ;
+    rdfs:domain :EducationalDocument ;
+    rdfs:range xsd:date .
+
+:gpa a owl:DatatypeProperty ;
+    rdfs:label "GPA" ;
+    rdfs:comment "Grade Point Average" ;
+    rdfs:domain :EducationalDocument ;
+    rdfs:range xsd:decimal .
+
+# Vehicle Properties
+:vehicleIdentificationNumber a owl:DatatypeProperty ;
+    rdfs:label "VIN" ;
+    rdfs:comment "Vehicle Identification Number" ;
+    rdfs:domain :VehicleDocument ;
+    rdfs:range xsd:string .
+
+:licensePlate a owl:DatatypeProperty ;
+    rdfs:label "license plate" ;
+    rdfs:comment "Vehicle registration plate number" ;
+    rdfs:domain :VehicleDocument ;
+    rdfs:range xsd:string .
+
+:vehicleMake a owl:DatatypeProperty ;
+    rdfs:label "vehicle make" ;
+    rdfs:comment "Manufacturer of the vehicle" ;
+    rdfs:domain :VehicleDocument ;
+    rdfs:range xsd:string .
+
+:vehicleModel a owl:DatatypeProperty ;
+    rdfs:label "vehicle model" ;
+    rdfs:comment "Model of the vehicle" ;
+    rdfs:domain :VehicleDocument ;
+    rdfs:range xsd:string .
+
+:vehicleYear a owl:DatatypeProperty ;
+    rdfs:label "vehicle year" ;
+    rdfs:comment "Year the vehicle was manufactured" ;
+    rdfs:domain :VehicleDocument ;
+    rdfs:range xsd:gYear .
+
+# Address Properties
+:streetAddress a owl:DatatypeProperty ;
+    rdfs:label "street address" ;
+    rdfs:comment "Street number and name" ;
+    rdfs:domain :Address ;
+    rdfs:range xsd:string .
+
+:city a owl:DatatypeProperty ;
+    rdfs:label "city" ;
+    rdfs:comment "City or locality" ;
+    rdfs:domain :Address ;
+    rdfs:range xsd:string .
+
+:stateProvince a owl:DatatypeProperty ;
+    rdfs:label "state/province" ;
+    rdfs:comment "State, province, or region" ;
+    rdfs:domain :Address ;
+    rdfs:range xsd:string .
+
+:postalCode a owl:DatatypeProperty ;
+    rdfs:label "postal code" ;
+    rdfs:comment "ZIP code or postal code" ;
+    rdfs:domain :Address ;
+    rdfs:range xsd:string .
+
+:countryCode a owl:DatatypeProperty ;
+    rdfs:label "country code" ;
+    rdfs:comment "ISO country code" ;
+    rdfs:domain :Country ;
+    rdfs:range xsd:string .
+
+# ========================================
+# OBJECT PROPERTIES (RELATIONSHIPS)
+# ========================================
+
+# Document Relationships
+:documentHolder a owl:ObjectProperty ;
+    rdfs:label "document holder" ;
+    rdfs:comment "Person who holds or owns the document" ;
+    rdfs:domain :PersonalDocument ;
+    rdfs:range :Person .
+
+:issuedBy a owl:ObjectProperty ;
+    rdfs:label "issued by" ;
+    rdfs:comment "Organization or authority that issued the document" ;
+    rdfs:domain :PersonalDocument ;
+    rdfs:range :Organization .
+
+:issuedIn a owl:ObjectProperty ;
+    rdfs:label "issued in" ;
+    rdfs:comment "Country where the document was issued" ;
+    rdfs:domain :PersonalDocument ;
+    rdfs:range :Country .
+
+:relatedTo a owl:ObjectProperty ;
+    rdfs:label "related to" ;
+    rdfs:comment "Another document that this document is related to" ;
+    rdfs:domain :PersonalDocument ;
+    rdfs:range :PersonalDocument .
+
+:supersedes a owl:ObjectProperty ;
+    rdfs:label "supersedes" ;
+    rdfs:comment "Previous version of document that this document replaces" ;
+    rdfs:domain :PersonalDocument ;
+    rdfs:range :PersonalDocument .
+
+# Person Relationships
+:hasAddress a owl:ObjectProperty ;
+    rdfs:label "has address" ;
+    rdfs:comment "Address associated with the person" ;
+    rdfs:domain :Person ;
+    rdfs:range :Address .
+
+:citizenOf a owl:ObjectProperty ;
+    rdfs:label "citizen of" ;
+    rdfs:comment "Country of citizenship" ;
+    rdfs:domain :Person ;
+    rdfs:range :Country .
+
+:residentOf a owl:ObjectProperty ;
+    rdfs:label "resident of" ;
+    rdfs:comment "Country of residence" ;
+    rdfs:domain :Person ;
+    rdfs:range :Country .
+
+# Educational Relationships
+:awardedBy a owl:ObjectProperty ;
+    rdfs:label "awarded by" ;
+    rdfs:comment "Institution that awarded the degree or certificate" ;
+    rdfs:domain :EducationalDocument ;
+    rdfs:range :EducationalInstitution .
+
+:attendedBy a owl:ObjectProperty ;
+    rdfs:label "attended by" ;
+    rdfs:comment "Person who attended the educational program" ;
+    rdfs:domain :EducationalDocument ;
+    rdfs:range :Person .
+
+# Employment Relationships
+:employedBy a owl:ObjectProperty ;
+    rdfs:label "employed by" ;
+    rdfs:comment "Organization that employs the person" ;
+    rdfs:domain :EmploymentDocument ;
+    rdfs:range :Organization .
+
+:employee a owl:ObjectProperty ;
+    rdfs:label "employee" ;
+    rdfs:comment "Person who is the employee" ;
+    rdfs:domain :EmploymentDocument ;
+    rdfs:range :Person .
+
+# Financial Relationships
+:accountHolderOf a owl:ObjectProperty ;
+    rdfs:label "account holder of" ;
+    rdfs:comment "Financial institution where account is held" ;
+    rdfs:domain :FinancialDocument ;
+    rdfs:range :FinancialInstitution .
+
+:accountHolder a owl:ObjectProperty ;
+    rdfs:label "account holder" ;
+    rdfs:comment "Person who holds the financial account" ;
+    rdfs:domain :FinancialDocument ;
+    rdfs:range :Person .
+
+# Property Relationships
+:propertyOwner a owl:ObjectProperty ;
+    rdfs:label "property owner" ;
+    rdfs:comment "Person who owns the property" ;
+    rdfs:domain :PropertyDocument ;
+    rdfs:range :Person .
+
+:propertyLocation a owl:ObjectProperty ;
+    rdfs:label "property location" ;
+    rdfs:comment "Address of the property" ;
+    rdfs:domain :PropertyDocument ;
+    rdfs:range :Address .
+
+# Medical Relationships
+:treatedBy a owl:ObjectProperty ;
+    rdfs:label "treated by" ;
+    rdfs:comment "Healthcare provider who provided treatment" ;
+    rdfs:domain :MedicalDocument ;
+    rdfs:range :HealthcareProvider .
+
+:patient a owl:ObjectProperty ;
+    rdfs:label "patient" ;
+    rdfs:comment "Person who is the patient" ;
+    rdfs:domain :MedicalDocument ;
+    rdfs:range :Person .
+
+# Vehicle Relationships
+:vehicleOwner a owl:ObjectProperty ;
+    rdfs:label "vehicle owner" ;
+    rdfs:comment "Person who owns the vehicle" ;
+    rdfs:domain :VehicleDocument ;
+    rdfs:range :Person .
+
+:registeredIn a owl:ObjectProperty ;
+    rdfs:label "registered in" ;
+    rdfs:comment "Country where the vehicle is registered" ;
+    rdfs:domain :VehicleDocument ;
+    rdfs:range :Country .
+
+# Insurance Relationships
+:insuredPerson a owl:ObjectProperty ;
+    rdfs:label "insured person" ;
+    rdfs:comment "Person covered by the insurance" ;
+    rdfs:domain :InsuranceDocument ;
+    rdfs:range :Person .
+
+:insuranceProvider a owl:ObjectProperty ;
+    rdfs:label "insurance provider" ;
+    rdfs:comment "Company providing the insurance coverage" ;
+    rdfs:domain :InsuranceDocument ;
+    rdfs:range :Organization .
+
+# Address Relationships
+:locatedIn a owl:ObjectProperty ;
+    rdfs:label "located in" ;
+    rdfs:comment "Country where the address is located" ;
+    rdfs:domain :Address ;
+    rdfs:range :Country .

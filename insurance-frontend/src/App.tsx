@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   User, 
   Car, 
@@ -25,7 +25,8 @@ import {
   Target,
   Wand2,
   Download,
-  Globe
+  Globe,
+  AlertTriangle
 } from 'lucide-react';
 import { 
   Card, 
@@ -62,6 +63,8 @@ interface Driver {
   licenceValidUntil: string;
   relationship: string;
   sameAddress: boolean;
+  hasConvictions: boolean;
+  convictions: Conviction[];
   // Passport-specific fields (document-derived)
   passportNumber?: string;
   passportIssueDate?: string;
@@ -210,10 +213,7 @@ const translations: {[key: string]: {[key: string]: string}} = {
     marketingPreferences: 'Marketing Preferences',
     personalDocuments: 'Personal Documents',
 
-    bitwardenIntegration: 'Bitwarden Integration',
-    bitwardenIntegrationDesc: 'Auto-fill forms using your Bitwarden vault data',
-    smartMapping: 'Smart Mapping',
-    smartMappingDesc: 'Intelligent field mapping with SHACL transformation',
+
     // Web Spider Features
     webSpider: 'Web Spider',
     headlessMode: 'Headless Mode',
@@ -291,7 +291,7 @@ const translations: {[key: string]: {[key: string]: string}} = {
     driverDetailsDesc: 'Information about all drivers',
     vehicleDetailsDesc: 'Vehicle information and modifications',
     policyDetailsDesc: 'Coverage and policy options',
-    claimsHistoryDesc: 'Previous claims and convictions',
+    claimsHistoryDesc: 'Previous insurance claims',
     paymentExtrasDesc: 'Payment method and additional cover',
     marketingPreferencesDesc: 'Communication preferences',
     mainDriver: 'Main Driver',
@@ -366,10 +366,7 @@ const translations: {[key: string]: {[key: string]: string}} = {
     paymentExtras: 'Zahlung & Extras',
     marketingPreferences: 'Marketing-Einstellungen',
 
-    bitwardenIntegration: 'Bitwarden-Integration',
-    bitwardenIntegrationDesc: 'Formulare automatisch mit Ihren Bitwarden-Vault-Daten ausfüllen',
-    smartMapping: 'Intelligente Zuordnung',
-    smartMappingDesc: 'Intelligente Feldzuordnung mit SHACL-Transformation',
+
     // Web Spider Features
     webSpider: 'Web-Spider',
     headlessMode: 'Headless-Modus',
@@ -512,7 +509,7 @@ const translations: {[key: string]: {[key: string]: string}} = {
     driverDetailsDesc: 'Informationen über alle Fahrer',
     vehicleDetailsDesc: 'Fahrzeuginformationen und Modifikationen',
     policyDetailsDesc: 'Deckung und Policenoptionen',
-    claimsHistoryDesc: 'Frühere Schäden und Verurteilungen',
+    claimsHistoryDesc: 'Frühere Versicherungsschäden',
     paymentExtrasDesc: 'Zahlungsmethode und zusätzliche Deckung',
     marketingPreferencesDesc: 'Kommunikationseinstellungen'
   }
@@ -520,7 +517,26 @@ const translations: {[key: string]: {[key: string]: string}} = {
 
 function App() {
   const [activeCategory, setActiveCategory] = useState(0);
+  const [ontology, setOntology] = useState<any>(null);
+  const [isLoadingOntology, setIsLoadingOntology] = useState(true);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['car-insurance']));
+
+  // Fetch ontology from TTL-based API
+  useEffect(() => {
+    const fetchOntology = async () => {
+      try {
+        const response = await fetch('/api/ontology');
+        const ontologyData = await response.json();
+        setOntology(ontologyData);
+        console.log('🔧 Loaded TTL-based ontology:', ontologyData);
+      } catch (error) {
+        console.error('Failed to load ontology:', error);
+      } finally {
+        setIsLoadingOntology(false);
+      }
+    };
+    fetchOntology();
+  }, []);
   const [showDocumentModal, setShowDocumentModal] = useState(false);
   const [selectedDocumentType, setSelectedDocumentType] = useState<string>('');
   const [documentFiles, setDocumentFiles] = useState<{[key: string]: File[]}>({});
@@ -1471,7 +1487,10 @@ function App() {
         // Driver Communication
         driverEmail: '',
         emailSent: false,
-        emailSentDate: ''
+        emailSentDate: '',
+        // Convictions
+        hasConvictions: false,
+        convictions: []
       }
     ],
     vehicle: {
@@ -1607,7 +1626,10 @@ function App() {
       // Driver Communication
       driverEmail: '',
       emailSent: false,
-      emailSentDate: ''
+      emailSentDate: '',
+      // Convictions
+      hasConvictions: false,
+      convictions: []
     };
     setSession({ ...session, drivers: [...session.drivers, newDriver] });
   };
@@ -1617,6 +1639,52 @@ function App() {
       const updatedDrivers = session.drivers.filter((_, i) => i !== index);
       setSession({ ...session, drivers: updatedDrivers });
     }
+  };
+
+  // Driver Conviction Management Functions
+  const addConvictionToDriver = (driverIndex: number) => {
+    const newConviction = {
+      id: Date.now().toString(),
+      date: '',
+      offenceCode: '',
+      penaltyPoints: 0,
+      fine: 0,
+      description: '',
+      type: '',
+      penalty: '',
+      disqualification: 0,
+      status: 'Active'
+    };
+    
+    const updatedDrivers = [...session.drivers];
+    updatedDrivers[driverIndex] = {
+      ...updatedDrivers[driverIndex],
+      convictions: [...updatedDrivers[driverIndex].convictions, newConviction]
+    };
+    setSession({ ...session, drivers: updatedDrivers });
+  };
+
+  const removeConvictionFromDriver = (driverIndex: number, convictionIndex: number) => {
+    const updatedDrivers = [...session.drivers];
+    updatedDrivers[driverIndex] = {
+      ...updatedDrivers[driverIndex],
+      convictions: updatedDrivers[driverIndex].convictions.filter((_, i) => i !== convictionIndex)
+    };
+    setSession({ ...session, drivers: updatedDrivers });
+  };
+
+  const updateDriverConviction = (driverIndex: number, convictionIndex: number, field: string, value: any) => {
+    const updatedDrivers = [...session.drivers];
+    const updatedConvictions = [...updatedDrivers[driverIndex].convictions];
+    updatedConvictions[convictionIndex] = { 
+      ...updatedConvictions[convictionIndex], 
+      [field]: value 
+    };
+    updatedDrivers[driverIndex] = {
+      ...updatedDrivers[driverIndex],
+      convictions: updatedConvictions
+    };
+    setSession({ ...session, drivers: updatedDrivers });
   };
 
   const updateVehicle = (field: keyof Vehicle, value: any) => {
@@ -2148,7 +2216,10 @@ Insurance Quote System
         // Driver Communication
         driverEmail: '',
         emailSent: false,
-        emailSentDate: ''
+        emailSentDate: '',
+        // Convictions
+        hasConvictions: false,
+        convictions: []
       };
 
       setSession(prev => {
@@ -2333,7 +2404,10 @@ Insurance Quote System
         // Driver Communication
         driverEmail: '',
         emailSent: false,
-        emailSentDate: ''
+        emailSentDate: '',
+        // Convictions
+        hasConvictions: false,
+        convictions: []
       };
 
       setSession(prev => {
@@ -3086,6 +3160,136 @@ Insurance Quote System
                 </div>
               </div>
             )}
+
+            {/* Convictions Section for this Driver */}
+            <div className="col-span-full mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-sm font-semibold text-yellow-800 flex items-center">
+                  <AlertTriangle className="w-4 h-4 mr-2" />
+                  Driving Convictions (Last 5 Years)
+                </h4>
+                <ToggleSwitch
+                  checked={driver.hasConvictions}
+                  onChange={(checked) => updateDriver(index, 'hasConvictions', checked)}
+                />
+              </div>
+
+              {driver.hasConvictions && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-yellow-700">
+                      Please provide details of any driving convictions for this driver
+                    </p>
+                    <Button
+                      size="sm"
+                      onClick={() => addConvictionToDriver(index)}
+                      className="bg-yellow-600 hover:bg-yellow-700"
+                    >
+                      <Plus className="w-4 h-4 mr-1" />
+                      Add Conviction
+                    </Button>
+                  </div>
+
+                  {driver.convictions.map((conviction, convictionIndex) => (
+                    <div key={conviction.id || convictionIndex} className="p-4 border border-yellow-300 rounded-lg bg-white">
+                      <div className="flex items-center justify-between mb-3">
+                        <h5 className="text-sm font-medium text-gray-900">Conviction {convictionIndex + 1}</h5>
+                        <Button
+                          size="sm"
+                          color="failure"
+                          onClick={() => removeConvictionFromDriver(index, convictionIndex)}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="form-group">
+                          <Label className="form-label">Conviction Date</Label>
+                          <TextInput
+                            type="date"
+                            value={conviction.date}
+                            onChange={(e) => updateDriverConviction(index, convictionIndex, 'date', e.target.value)}
+                            className="form-input"
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <Label className="form-label">DVLA Offence Code</Label>
+                          <Select
+                            value={conviction.offenceCode}
+                            onChange={(e) => updateDriverConviction(index, convictionIndex, 'offenceCode', e.target.value)}
+                            className="form-select"
+                          >
+                            <option value="">Select offence code</option>
+                            <option value="SP30">SP30 - Speeding (3-6 points)</option>
+                            <option value="SP10">SP10 - Exceeding goods vehicle speed limits (3-6 points)</option>
+                            <option value="SP20">SP20 - Exceeding speed limit for type of vehicle (3-6 points)</option>
+                            <option value="SP40">SP40 - Exceeding passenger vehicle speed limit (3-6 points)</option>
+                            <option value="SP50">SP50 - Exceeding speed limit on a motorway (3-6 points)</option>
+                            <option value="CD10">CD10 - Careless driving (3-9 points)</option>
+                            <option value="CD20">CD20 - Driving without reasonable consideration (3-9 points)</option>
+                            <option value="DD40">DD40 - Dangerous driving (3-11 points)</option>
+                            <option value="DR10">DR10 - Drink driving (3-11 points)</option>
+                            <option value="DR20">DR20 - Driving while unfit through drink (3-11 points)</option>
+                            <option value="IN10">IN10 - No insurance (6 points)</option>
+                            <option value="LC20">LC20 - Driving otherwise than in accordance with licence (3-6 points)</option>
+                            <option value="TS10">TS10 - Failing to comply with traffic light signals (3 points)</option>
+                            <option value="TS20">TS20 - Failing to comply with double white lines (3 points)</option>
+                            <option value="TS30">TS30 - Failing to comply with 'stop' sign (3 points)</option>
+                            <option value="AC10">AC10 - Failing to stop after an accident (5-10 points)</option>
+                            <option value="AC20">AC20 - Failing to report an accident (5-10 points)</option>
+                            <option value="Other">Other - Other offence not listed</option>
+                          </Select>
+                        </div>
+
+                        <div className="form-group">
+                          <Label className="form-label">Penalty Points</Label>
+                          <TextInput
+                            type="number"
+                            value={conviction.penaltyPoints}
+                            onChange={(e) => updateDriverConviction(index, convictionIndex, 'penaltyPoints', parseInt(e.target.value) || 0)}
+                            placeholder="0"
+                            min="0"
+                            max="12"
+                            className="form-input"
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <Label className="form-label">Fine Amount (£)</Label>
+                          <TextInput
+                            type="number"
+                            value={conviction.fine || ''}
+                            onChange={(e) => updateDriverConviction(index, convictionIndex, 'fine', parseFloat(e.target.value) || 0)}
+                            placeholder="0"
+                            min="0"
+                            className="form-input"
+                          />
+                        </div>
+
+                        <div className="form-group col-span-full">
+                          <Label className="form-label">Description (Optional)</Label>
+                          <TextInput
+                            value={conviction.description || ''}
+                            onChange={(e) => updateDriverConviction(index, convictionIndex, 'description', e.target.value)}
+                            placeholder="Additional details about the conviction"
+                            className="form-input"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {driver.convictions.length === 0 && (
+                    <div className="text-center py-4 text-yellow-600">
+                      <AlertTriangle className="w-8 h-8 mx-auto mb-2" />
+                      <p>No convictions added yet. Click "Add Conviction" to add details.</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </Card>
       ))}
@@ -3426,17 +3630,7 @@ Insurance Quote System
             />
           </div>
 
-          {/* Convictions Toggle */}
-          <div className="form-group">
-            <Label className="form-label">
-              {translations[session.language as keyof typeof translations].convictions} (Last 5 Years)
-              {getStatusBadge(false, true)}
-            </Label>
-            <ToggleSwitch
-              checked={session.claims.hasConvictions}
-              onChange={(checked) => updateClaims('hasConvictions', checked)}
-            />
-          </div>
+
 
           {/* Accidents Toggle */}
           <div className="form-group">
@@ -3540,95 +3734,7 @@ Insurance Quote System
             </div>
           )}
 
-          {/* Convictions Form */}
-          {session.claims.hasConvictions && (
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-              <h3 className="text-lg font-medium mb-4">{translations[session.language as keyof typeof translations].convictions}</h3>
-              <div className="space-y-4">
-                {session.claims.convictions.map((conviction, index) => (
-                  <div key={conviction.id} className="p-4 border border-gray-200 rounded-lg">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="form-group">
-                        <Label className="form-label">{translations[session.language as keyof typeof translations].convictionDate}</Label>
-                        <TextInput
-                          type="date"
-                          value={conviction.date}
-                          onChange={(e) => updateConviction(index, 'date', e.target.value)}
-                          className="form-input"
-                        />
-                      </div>
-                      <div className="form-group">
-                        <Label className="form-label">{translations[session.language as keyof typeof translations].offenceCode}</Label>
-                        <Select
-                          value={conviction.offenceCode}
-                          onChange={(e) => updateConviction(index, 'offenceCode', e.target.value)}
-                          className="form-select"
-                        >
-                          <option value="">Select offence code</option>
-                          <option value="AC10 - Failing to stop after an accident">AC10 - Failing to stop after an accident</option>
-                          <option value="AC20 - Failing to give particulars or to report an accident within 24 hours">AC20 - Failing to give particulars or to report an accident within 24 hours</option>
-                          <option value="CD10 - Driving without due care and attention">CD10 - Driving without due care and attention</option>
-                          <option value="CD20 - Driving without reasonable consideration for other road users">CD20 - Driving without reasonable consideration for other road users</option>
-                          <option value="DD10 - Causing death by dangerous driving">DD10 - Causing death by dangerous driving</option>
-                          <option value="DD20 - Dangerous driving">DD20 - Dangerous driving</option>
-                          <option value="DR10 - Driving or attempting to drive with alcohol level above limit">DR10 - Driving or attempting to drive with alcohol level above limit</option>
-                          <option value="DR20 - Driving or attempting to drive while unfit through drink">DR20 - Driving or attempting to drive while unfit through drink</option>
-                          <option value="IN10 - Using a vehicle uninsured against third party risks">IN10 - Using a vehicle uninsured against third party risks</option>
-                          <option value="LC20 - Driving otherwise than in accordance with a licence">LC20 - Driving otherwise than in accordance with a licence</option>
-                          <option value="SP10 - Exceeding goods vehicle speed limits">SP10 - Exceeding goods vehicle speed limits</option>
-                          <option value="SP20 - Exceeding speed limit for type of vehicle">SP20 - Exceeding speed limit for type of vehicle</option>
-                          <option value="SP30 - Exceeding statutory speed limit on a public road">SP30 - Exceeding statutory speed limit on a public road</option>
-                          <option value="SP40 - Exceeding passenger vehicle speed limit">SP40 - Exceeding passenger vehicle speed limit</option>
-                          <option value="SP50 - Exceeding speed limit on a motorway">SP50 - Exceeding speed limit on a motorway</option>
-                          <option value="TS10 - Failing to comply with traffic light signals">TS10 - Failing to comply with traffic light signals</option>
-                          <option value="TS20 - Failing to comply with double white lines">TS20 - Failing to comply with double white lines</option>
-                          <option value="TS30 - Failing to comply with 'stop' sign">TS30 - Failing to comply with 'stop' sign</option>
-                          <option value="Other - Other offence not listed">Other - Other offence not listed</option>
-                        </Select>
-                      </div>
-                      <div className="form-group">
-                        <Label className="form-label">{translations[session.language as keyof typeof translations].penaltyPoints}</Label>
-                        <TextInput
-                          type="number"
-                          value={conviction.penaltyPoints}
-                          onChange={(e) => updateConviction(index, 'penaltyPoints', parseInt(e.target.value) || 0)}
-                          min="0"
-                          max="12"
-                          className="form-input"
-                        />
-                      </div>
-                      <div className="form-group">
-                        <Label className="form-label">{translations[session.language as keyof typeof translations].fine}</Label>
-                        <TextInput
-                          type="number"
-                          value={conviction.fine || ''}
-                          onChange={(e) => updateConviction(index, 'fine', parseFloat(e.target.value) || 0)}
-                          placeholder="0.00"
-                          className="form-input"
-                        />
-                      </div>
-                    </div>
-                    <div className="mt-4 flex justify-end">
-                      <Button
-                        color="failure"
-                        size="sm"
-                        onClick={() => removeConviction(index)}
-                      >
-                        Remove Conviction
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-                <Button
-                  color="gray"
-                  onClick={addConviction}
-                  className="w-full"
-                >
-                  {translations[session.language as keyof typeof translations].addConviction}
-                </Button>
-              </div>
-            </div>
-          )}
+
 
           {/* Accidents Form */}
           {session.claims.hasAccidents && (
@@ -3712,11 +3818,11 @@ Insurance Quote System
             </div>
           )}
 
-          {(session.claims.hasClaims || session.claims.hasConvictions || session.claims.hasAccidents) && (
+          {(session.claims.hasClaims || session.claims.hasAccidents) && (
             <Alert color="warning" className="mt-4">
               <div className="flex items-center gap-2">
                 <AlertCircle className="w-5 h-5" />
-                <span>Please provide complete details of any claims, convictions, or accidents when prompted.</span>
+                <span>Please provide complete details of any claims or accidents when prompted.</span>
               </div>
             </Alert>
           )}
@@ -4074,53 +4180,7 @@ Insurance Quote System
 
 
 
-  const renderAutoFillSection = () => (
-    <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex items-center space-x-3 mb-6">
-          <Zap className="w-6 h-6 text-blue-600" />
-          <h2 className="text-xl font-semibold text-gray-900">Auto-Fill Forms</h2>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="p-6">
-            <h3 className="font-medium mb-4">Quick Fill</h3>
-            <p className="text-gray-600 mb-4">Instantly populate common form fields with your saved personal data.</p>
-            <Button className="w-full">
-              <Zap className="w-4 h-4 mr-2" />
-              Fill Current Form
-            </Button>
-          </Card>
-          
-          <Card className="p-6">
-            <h3 className="font-medium mb-4">Personal Data</h3>
-            <p className="text-gray-600 mb-4">Auto-fill with email, phone, address, and personal details.</p>
-            <Button outline className="w-full">
-              <User className="w-4 h-4 mr-2" />
-              Manage Personal Data
-            </Button>
-          </Card>
 
-          <Card className="p-6">
-            <h3 className="font-medium mb-4">Payment Details</h3>
-            <p className="text-gray-600 mb-4">Securely auto-fill credit card and bank details.</p>
-            <Button outline className="w-full">
-              <CreditCard className="w-4 h-4 mr-2" />
-              Manage Payment Info
-            </Button>
-          </Card>
-        </div>
-
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-          <h4 className="font-medium text-blue-900 mb-2">🔒 Secure Data Storage</h4>
-          <p className="text-blue-800 text-sm">
-            Your personal information is encrypted and stored securely. Use auto-fill to quickly complete insurance applications, 
-            web forms, and other documents while keeping your data safe.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
 
   // Web Browser Component with Real Browser Integration
   const renderWebBrowserSection = () => {
@@ -4258,21 +4318,17 @@ Insurance Quote System
                 <h3 className="font-medium text-blue-900">Browser Tools</h3>
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button size="xs" color="blue">
-                  <Wand2 className="w-3 h-3 mr-1" />
-                  Auto Fill
-                </Button>
-                <Button size="xs" outline>
-                  <User className="w-3 h-3 mr-1" />
-                  Personal Data
-                </Button>
-                <Button size="xs" outline>
-                  <CreditCard className="w-3 h-3 mr-1" />
-                  Payment Info
-                </Button>
+                    <Button size="xs" color="blue">
+                  <Globe className="w-3 h-3 mr-1" />
+                  Navigate
+                    </Button>
+                    <Button size="xs" outline>
+                  <FileText className="w-3 h-3 mr-1" />
+                  Documents
+                    </Button>
               </div>
               <p className="text-xs text-blue-700 mt-2">
-                Use these tools to quickly fill forms with your saved data
+                Use the browser to navigate to insurance websites
               </p>
             </div>
           )}
@@ -4335,9 +4391,7 @@ Insurance Quote System
       case 'payment':
         return renderPaymentSection();
       
-      // Auto-Fill section
-      case 'form-filler':
-        return renderAutoFillSection();
+
       
       // Settings
       case 'marketing':

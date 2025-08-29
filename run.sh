@@ -2,8 +2,8 @@
 
 # Set environment variables for Tesseract and Leptonica
 export PKG_CONFIG_PATH="/opt/homebrew/lib/pkgconfig"
-export CGO_CPPFLAGS="-I/opt/homebrew/include -I/opt/homebrew/include/leptonica -I/opt/homebrew/Cellar/tesseract/5.5.1/include -I/opt/homebrew/Cellar/leptonica/1.85.0/include/leptonica"
-export CGO_LDFLAGS="-L/opt/homebrew/lib -L/opt/homebrew/Cellar/tesseract/5.5.1/lib -L/opt/homebrew/Cellar/leptonica/1.85.0/lib -ltesseract -lleptonica"
+export CGO_CPPFLAGS="-I/opt/homebrew/Cellar/tesseract/5.5.1/include -I/opt/homebrew/Cellar/leptonica/1.85.0/include/leptonica"
+export CGO_LDFLAGS="-L/opt/homebrew/Cellar/tesseract/5.5.1/lib -L/opt/homebrew/Cellar/leptonica/1.85.0/lib -ltesseract -lleptonica"
 export CGO_ENABLED=1
 export TESSDATA_PREFIX="/opt/homebrew/share/tessdata"
 

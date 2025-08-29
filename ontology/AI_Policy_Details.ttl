@@ -1,0 +1,539 @@
+@prefix autoins: <https://autoins.example/ontology#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf:   <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <https://schema.org/> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct:    <http://purl.org/dc/terms/> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+
+############################################################
+## AI POLICY DETAILS ONTOLOGY MODULE
+############################################################
+
+autoins:PolicyDetailsModule a owl:Ontology ;
+  rdfs:label "AI Policy Details Module" ;
+  owl:versionInfo "v2.0.0-2025-01-24" ;
+  dct:creator "CLIENT-UX" ;
+  dct:description "Comprehensive insurance policy ontology covering coverage, limits, excesses, and terms" ;
+  owl:imports autoins: ;
+  # TOPIC-LEVEL GDPR COMPLIANCE
+  autoins:dataClassification autoins:PersonalData ;
+  autoins:personalDataCategory autoins:FinancialData ;
+  autoins:accessLevel autoins:UserAccess ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:consentPurpose "Insurance policy configuration, pricing, and contract management" ;
+  autoins:consentBasis autoins:Contract ;
+  autoins:retentionPeriod "P10Y" ;
+  autoins:retentionReason "Insurance contract lifecycle and regulatory compliance" ;
+  autoins:auditRequired "true"^^xsd:boolean ;
+  autoins:gdprCompliant "true"^^xsd:boolean .
+
+############################################################
+## POLICY DOCUMENT CLASSES
+############################################################
+
+# Policy Documents (from comprehensive ontology)
+autoins:PolicyDocument a owl:Class ;
+    rdfs:label "Policy Document" ;
+    rdfs:comment "Insurance policy contracts and related documentation" ;
+    rdfs:subClassOf autoins:InsuranceEntity .
+
+autoins:PolicyWording a owl:Class ;
+    rdfs:label "Policy Wording" ;
+    rdfs:comment "Full policy terms and conditions document" ;
+    rdfs:subClassOf autoins:PolicyDocument .
+
+autoins:EndorsementDocument a owl:Class ;
+    rdfs:label "Endorsement Document" ;
+    rdfs:comment "Policy modification or endorsement" ;
+    rdfs:subClassOf autoins:PolicyDocument .
+
+autoins:CancellationNotice a owl:Class ;
+    rdfs:label "Cancellation Notice" ;
+    rdfs:comment "Policy cancellation notification" ;
+    rdfs:subClassOf autoins:PolicyDocument .
+
+autoins:InsuranceCertificate a owl:Class ;
+    rdfs:label "Insurance Certificate" ;
+    rdfs:comment "Official certificate of motor insurance coverage" ;
+    rdfs:subClassOf autoins:MotorInsuranceDocument .
+
+autoins:InsuranceSchedule a owl:Class ;
+    rdfs:label "Insurance Schedule" ;
+    rdfs:comment "Detailed schedule of coverage, limits, and terms" ;
+    rdfs:subClassOf autoins:MotorInsuranceDocument .
+
+############################################################
+## CORE POLICY CLASSES
+############################################################
+
+autoins:InsurancePolicy a owl:Class ;
+  rdfs:label "Insurance Policy" ;
+  rdfs:comment "Complete insurance policy with all terms and conditions" .
+
+autoins:PolicyConfiguration a owl:Class ;
+  rdfs:label "Policy Configuration" ;
+  rdfs:comment "Policy setup and configuration options" .
+
+autoins:Coverage a owl:Class ;
+  rdfs:label "Coverage" ;
+  rdfs:comment "Insurance coverage type and limits" .
+
+autoins:CoverageBenefit a owl:Class ;
+  rdfs:label "Coverage Benefit" ;
+  rdfs:comment "Specific benefit provided by coverage" .
+
+autoins:Limit a owl:Class ;
+  rdfs:label "Limit" ;
+  rdfs:comment "Coverage limit or maximum payout" .
+
+autoins:Excess a owl:Class ;
+  rdfs:label "Excess" ;
+  rdfs:comment "Policy excess (deductible) amount" .
+
+autoins:Exclusion a owl:Class ;
+  rdfs:label "Exclusion" ;
+  rdfs:comment "Policy exclusion or limitation" .
+
+autoins:Endorsement a owl:Class ;
+  rdfs:label "Endorsement" ;
+  rdfs:comment "Policy modification or addition" .
+
+autoins:NoClaimsDiscount a owl:Class ;
+  rdfs:label "No Claims Discount" ;
+  rdfs:comment "No claims discount details" .
+
+############################################################
+## POLICY OBJECT PROPERTIES
+############################################################
+
+autoins:hasPolicy a owl:ObjectProperty ;
+  rdfs:domain autoins:QuoteRequest ;
+  rdfs:range autoins:InsurancePolicy ;
+  rdfs:label "has policy" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  rdfs:comment "Links to insurance policy" .
+
+############################################################
+## BASIC POLICY PROPERTIES
+############################################################
+
+autoins:coverType a owl:DatatypeProperty ;
+  rdfs:domain autoins:InsurancePolicy ;
+  rdfs:range xsd:string ;
+  rdfs:label "cover type" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("Third Party" "Third Party Fire & Theft" "Comprehensive") ;
+  autoins:formHelpText "Level of insurance coverage required" .
+
+autoins:startDate a owl:DatatypeProperty ;
+  rdfs:domain autoins:InsurancePolicy ;
+  rdfs:range xsd:date ;
+  rdfs:label "start date" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Date when insurance coverage should start" .
+
+autoins:endDate a owl:DatatypeProperty ;
+  rdfs:domain autoins:InsurancePolicy ;
+  rdfs:range xsd:date ;
+  rdfs:label "end date" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Date when insurance coverage ends" .
+
+autoins:policyTerm a owl:DatatypeProperty ;
+  rdfs:domain autoins:InsurancePolicy ;
+  rdfs:range xsd:string ;
+  rdfs:label "policy term" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("12 Months" "6 Months" "3 Months" "1 Month" "Temporary") ;
+  autoins:formHelpText "Duration of the insurance policy" .
+
+autoins:renewalType a owl:DatatypeProperty ;
+  rdfs:domain autoins:InsurancePolicy ;
+  rdfs:range xsd:string ;
+  rdfs:label "renewal type" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:enumerationValues ("Auto Renewal" "Manual Renewal" "No Renewal") ;
+  autoins:formHelpText "How the policy should renew" .
+
+############################################################
+## EXCESS PROPERTIES
+############################################################
+
+autoins:voluntaryExcess a owl:DatatypeProperty ;
+  rdfs:domain autoins:InsurancePolicy ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "voluntary excess" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("0" "100" "200" "300" "400" "500" "750" "1000") ;
+  autoins:formHelpText "Additional voluntary excess to reduce premium" .
+
+autoins:compulsoryExcess a owl:DatatypeProperty ;
+  rdfs:domain autoins:InsurancePolicy ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "compulsory excess" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Mandatory excess set by insurer" .
+
+autoins:totalExcess a owl:DatatypeProperty ;
+  rdfs:domain autoins:InsurancePolicy ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "total excess" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Total excess (voluntary + compulsory)" .
+
+autoins:youngDriverExcess a owl:DatatypeProperty ;
+  rdfs:domain autoins:InsurancePolicy ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "young driver excess" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Additional excess for drivers under 25" .
+
+autoins:inexperiencedDriverExcess a owl:DatatypeProperty ;
+  rdfs:domain autoins:InsurancePolicy ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "inexperienced driver excess" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Additional excess for drivers with less than 2 years experience" .
+
+############################################################
+## NO CLAIMS DISCOUNT PROPERTIES
+############################################################
+
+autoins:ncdYears a owl:DatatypeProperty ;
+  rdfs:domain autoins:InsurancePolicy ;
+  rdfs:range xsd:integer ;
+  rdfs:label "NCD years" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("0" "1" "2" "3" "4" "5" "6" "7" "8" "9" "10+") ;
+  autoins:formHelpText "Years of no claims discount earned" .
+
+autoins:protectNCD a owl:DatatypeProperty ;
+  rdfs:domain autoins:InsurancePolicy ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "protect NCD" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Protect your no claims discount?" .
+
+autoins:ncdSource a owl:DatatypeProperty ;
+  rdfs:domain autoins:InsurancePolicy ;
+  rdfs:range xsd:string ;
+  rdfs:label "NCD source" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:enumerationValues ("UK Insurer" "EU Insurer" "International" "Fleet" "Company Car") ;
+  autoins:formHelpText "Source of no claims discount" .
+
+autoins:ncdProofRequired a owl:DatatypeProperty ;
+  rdfs:domain autoins:InsurancePolicy ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "NCD proof required" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Is proof of no claims discount required?" .
+
+############################################################
+## COVERAGE LIMITS & BENEFITS
+############################################################
+
+autoins:thirdPartyLimit a owl:DatatypeProperty ;
+  rdfs:domain autoins:Coverage ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "third party limit" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Third party liability limit (£)" ;
+  autoins:minInclusive 1000000 ;
+  autoins:maxInclusive 50000000 .
+
+autoins:fireTheftCover a owl:DatatypeProperty ;
+  rdfs:domain autoins:Coverage ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "fire theft cover" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Fire and theft coverage included?" .
+
+autoins:comprehensiveCover a owl:DatatypeProperty ;
+  rdfs:domain autoins:Coverage ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "comprehensive cover" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Comprehensive coverage included?" .
+
+autoins:personalAccidentCover a owl:DatatypeProperty ;
+  rdfs:domain autoins:Coverage ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "personal accident cover" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Personal accident benefit amount (£)" .
+
+autoins:medicalExpensesCover a owl:DatatypeProperty ;
+  rdfs:domain autoins:Coverage ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "medical expenses cover" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Medical expenses coverage limit (£)" .
+
+autoins:personalEffectsCover a owl:DatatypeProperty ;
+  rdfs:domain autoins:Coverage ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "personal effects cover" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Personal effects coverage limit (£)" .
+
+############################################################
+## WINDSCREEN & GLASS COVERAGE
+############################################################
+
+autoins:windscreenCover a owl:DatatypeProperty ;
+  rdfs:domain autoins:Coverage ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "windscreen cover" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Windscreen and glass coverage included?" .
+
+autoins:windscreenExcess a owl:DatatypeProperty ;
+  rdfs:domain autoins:Coverage ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "windscreen excess" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Windscreen repair/replacement excess (£)" .
+
+autoins:windscreenRepairLimit a owl:DatatypeProperty ;
+  rdfs:domain autoins:Coverage ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "windscreen repair limit" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Maximum windscreen repair cost covered (£)" .
+
+############################################################
+## BREAKDOWN & RECOVERY COVERAGE
+############################################################
+
+autoins:breakdownCover a owl:DatatypeProperty ;
+  rdfs:domain autoins:Coverage ;
+  rdfs:range xsd:string ;
+  rdfs:label "breakdown cover" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:enumerationValues ("None" "Roadside" "Recovery" "Home Start" "European" "Comprehensive") ;
+  autoins:formHelpText "Level of breakdown coverage" .
+
+autoins:recoveryLimit a owl:DatatypeProperty ;
+  rdfs:domain autoins:Coverage ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "recovery limit" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Maximum recovery cost covered (£)" .
+
+autoins:onwardTravelCover a owl:DatatypeProperty ;
+  rdfs:domain autoins:Coverage ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "onward travel cover" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Onward travel expenses covered?" .
+
+############################################################
+## REPLACEMENT VEHICLE COVERAGE
+############################################################
+
+autoins:courtesyCarCover a owl:DatatypeProperty ;
+  rdfs:domain autoins:Coverage ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "courtesy car cover" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Courtesy car provided during repairs?" .
+
+autoins:courtesyCarType a owl:DatatypeProperty ;
+  rdfs:domain autoins:Coverage ;
+  rdfs:range xsd:string ;
+  rdfs:label "courtesy car type" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:enumerationValues ("Small Car" "Similar Category" "Like for Like" "Guaranteed") ;
+  autoins:formHelpText "Type of courtesy car provided" .
+
+autoins:vehicleReplacementCover a owl:DatatypeProperty ;
+  rdfs:domain autoins:Coverage ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "vehicle replacement cover" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "New vehicle replacement cover?" .
+
+############################################################
+## LEGAL & PROTECTION COVERAGE
+############################################################
+
+autoins:legalExpensesCover a owl:DatatypeProperty ;
+  rdfs:domain autoins:Coverage ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "legal expenses cover" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Legal expenses coverage included?" .
+
+autoins:legalExpensesLimit a owl:DatatypeProperty ;
+  rdfs:domain autoins:Coverage ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "legal expenses limit" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Legal expenses coverage limit (£)" .
+
+autoins:motorLegalProtection a owl:DatatypeProperty ;
+  rdfs:domain autoins:Coverage ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "motor legal protection" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Motor legal protection included?" .
+
+autoins:uninsuredDriverCover a owl:DatatypeProperty ;
+  rdfs:domain autoins:Coverage ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "uninsured driver cover" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Uninsured driver protection?" .
+
+############################################################
+## POLICY EXCLUSIONS
+############################################################
+
+autoins:drinkDriveExclusion a owl:DatatypeProperty ;
+  rdfs:domain autoins:Exclusion ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "drink drive exclusion" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Drink driving exclusion applies?" .
+
+autoins:recklessDrivingExclusion a owl:DatatypeProperty ;
+  rdfs:domain autoins:Exclusion ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "reckless driving exclusion" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Reckless driving exclusion applies?" .
+
+autoins:racingExclusion a owl:DatatypeProperty ;
+  rdfs:domain autoins:Exclusion ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "racing exclusion" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Racing and competition exclusion?" .
+
+autoins:commercialUseExclusion a owl:DatatypeProperty ;
+  rdfs:domain autoins:Exclusion ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "commercial use exclusion" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Commercial use exclusion applies?" .
+
+############################################################
+## POLICY CONDITIONS & TERMS
+############################################################
+
+autoins:minimumDriverAge a owl:DatatypeProperty ;
+  rdfs:domain autoins:InsurancePolicy ;
+  rdfs:range xsd:integer ;
+  rdfs:label "minimum driver age" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Minimum age for covered drivers" ;
+  autoins:minInclusive 17 ;
+  autoins:maxInclusive 25 .
+
+autoins:maximumDriverAge a owl:DatatypeProperty ;
+  rdfs:domain autoins:InsurancePolicy ;
+  rdfs:range xsd:integer ;
+  rdfs:label "maximum driver age" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Maximum age for covered drivers" ;
+  autoins:minInclusive 70 ;
+  autoins:maxInclusive 99 .
+
+autoins:drivingExperienceRequired a owl:DatatypeProperty ;
+  rdfs:domain autoins:InsurancePolicy ;
+  rdfs:range xsd:integer ;
+  rdfs:label "driving experience required" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Minimum driving experience required (years)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 5 .
+
+autoins:mileageRestriction a owl:DatatypeProperty ;
+  rdfs:domain autoins:InsurancePolicy ;
+  rdfs:range xsd:integer ;
+  rdfs:label "mileage restriction" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Annual mileage restriction" ;
+  autoins:minInclusive 1000 ;
+  autoins:maxInclusive 50000 .
+
+############################################################
+## POLICY ADMINISTRATION
+############################################################
+
+autoins:policyHolder a owl:DatatypeProperty ;
+  rdfs:domain autoins:InsurancePolicy ;
+  rdfs:range xsd:string ;
+  rdfs:label "policy holder" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Name of the policy holder" .
+
+autoins:policyReference a owl:DatatypeProperty ;
+  rdfs:domain autoins:InsurancePolicy ;
+  rdfs:range xsd:string ;
+  rdfs:label "policy reference" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Policy reference number" .
+
+autoins:brokerReference a owl:DatatypeProperty ;
+  rdfs:domain autoins:InsurancePolicy ;
+  rdfs:range xsd:string ;
+  rdfs:label "broker reference" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Broker reference number" .
+
+autoins:underwriterReference a owl:DatatypeProperty ;
+  rdfs:domain autoins:InsurancePolicy ;
+  rdfs:range xsd:string ;
+  rdfs:label "underwriter reference" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Underwriter reference number" .
+
+############################################################
+## SHACL VALIDATION SHAPES FOR POLICIES
+############################################################
+
+autoins:PolicyShape a sh:NodeShape ;
+  sh:targetClass autoins:InsurancePolicy ;
+  rdfs:label "Policy Validation Shape" ;
+  sh:property [
+    sh:path autoins:coverType ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in ("Third Party" "Third Party Fire & Theft" "Comprehensive") ;
+    sh:message "Cover type must be selected from valid options"
+  ] ;
+  sh:property [
+    sh:path autoins:startDate ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Policy start date is required"
+  ] ;
+  sh:property [
+    sh:path autoins:voluntaryExcess ;
+    sh:datatype xsd:decimal ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 1000 ;
+    sh:message "Voluntary excess must be between £0 and £1000"
+  ] ;
+  sh:property [
+    sh:path autoins:ncdYears ;
+    sh:datatype xsd:integer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 15 ;
+    sh:message "NCD years must be between 0 and 15"
+  ] .
+
+############################################################
+## END OF POLICY DETAILS MODULE
+############################################################

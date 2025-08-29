@@ -1,0 +1,642 @@
+@prefix autoins: <https://autoins.example/ontology#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf:   <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <https://schema.org/> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct:    <http://purl.org/dc/terms/> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+
+############################################################
+## AI INSURANCE PAYMENTS ONTOLOGY MODULE
+############################################################
+
+autoins:InsurancePaymentsModule a owl:Ontology ;
+  rdfs:label "AI Insurance Payments Module" ;
+  owl:versionInfo "v2.0.0-2025-01-24" ;
+  dct:creator "CLIENT-UX" ;
+  dct:description "Comprehensive insurance payments ontology covering premiums, payment methods, schedules, and financial transactions" ;
+  owl:imports autoins: ;
+  # TOPIC-LEVEL GDPR COMPLIANCE - HIGHLY SENSITIVE FINANCIAL DATA
+  autoins:dataClassification autoins:SensitivePersonalData ;
+  autoins:personalDataCategory autoins:FinancialData ;
+  autoins:accessLevel autoins:StaffAccess ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:consentPurpose "Payment processing, premium collection, and financial transaction management" ;
+  autoins:consentBasis autoins:Contract ;
+  autoins:retentionPeriod "P7Y" ;
+  autoins:retentionReason "Financial regulatory requirements and audit compliance" ;
+  autoins:auditRequired "true"^^xsd:boolean ;
+  autoins:gdprCompliant "true"^^xsd:boolean .
+
+############################################################
+## FINANCIAL DOCUMENT CLASSES
+############################################################
+
+# Financial Documents (from comprehensive ontology)
+autoins:FinancialDocument a owl:Class ;
+    rdfs:label "Financial Document" ;
+    rdfs:comment "Payment, premium, and financial transaction documents" ;
+    rdfs:subClassOf autoins:InsuranceEntity .
+
+autoins:PremiumInvoice a owl:Class ;
+    rdfs:label "Premium Invoice" ;
+    rdfs:comment "Insurance premium payment invoice" ;
+    rdfs:subClassOf autoins:FinancialDocument .
+
+autoins:PaymentReceipt a owl:Class ;
+    rdfs:label "Payment Receipt" ;
+    rdfs:comment "Proof of premium payment" ;
+    rdfs:subClassOf autoins:FinancialDocument .
+
+autoins:RefundNotice a owl:Class ;
+    rdfs:label "Refund Notice" ;
+    rdfs:comment "Premium refund notification" ;
+    rdfs:subClassOf autoins:FinancialDocument .
+
+autoins:DirectDebitMandate a owl:Class ;
+    rdfs:label "Direct Debit Mandate" ;
+    rdfs:comment "Authorization for automatic premium payments" ;
+    rdfs:subClassOf autoins:FinancialDocument .
+
+############################################################
+## CORE PAYMENT CLASSES
+############################################################
+
+autoins:PaymentConfiguration a owl:Class ;
+  rdfs:label "Payment Configuration" ;
+  rdfs:comment "Payment method and schedule configuration" .
+
+autoins:PaymentSchedule a owl:Class ;
+  rdfs:label "Payment Schedule" ;
+  rdfs:comment "Premium payment schedule and dates" .
+
+autoins:PolicyFees a owl:Class ;
+  rdfs:label "Policy Fees" ;
+  rdfs:comment "Additional policy fees and charges" .
+
+autoins:Premium a owl:Class ;
+  rdfs:label "Premium" ;
+  rdfs:comment "Insurance premium calculation and breakdown" .
+
+autoins:OptionalExtra a owl:Class ;
+  rdfs:label "Optional Extra" ;
+  rdfs:comment "Optional insurance extras and add-ons" .
+
+############################################################
+## PAYMENT OBJECT PROPERTIES
+############################################################
+
+autoins:hasPaymentConfiguration a owl:ObjectProperty ;
+  rdfs:domain autoins:QuoteRequest ;
+  rdfs:range autoins:PaymentConfiguration ;
+  rdfs:label "has payment configuration" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  rdfs:comment "Links to payment configuration" .
+
+############################################################
+## BASIC PAYMENT PROPERTIES
+############################################################
+
+autoins:paymentFrequency a owl:DatatypeProperty ;
+  rdfs:domain autoins:PaymentConfiguration ;
+  rdfs:range xsd:string ;
+  rdfs:label "payment frequency" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("Annual" "Monthly" "Quarterly" "One-off") ;
+  autoins:formHelpText "How often do you want to pay your premium?" .
+
+autoins:paymentMethod a owl:DatatypeProperty ;
+  rdfs:domain autoins:PaymentConfiguration ;
+  rdfs:range xsd:string ;
+  rdfs:label "payment method" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("Direct Debit" "Credit Card" "Debit Card" "Bank Transfer" "Cheque" "Cash") ;
+  autoins:formHelpText "Preferred payment method" .
+
+autoins:paymentDay a owl:DatatypeProperty ;
+  rdfs:domain autoins:PaymentConfiguration ;
+  rdfs:range xsd:integer ;
+  rdfs:label "payment day" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Day of month for payment (1-28)" ;
+  autoins:minInclusive 1 ;
+  autoins:maxInclusive 28 .
+
+autoins:firstPaymentDate a owl:DatatypeProperty ;
+  rdfs:domain autoins:PaymentConfiguration ;
+  rdfs:range xsd:date ;
+  rdfs:label "first payment date" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Date of first premium payment" .
+
+############################################################
+## PREMIUM CALCULATION PROPERTIES
+############################################################
+
+autoins:basePremium a owl:DatatypeProperty ;
+  rdfs:domain autoins:Premium ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "base premium" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Base insurance premium before adjustments (£)" ;
+  autoins:minInclusive 100 ;
+  autoins:maxInclusive 10000 .
+
+autoins:totalPremium a owl:DatatypeProperty ;
+  rdfs:domain autoins:Premium ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "total premium" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Total annual premium including all fees (£)" ;
+  autoins:minInclusive 100 ;
+  autoins:maxInclusive 15000 .
+
+autoins:monthlyPremium a owl:DatatypeProperty ;
+  rdfs:domain autoins:Premium ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "monthly premium" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Monthly premium amount (£)" ;
+  autoins:minInclusive 10 ;
+  autoins:maxInclusive 1500 .
+
+autoins:installmentFee a owl:DatatypeProperty ;
+  rdfs:domain autoins:Premium ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "installment fee" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Fee for paying in installments (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 100 .
+
+autoins:interestRate a owl:DatatypeProperty ;
+  rdfs:domain autoins:Premium ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "interest rate" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Annual interest rate for installment payments (%)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 30 .
+
+############################################################
+## POLICY FEES & CHARGES
+############################################################
+
+autoins:administrationFee a owl:DatatypeProperty ;
+  rdfs:domain autoins:PolicyFees ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "administration fee" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Policy administration fee (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 100 .
+
+autoins:arrangementFee a owl:DatatypeProperty ;
+  rdfs:domain autoins:PolicyFees ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "arrangement fee" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Policy arrangement fee (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 200 .
+
+autoins:brokerageFee a owl:DatatypeProperty ;
+  rdfs:domain autoins:PolicyFees ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "brokerage fee" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Broker commission fee (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 500 .
+
+autoins:underwritingFee a owl:DatatypeProperty ;
+  rdfs:domain autoins:PolicyFees ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "underwriting fee" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Underwriting assessment fee (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 150 .
+
+autoins:documentFee a owl:DatatypeProperty ;
+  rdfs:domain autoins:PolicyFees ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "document fee" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Policy document preparation fee (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 50 .
+
+############################################################
+## GOVERNMENT TAXES & LEVIES
+############################################################
+
+autoins:insurancePremiumTax a owl:DatatypeProperty ;
+  rdfs:domain autoins:PolicyFees ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "insurance premium tax" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Government insurance premium tax (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 1000 .
+
+autoins:iptRate a owl:DatatypeProperty ;
+  rdfs:domain autoins:PolicyFees ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "IPT rate" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Insurance Premium Tax rate (%)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 20 .
+
+autoins:motorInsuranceDatabaseFee a owl:DatatypeProperty ;
+  rdfs:domain autoins:PolicyFees ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "MID fee" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Motor Insurance Database fee (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 10 .
+
+############################################################
+## OPTIONAL EXTRAS PRICING
+############################################################
+
+autoins:legalExpensesCost a owl:DatatypeProperty ;
+  rdfs:domain autoins:OptionalExtra ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "legal expenses cost" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Annual cost of legal expenses cover (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 100 .
+
+autoins:breakdownCoverCost a owl:DatatypeProperty ;
+  rdfs:domain autoins:OptionalExtra ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "breakdown cover cost" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Annual cost of breakdown cover (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 200 .
+
+autoins:courtesyCarCost a owl:DatatypeProperty ;
+  rdfs:domain autoins:OptionalExtra ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "courtesy car cost" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Annual cost of courtesy car cover (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 150 .
+
+autoins:personalAccidentCost a owl:DatatypeProperty ;
+  rdfs:domain autoins:OptionalExtra ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "personal accident cost" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Annual cost of personal accident cover (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 100 .
+
+autoins:keyReplacementCost a owl:DatatypeProperty ;
+  rdfs:domain autoins:OptionalExtra ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "key replacement cost" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Annual cost of key replacement cover (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 50 .
+
+############################################################
+## PAYMENT ACCOUNT DETAILS
+############################################################
+
+autoins:accountHolderName a owl:DatatypeProperty ;
+  rdfs:domain autoins:PaymentConfiguration ;
+  rdfs:range xsd:string ;
+  rdfs:label "account holder name" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Name on bank account or card" ;
+  autoins:conditionalRequirement "Required for direct debit or card payments" .
+
+autoins:bankAccountNumber a owl:DatatypeProperty ;
+  rdfs:domain autoins:PaymentConfiguration ;
+  rdfs:range xsd:string ;
+  rdfs:label "bank account number" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Bank account number (8 digits)" ;
+  autoins:validationPattern "^[0-9]{8}$" ;
+  autoins:conditionalRequirement "Required for direct debit payments" ;
+  autoins:i18nKey "payments.bank_account_number.label" ;
+  autoins:helpTextKey "payments.bank_account_number.help" ;
+  # GDPR Compliance - CRITICAL FINANCIAL DATA
+  autoins:dataClassification autoins:SensitivePersonalData ;
+  autoins:personalDataCategory autoins:FinancialData ;
+  autoins:accessLevel autoins:AdminAccess ;
+  autoins:viewPermission "ADMIN,AUDITOR" ;
+  autoins:editPermission "ADMIN" ;
+  autoins:deletePermission "ADMIN" ;
+  autoins:obfuscationMethod autoins:FullMasking ;
+  autoins:maskingPattern "********" ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:consentPurpose "Direct debit payment processing only" ;
+  autoins:consentBasis autoins:Consent ;
+  autoins:retentionPeriod "P7Y" ;
+  autoins:retentionReason "Financial audit and regulatory compliance" ;
+  autoins:auditRequired "true"^^xsd:boolean ;
+  autoins:logLevel autoins:CriticalLogging .
+
+autoins:bankSortCode a owl:DatatypeProperty ;
+  rdfs:domain autoins:PaymentConfiguration ;
+  rdfs:range xsd:string ;
+  rdfs:label "bank sort code" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Bank sort code (6 digits)" ;
+  autoins:validationPattern "^[0-9]{6}$" ;
+  autoins:conditionalRequirement "Required for direct debit payments" .
+
+autoins:bankName a owl:DatatypeProperty ;
+  rdfs:domain autoins:PaymentConfiguration ;
+  rdfs:range xsd:string ;
+  rdfs:label "bank name" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Name of your bank" .
+
+############################################################
+## CARD PAYMENT DETAILS
+############################################################
+
+autoins:cardNumber a owl:DatatypeProperty ;
+  rdfs:domain autoins:PaymentConfiguration ;
+  rdfs:range xsd:string ;
+  rdfs:label "card number" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Credit or debit card number" ;
+  autoins:validationPattern "^[0-9]{13,19}$" ;
+  autoins:conditionalRequirement "Required for card payments" .
+
+autoins:cardExpiryDate a owl:DatatypeProperty ;
+  rdfs:domain autoins:PaymentConfiguration ;
+  rdfs:range xsd:string ;
+  rdfs:label "card expiry date" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Card expiry date (MM/YY)" ;
+  autoins:validationPattern "^(0[1-9]|1[0-2])/[0-9]{2}$" ;
+  autoins:conditionalRequirement "Required for card payments" .
+
+autoins:cardSecurityCode a owl:DatatypeProperty ;
+  rdfs:domain autoins:PaymentConfiguration ;
+  rdfs:range xsd:string ;
+  rdfs:label "card security code" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "3 or 4 digit security code" ;
+  autoins:validationPattern "^[0-9]{3,4}$" ;
+  autoins:conditionalRequirement "Required for card payments" .
+
+autoins:cardType a owl:DatatypeProperty ;
+  rdfs:domain autoins:PaymentConfiguration ;
+  rdfs:range xsd:string ;
+  rdfs:label "card type" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:enumerationValues ("Visa" "Mastercard" "American Express" "Maestro" "Visa Debit" "Mastercard Debit") ;
+  autoins:formHelpText "Type of credit or debit card" .
+
+############################################################
+## BILLING ADDRESS
+############################################################
+
+autoins:billingAddress a owl:DatatypeProperty ;
+  rdfs:domain autoins:PaymentConfiguration ;
+  rdfs:range xsd:string ;
+  rdfs:label "billing address" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Billing address for card payments" ;
+  autoins:conditionalRequirement "Required for card payments" .
+
+autoins:billingPostcode a owl:DatatypeProperty ;
+  rdfs:domain autoins:PaymentConfiguration ;
+  rdfs:range xsd:string ;
+  rdfs:label "billing postcode" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Billing postcode for card payments" ;
+  autoins:validationPattern "^[A-Z]{1,2}[0-9R][0-9A-Z]? [0-9][A-Z]{2}$" ;
+  autoins:conditionalRequirement "Required for card payments" .
+
+autoins:billingCountry a owl:DatatypeProperty ;
+  rdfs:domain autoins:PaymentConfiguration ;
+  rdfs:range xsd:string ;
+  rdfs:label "billing country" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:enumerationValues ("United Kingdom" "Ireland" "Other EU" "Other") ;
+  autoins:formHelpText "Billing country for card payments" .
+
+############################################################
+## PAYMENT SCHEDULE PROPERTIES
+############################################################
+
+autoins:numberOfInstallments a owl:DatatypeProperty ;
+  rdfs:domain autoins:PaymentSchedule ;
+  rdfs:range xsd:integer ;
+  rdfs:label "number of installments" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Total number of payment installments" ;
+  autoins:minInclusive 1 ;
+  autoins:maxInclusive 12 .
+
+autoins:installmentAmount a owl:DatatypeProperty ;
+  rdfs:domain autoins:PaymentSchedule ;
+  rdfs:range xsd:decimal ;
+  autoins:label "installment amount" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Amount of each installment payment (£)" ;
+  autoins:minInclusive 10 ;
+  autoins:maxInclusive 2000 .
+
+autoins:finalInstallmentAmount a owl:DatatypeProperty ;
+  rdfs:domain autoins:PaymentSchedule ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "final installment amount" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Amount of final installment (may differ) (£)" ;
+  autoins:minInclusive 10 ;
+  autoins:maxInclusive 2000 .
+
+autoins:paymentDates a owl:DatatypeProperty ;
+  rdfs:domain autoins:PaymentSchedule ;
+  rdfs:range xsd:string ;
+  rdfs:label "payment dates" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Scheduled payment dates" .
+
+############################################################
+## DISCOUNT & ADJUSTMENT PROPERTIES
+############################################################
+
+autoins:multiCarDiscount a owl:DatatypeProperty ;
+  rdfs:domain autoins:Premium ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "multi car discount" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Discount for multiple vehicles (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 500 .
+
+autoins:loyaltyDiscount a owl:DatatypeProperty ;
+  rdfs:domain autoins:Premium ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "loyalty discount" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Loyalty customer discount (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 200 .
+
+autoins:onlineDiscount a owl:DatatypeProperty ;
+  rdfs:domain autoins:Premium ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "online discount" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Online purchase discount (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 100 .
+
+autoins:directDebitDiscount a owl:DatatypeProperty ;
+  rdfs:domain autoins:Premium ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "direct debit discount" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Direct debit payment discount (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 50 .
+
+autoins:annualPaymentDiscount a owl:DatatypeProperty ;
+  rdfs:domain autoins:Premium ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "annual payment discount" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Annual payment discount (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 200 .
+
+############################################################
+## PAYMENT PROCESSING
+############################################################
+
+autoins:paymentProcessorFee a owl:DatatypeProperty ;
+  rdfs:domain autoins:PolicyFees ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "payment processor fee" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Payment processing fee (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 25 .
+
+autoins:cardProcessingFee a owl:DatatypeProperty ;
+  rdfs:domain autoins:PolicyFees ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "card processing fee" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Credit card processing fee (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 50 .
+
+autoins:directDebitSetupFee a owl:DatatypeProperty ;
+  rdfs:domain autoins:PolicyFees ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "direct debit setup fee" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Direct debit setup fee (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 15 .
+
+############################################################
+## REFUND & CANCELLATION
+############################################################
+
+autoins:refundAmount a owl:DatatypeProperty ;
+  rdfs:domain autoins:Premium ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "refund amount" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Amount to be refunded (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 5000 .
+
+autoins:cancellationFee a owl:DatatypeProperty ;
+  rdfs:domain autoins:PolicyFees ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "cancellation fee" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Fee for policy cancellation (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 100 .
+
+autoins:adjustmentFee a owl:DatatypeProperty ;
+  rdfs:domain autoins:PolicyFees ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "adjustment fee" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Fee for policy adjustments (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 50 .
+
+############################################################
+## SHACL VALIDATION SHAPES FOR PAYMENTS
+############################################################
+
+autoins:PaymentConfigurationShape a sh:NodeShape ;
+  sh:targetClass autoins:PaymentConfiguration ;
+  rdfs:label "Payment Configuration Validation Shape" ;
+  sh:property [
+    sh:path autoins:paymentFrequency ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in ("Annual" "Monthly" "Quarterly" "One-off") ;
+    sh:message "Payment frequency must be selected"
+  ] ;
+  sh:property [
+    sh:path autoins:paymentMethod ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in ("Direct Debit" "Credit Card" "Debit Card" "Bank Transfer" "Cheque" "Cash") ;
+    sh:message "Payment method must be selected"
+  ] ;
+  sh:property [
+    sh:path autoins:paymentDay ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 28 ;
+    sh:message "Payment day must be between 1 and 28"
+  ] .
+
+autoins:PremiumShape a sh:NodeShape ;
+  sh:targetClass autoins:Premium ;
+  rdfs:label "Premium Validation Shape" ;
+  sh:property [
+    sh:path autoins:basePremium ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 100 ;
+    sh:maxInclusive 10000 ;
+    sh:message "Base premium must be between £100 and £10,000"
+  ] ;
+  sh:property [
+    sh:path autoins:totalPremium ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 100 ;
+    sh:maxInclusive 15000 ;
+    sh:message "Total premium must be between £100 and £15,000"
+  ] ;
+  sh:property [
+    sh:path autoins:monthlyPremium ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 10 ;
+    sh:maxInclusive 1500 ;
+    sh:message "Monthly premium must be between £10 and £1,500"
+  ] .
+
+############################################################
+## END OF INSURANCE PAYMENTS MODULE
+############################################################

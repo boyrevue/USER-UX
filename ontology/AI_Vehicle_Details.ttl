@@ -1,0 +1,587 @@
+@prefix autoins: <https://autoins.example/ontology#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf:   <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <https://schema.org/> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct:    <http://purl.org/dc/terms/> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+
+############################################################
+## AI VEHICLE DETAILS ONTOLOGY MODULE
+############################################################
+
+autoins:VehicleDetailsModule a owl:Ontology ;
+  rdfs:label "AI Vehicle Details Module" ;
+  owl:versionInfo "v2.0.0-2025-01-24" ;
+  dct:creator "CLIENT-UX" ;
+  dct:description "Comprehensive vehicle management ontology covering specifications, modifications, security, and valuation" ;
+  owl:imports autoins: ;
+  # TOPIC-LEVEL GDPR COMPLIANCE
+  autoins:dataClassification autoins:PersonalData ;
+  autoins:personalDataCategory autoins:BehavioralData ;
+  autoins:accessLevel autoins:UserAccess ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:consentPurpose "Vehicle insurance underwriting, valuation, and risk assessment" ;
+  autoins:consentBasis autoins:Contract ;
+  autoins:retentionPeriod "P7Y" ;
+  autoins:retentionReason "Insurance policy lifecycle and claims handling" ;
+  autoins:auditRequired "false"^^xsd:boolean ;
+  autoins:gdprCompliant "true"^^xsd:boolean .
+
+############################################################
+## VEHICLE DOCUMENT CLASSES
+############################################################
+
+# Vehicle Documents (from comprehensive ontology)
+autoins:VehicleDocument a owl:Class ;
+    rdfs:label "Vehicle Document" ;
+    rdfs:comment "Documents related to vehicle specifications and ownership" ;
+    rdfs:subClassOf autoins:InsuranceEntity .
+
+autoins:VehicleRegistrationDocument a owl:Class ;
+    rdfs:label "Vehicle Registration Document" ;
+    rdfs:comment "V5C vehicle registration certificate" ;
+    rdfs:subClassOf autoins:VehicleDocument .
+
+autoins:MOTCertificate a owl:Class ;
+    rdfs:label "MOT Certificate" ;
+    rdfs:comment "Ministry of Transport test certificate" ;
+    rdfs:subClassOf autoins:VehicleDocument .
+
+autoins:VehicleValuation a owl:Class ;
+    rdfs:label "Vehicle Valuation" ;
+    rdfs:comment "Professional vehicle valuation document" ;
+    rdfs:subClassOf autoins:VehicleDocument .
+
+autoins:ModificationCertificate a owl:Class ;
+    rdfs:label "Modification Certificate" ;
+    rdfs:comment "Certificate for vehicle modifications" ;
+    rdfs:subClassOf autoins:VehicleDocument .
+
+autoins:SecurityDeviceCertificate a owl:Class ;
+    rdfs:label "Security Device Certificate" ;
+    rdfs:comment "Certificate for approved security devices" ;
+    rdfs:subClassOf autoins:VehicleDocument .
+
+############################################################
+## CORE VEHICLE CLASSES
+############################################################
+
+autoins:Vehicle a owl:Class ;
+  rdfs:label "Vehicle" ;
+  rdfs:comment "Motor vehicle being insured" .
+
+autoins:VehicleOwnership a owl:Class ;
+  rdfs:label "Vehicle Ownership" ;
+  rdfs:comment "Vehicle ownership details" .
+
+autoins:VehicleSecurity a owl:Class ;
+  rdfs:label "Vehicle Security" ;
+  rdfs:comment "Vehicle security measures and devices" .
+
+############################################################
+## VEHICLE OBJECT PROPERTIES
+############################################################
+
+autoins:onVehicle a owl:ObjectProperty ;
+  rdfs:domain autoins:QuoteRequest ;
+  rdfs:range autoins:Vehicle ;
+  rdfs:label "on vehicle" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  rdfs:comment "Links to vehicles (1-6 supported)" .
+
+############################################################
+## BASIC VEHICLE PROPERTIES
+############################################################
+
+autoins:registration a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "registration" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Vehicle registration number (number plate)" ;
+  autoins:validationPattern "^[A-Z]{2}[0-9]{2}\\s?[A-Z]{3}$|^[A-Z][0-9]{1,3}\\s?[A-Z]{3}$|^[A-Z]{3}\\s?[0-9]{1,3}[A-Z]$" ;
+  autoins:i18nKey "vehicle.registration.label" ;
+  autoins:helpTextKey "vehicle.registration.help" ;
+  # GDPR Compliance - SENSITIVE (Vehicle Identification)
+  autoins:dataClassification autoins:PersonalData ;
+  autoins:personalDataCategory autoins:IdentityData ;
+  autoins:accessLevel autoins:UserAccess ;
+  autoins:viewPermission "USER,STAFF,MANAGER,ADMIN" ;
+  autoins:editPermission "USER,STAFF,MANAGER,ADMIN" ;
+  autoins:deletePermission "ADMIN" ;
+  autoins:obfuscationMethod autoins:PartialMasking ;
+  autoins:maskingPattern "XX** ***" ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:consentPurpose "Vehicle identification for insurance coverage" ;
+  autoins:consentBasis autoins:Contract ;
+  autoins:retentionPeriod "P7Y" ;
+  autoins:retentionReason "Insurance policy and claims identification" ;
+  autoins:auditRequired "true"^^xsd:boolean ;
+  autoins:logLevel autoins:StandardLogging .
+
+autoins:make a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "make" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Vehicle manufacturer (e.g., Ford, BMW, Toyota)" .
+
+autoins:model a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "model" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Vehicle model (e.g., Focus, 320i, Corolla)" .
+
+autoins:year a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:gYear ;
+  rdfs:label "year" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Year of manufacture" ;
+  autoins:minInclusive "1980"^^xsd:gYear ;
+  autoins:maxInclusive "2025"^^xsd:gYear .
+
+autoins:engineSize a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "engine size" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Engine size in litres (e.g., 1.6, 2.0)" ;
+  autoins:minInclusive 0.5 ;
+  autoins:maxInclusive 8.0 .
+
+autoins:fuelType a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "fuel type" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("Petrol" "Diesel" "Hybrid" "Electric" "LPG" "CNG") ;
+  autoins:formHelpText "Type of fuel used by the vehicle" .
+
+autoins:transmission a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "transmission" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("Manual" "Automatic" "Semi-Automatic" "CVT") ;
+  autoins:formHelpText "Type of transmission" .
+
+autoins:bodyType a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "body type" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("Saloon" "Hatchback" "Estate" "Coupe" "Convertible" "SUV" "MPV" "4x4" "Van" "Pickup") ;
+  autoins:formHelpText "Vehicle body style" .
+
+autoins:doors a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:integer ;
+  rdfs:label "doors" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("2" "3" "4" "5") ;
+  autoins:formHelpText "Number of doors" .
+
+autoins:seats a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:integer ;
+  rdfs:label "seats" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:minInclusive 2 ;
+  autoins:maxInclusive 9 ;
+  autoins:formHelpText "Number of seats" .
+
+############################################################
+## VEHICLE VALUE & OWNERSHIP
+############################################################
+
+autoins:value a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "value" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Current market value of the vehicle (£)" ;
+  autoins:minInclusive 500 ;
+  autoins:maxInclusive 500000 .
+
+autoins:purchasePrice a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "purchase price" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Price paid for the vehicle (£)" .
+
+autoins:purchaseDate a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:date ;
+  rdfs:label "purchase date" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Date the vehicle was purchased" .
+
+autoins:ownershipType a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "ownership type" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("Owned" "Financed" "Leased" "Company Car" "Hire Purchase") ;
+  autoins:formHelpText "How do you own this vehicle?" .
+
+autoins:financingCompany a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "financing company" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Name of finance company (if applicable)" ;
+  autoins:conditionalRequirement "Required if vehicle is financed or on hire purchase" .
+
+############################################################
+## VEHICLE LOCATION & USAGE
+############################################################
+
+autoins:daytimeLocation a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "daytime location" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("Home" "Work" "Public Car Park" "Private Car Park" "Street" "Garage" "Driveway") ;
+  autoins:formHelpText "Where is the vehicle usually parked during the day?" .
+
+autoins:overnightLocation a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "overnight location" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("Locked Garage" "Driveway" "Private Car Park" "Public Car Park" "Street" "Secure Compound") ;
+  autoins:formHelpText "Where is the vehicle parked overnight?" .
+
+autoins:annualMileage a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:integer ;
+  rdfs:label "annual mileage" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Estimated annual mileage" ;
+  autoins:minInclusive 1000 ;
+  autoins:maxInclusive 100000 .
+
+autoins:businessUse a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "business use" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Will the vehicle be used for business purposes?" .
+
+autoins:businessUseType a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "business use type" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:enumerationValues ("Commuting" "Business Travel" "Commercial Use" "Delivery" "Taxi/Hire") ;
+  autoins:formHelpText "Type of business use" ;
+  autoins:conditionalRequirement "Required if business use is selected" .
+
+############################################################
+## VEHICLE MODIFICATIONS
+############################################################
+
+autoins:hasModifications a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "has modifications" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Has the vehicle been modified from manufacturer specification?" .
+
+autoins:modifications a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "modifications" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:enumerationValues ("Engine Tuning" "Exhaust System" "Suspension" "Wheels/Tyres" "Body Kit" "Interior" "Audio System" "Lighting" "Performance Chip" "Turbo/Supercharger") ;
+  autoins:formHelpText "Type of modifications (if any)" ;
+  autoins:conditionalRequirement "Required if modifications are present" .
+
+autoins:modificationValue a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "modification value" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Total value of modifications (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 50000 .
+
+autoins:modificationDeclared a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "modification declared" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Have modifications been declared to DVLA?" .
+
+############################################################
+## VEHICLE SECURITY
+############################################################
+
+autoins:hasAlarm a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "has alarm" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Does the vehicle have an alarm system?" .
+
+autoins:alarmType a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "alarm type" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:enumerationValues ("Factory Fitted" "Aftermarket" "Thatcham Category 1" "Thatcham Category 2" "Basic" "Advanced") ;
+  autoins:formHelpText "Type of alarm system" .
+
+autoins:hasImmobiliser a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "has immobiliser" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Does the vehicle have an immobiliser?" .
+
+autoins:immobiliserType a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "immobiliser type" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:enumerationValues ("Factory Fitted" "Aftermarket" "Thatcham Category 1" "Thatcham Category 2" "Electronic" "Mechanical") ;
+  autoins:formHelpText "Type of immobiliser" .
+
+autoins:hasTracking a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "has tracking" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Does the vehicle have a tracking device?" .
+
+autoins:trackingType a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "tracking type" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:enumerationValues ("Thatcham Category S5" "Thatcham Category S7" "GPS Tracking" "Smartphone App" "Professional Monitoring") ;
+  autoins:formHelpText "Type of tracking system" .
+
+autoins:securityMarking a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "security marking" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Does the vehicle have security marking (e.g., etched windows)?" .
+
+############################################################
+## VEHICLE HISTORY & CONDITION
+############################################################
+
+autoins:previousOwners a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:integer ;
+  rdfs:label "previous owners" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Number of previous owners" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 20 .
+
+autoins:serviceHistory a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "service history" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:enumerationValues ("Full Service History" "Partial Service History" "No Service History" "Manufacturer Servicing" "Independent Servicing") ;
+  autoins:formHelpText "Vehicle service history status" .
+
+autoins:motStatus a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "MOT status" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("Valid" "Expired" "Exempt" "Not Required") ;
+  autoins:formHelpText "Current MOT certificate status" .
+
+autoins:motExpiryDate a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:date ;
+  rdfs:label "MOT expiry date" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Date when MOT certificate expires" .
+
+autoins:taxStatus a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "tax status" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("Taxed" "SORN" "Exempt" "Untaxed") ;
+  autoins:formHelpText "Current vehicle tax status" .
+
+autoins:taxExpiryDate a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:date ;
+  rdfs:label "tax expiry date" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Date when vehicle tax expires" .
+
+############################################################
+## VEHICLE IDENTIFICATION
+############################################################
+
+autoins:vin a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "VIN" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Vehicle Identification Number (17 characters)" ;
+  autoins:validationPattern "^[A-HJ-NPR-Z0-9]{17}$" .
+
+autoins:engineNumber a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "engine number" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Engine serial number" .
+
+autoins:chassisNumber a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "chassis number" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Chassis or frame number" .
+
+############################################################
+## VEHICLE PERFORMANCE & SPECIFICATIONS
+############################################################
+
+autoins:power a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:integer ;
+  rdfs:label "power" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Engine power in BHP or kW" ;
+  autoins:minInclusive 50 ;
+  autoins:maxInclusive 1000 .
+
+autoins:topSpeed a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:integer ;
+  rdfs:label "top speed" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Maximum speed in mph" ;
+  autoins:minInclusive 60 ;
+  autoins:maxInclusive 250 .
+
+autoins:acceleration a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "acceleration" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "0-60 mph time in seconds" ;
+  autoins:minInclusive 3.0 ;
+  autoins:maxInclusive 20.0 .
+
+autoins:weight a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:integer ;
+  rdfs:label "weight" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Vehicle weight in kg" ;
+  autoins:minInclusive 500 ;
+  autoins:maxInclusive 5000 .
+
+############################################################
+## SHACL VALIDATION SHAPES FOR VEHICLES
+############################################################
+
+autoins:VehicleShape a sh:NodeShape ;
+  sh:targetClass autoins:Vehicle ;
+  rdfs:label "Vehicle Validation Shape" ;
+  sh:property [
+    sh:path autoins:registration ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minLength 1 ;
+    sh:message "Vehicle registration is required"
+  ] ;
+  sh:property [
+    sh:path autoins:make ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minLength 1 ;
+    sh:message "Vehicle make is required"
+  ] ;
+  sh:property [
+    sh:path autoins:model ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minLength 1 ;
+    sh:message "Vehicle model is required"
+  ] ;
+  sh:property [
+    sh:path autoins:year ;
+    sh:datatype xsd:gYear ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minInclusive "1980"^^xsd:gYear ;
+    sh:maxInclusive "2025"^^xsd:gYear ;
+    sh:message "Vehicle year must be between 1980 and 2025"
+  ] ;
+  sh:property [
+    sh:path autoins:value ;
+    sh:datatype xsd:decimal ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minInclusive 500 ;
+    sh:maxInclusive 500000 ;
+    sh:message "Vehicle value must be between £500 and £500,000"
+  ] ;
+  sh:property [
+    sh:path autoins:annualMileage ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 1000 ;
+    sh:maxInclusive 100000 ;
+    sh:message "Annual mileage must be between 1,000 and 100,000 miles"
+  ] .
+
+############################################################
+## VEHICLE SHAPES FOR MULTIPLE VEHICLES (1-6)
+############################################################
+
+autoins:Vehicle1Shape a sh:NodeShape ;
+  sh:targetClass autoins:Vehicle ;
+  rdfs:label "Vehicle 1 Validation Shape" ;
+  sh:property [
+    sh:path autoins:registration ;
+    sh:minCount 1 ;
+    sh:message "Primary vehicle registration is required"
+  ] .
+
+autoins:Vehicle2Shape a sh:NodeShape ;
+  sh:targetClass autoins:Vehicle ;
+  rdfs:label "Vehicle 2 Validation Shape" .
+
+autoins:Vehicle3Shape a sh:NodeShape ;
+  sh:targetClass autoins:Vehicle ;
+  rdfs:label "Vehicle 3 Validation Shape" .
+
+autoins:Vehicle4Shape a sh:NodeShape ;
+  sh:targetClass autoins:Vehicle ;
+  rdfs:label "Vehicle 4 Validation Shape" .
+
+autoins:Vehicle5Shape a sh:NodeShape ;
+  sh:targetClass autoins:Vehicle ;
+  rdfs:label "Vehicle 5 Validation Shape" .
+
+autoins:Vehicle6Shape a sh:NodeShape ;
+  sh:targetClass autoins:Vehicle ;
+  rdfs:label "Vehicle 6 Validation Shape" .
+
+############################################################
+## END OF VEHICLE DETAILS MODULE
+############################################################

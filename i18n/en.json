@@ -1,5 +1,8 @@
 {
-  "app_title":"Insurance Quote Dashboard","language":"Language","english":"English","german":"Deutsch",
+  "_WARNING": "MOST CONTENT IN THIS FILE VIOLATES TTL DOCTRINE - Field labels and categories should come from autoins.ttl",
+  "_TODO": "Move field labels, categories, and options to TTL ontology with multi-language support",
+  "_KEEP": "Only keep month/day mappings and system messages that are not form-related",
+  "app_title":"CLIENT-UX Personal Data Manager","language":"Language","english":"English","german":"Deutsch",
   "welcome":"Welcome! I'll help you complete your insurance application.","progress":"Progress","complete":"Complete",
   "save_continue":"Save & Continue","add_driver":"Add Driver","main_driver":"Main Driver","named_driver":"Named Driver",
   "remove":"Remove","remove_driver":"Remove Driver","maximum_drivers":"Maximum 4 drivers allowed",

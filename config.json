@@ -1,9 +1,9 @@
 {
   "application": {
-    "name": "Insurance Quote Application",
-    "version": "2.2",
-    "description": "Ontology-driven insurance quote system with React frontend and Go backend",
-    "architecture": "ontology-driven"
+    "name": "CLIENT-UX Personal Data Manager",
+    "version": "3.0",
+    "description": "TTL-driven semantic web application with dynamic form generation",
+    "architecture": "ttl-single-source-of-truth"
   },
   "server": {
     "port": 3000,
@@ -44,21 +44,34 @@
   "backend": {
     "language": "Go 1.21+",
     "framework": "Gorilla Mux",
-    "ontologyFiles": [
-      "ontology/autoins.ttl",
-      "ontology/categories.json", 
-      "ontology/fields.json",
-      "ontology/subforms.json",
-      "ontology/settings.ttl"
+      "ontologyFiles": [
+    "ontology/AI_Driver_Details.ttl",
+    "ontology/AI_Vehicle_Details.ttl",
+    "ontology/AI_Policy_Details.ttl",
+    "ontology/AI_Claims_History.ttl",
+    "ontology/AI_Insurance_Payments.ttl",
+    "ontology/AI_Data_Compliance.ttl",
+    "ontology/user_ux.ttl",
+    "ontology/user_documents.ttl",
+    "ontology/user_credentials_pci.ttl",
+    "ontology/i18n_temporal.ttl",
+    "ontology/personal_documents_ontology.ttl"
+  ],
+    "eliminatedFiles": [
+      "ontology/categories.json - REMOVED (TTL doctrine compliance)",
+      "ontology/fields.json - REMOVED (TTL doctrine compliance)",
+      "ontology/subforms.json - REMOVED (TTL doctrine compliance)"
     ]
   },
   "features": {
-    "hierarchicalSidebar": true,
-    "ontologyDrivenForms": true,
+    "ttlDynamicForms": true,
+    "semanticWebCompliance": true,
     "multiLanguage": ["en", "de"],
     "documentProcessing": true,
+    "ocrEngine": "tesseract+passporteye",
     "sessionManagement": true,
-    "validation": "SHACL"
+    "validation": "TTL-based",
+    "ukConvictionCodes": 45
   },
   "startup": {
     "script": "./start.sh",

@@ -1,0 +1,896 @@
+@prefix autoins: <https://autoins.example/ontology#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf:   <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <https://schema.org/> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct:    <http://purl.org/dc/terms/> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+
+############################################################
+## AI CLAIMS HISTORY ONTOLOGY MODULE
+############################################################
+
+autoins:ClaimsHistoryModule a owl:Ontology ;
+  rdfs:label "AI Claims History Module" ;
+  owl:versionInfo "v3.0.0-2025-01-24" ;
+  dct:creator "CLIENT-UX" ;
+  dct:description "Comprehensive claims and incidents ontology covering claims history, accidents, convictions, and risk events for insurance underwriting" ;
+  owl:imports autoins: ;
+  # TOPIC-LEVEL GDPR COMPLIANCE - HIGHLY SENSITIVE
+  autoins:dataClassification autoins:SensitivePersonalData ;
+  autoins:personalDataCategory autoins:BehavioralData ;
+  autoins:accessLevel autoins:StaffAccess ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:consentPurpose "Insurance risk assessment, underwriting, and fraud prevention" ;
+  autoins:consentBasis autoins:LegitimateInterests ;
+  autoins:retentionPeriod "P10Y" ;
+  autoins:retentionReason "Insurance regulatory requirements and fraud detection" ;
+  autoins:auditRequired "true"^^xsd:boolean ;
+  autoins:gdprCompliant "true"^^xsd:boolean .
+
+############################################################
+## ANNOTATION PROPERTIES & HELPERS
+############################################################
+
+# Internationalization Support
+autoins:i18nKey a owl:AnnotationProperty ;
+  rdfs:label "i18n key" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Internationalization key for multi-language support" .
+
+autoins:helpTextKey a owl:AnnotationProperty ;
+  rdfs:label "help text key" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Internationalization key for help text" .
+
+autoins:errorMessageKey a owl:AnnotationProperty ;
+  rdfs:label "error message key" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Internationalization key for error messages" .
+
+############################################################
+## CLAIMS DOCUMENT CLASSES
+############################################################
+
+# Claims Documents (from comprehensive ontology)
+autoins:ClaimsDocument a owl:Class ;
+    rdfs:label "Claims Document" ;
+    rdfs:comment "Documents related to insurance claims and incidents" ;
+    rdfs:subClassOf autoins:InsuranceEntity ;
+    autoins:i18nKey "claims.document.label" .
+
+autoins:ClaimForm a owl:Class ;
+    rdfs:label "Claim Form" ;
+    rdfs:comment "Insurance claim notification form" ;
+    rdfs:subClassOf autoins:ClaimsDocument ;
+    autoins:i18nKey "claims.form.label" .
+
+autoins:AccidentReport a owl:Class ;
+    rdfs:label "Accident Report" ;
+    rdfs:comment "Detailed accident incident report" ;
+    rdfs:subClassOf autoins:ClaimsDocument ;
+    autoins:i18nKey "claims.accident_report.label" .
+
+autoins:PoliceReport a owl:Class ;
+    rdfs:label "Police Report" ;
+    rdfs:comment "Official police incident report" ;
+    rdfs:subClassOf autoins:ClaimsDocument ;
+    autoins:i18nKey "claims.police_report.label" .
+
+autoins:RepairEstimate a owl:Class ;
+    rdfs:label "Repair Estimate" ;
+    rdfs:comment "Vehicle repair cost estimate" ;
+    rdfs:subClassOf autoins:ClaimsDocument ;
+    autoins:i18nKey "claims.repair_estimate.label" .
+
+autoins:SettlementLetter a owl:Class ;
+    rdfs:label "Settlement Letter" ;
+    rdfs:comment "Claim settlement agreement" ;
+    rdfs:subClassOf autoins:ClaimsDocument ;
+    autoins:i18nKey "claims.settlement_letter.label" .
+
+############################################################
+## CORE RISK EVENT CLASSES
+############################################################
+
+# Root Risk Event Class
+autoins:RiskEvent a owl:Class ;
+  rdfs:label "Risk Event" ;
+  rdfs:comment "Any incident that impacts insurance risk assessment, whether claimed or not" ;
+  autoins:i18nKey "claims.risk_event.label" .
+
+# Primary Risk Event Sub-Classes
+autoins:Claim a owl:Class ;
+  rdfs:subClassOf autoins:RiskEvent ;
+  rdfs:label "Insurance Claim" ;
+  rdfs:comment "A formal request made to an insurance company for coverage or compensation" ;
+  autoins:i18nKey "claims.claim.label" .
+
+autoins:Accident a owl:Class ;
+  rdfs:subClassOf autoins:RiskEvent ;
+  rdfs:label "Accident/Incident" ;
+  rdfs:comment "An incident that may or may not have resulted in a formal insurance claim - critical for risk assessment" ;
+  autoins:i18nKey "claims.accident.label" .
+
+autoins:Conviction a owl:Class ;
+  rdfs:label "Driving Conviction" ;
+  rdfs:comment "Driving conviction with penalty points - moved from driver module for claims integration" ;
+  autoins:i18nKey "claims.conviction.label" .
+
+############################################################
+## CLAIMS HISTORY MANAGEMENT CLASSES
+############################################################
+
+autoins:ClaimsHistory a owl:Class ;
+  rdfs:label "Claims History" ;
+  rdfs:comment "Complete claims history for the last 5 years" ;
+  autoins:i18nKey "claims.history.label" .
+
+############################################################
+## CONTROLLED VOCABULARIES (SKOS CONCEPT SCHEMES)
+############################################################
+
+# Claim Type Vocabulary
+autoins:ClaimTypeScheme a skos:ConceptScheme ;
+  rdfs:label "Insurance Claim Types" ;
+  skos:prefLabel "Standardized claim type classifications for underwriting" ;
+  autoins:i18nKey "claims.claim_type_scheme.label" .
+
+autoins:CollisionClaim a skos:Concept ;
+  skos:inScheme autoins:ClaimTypeScheme ;
+  skos:prefLabel "Collision" ;
+  skos:definition "Vehicle collision with another vehicle or object" ;
+  autoins:i18nKey "claims.collision_claim.label" .
+
+autoins:TheftClaim a skos:Concept ;
+  skos:inScheme autoins:ClaimTypeScheme ;
+  skos:prefLabel "Theft" ;
+  skos:definition "Vehicle theft or attempted theft" ;
+  autoins:i18nKey "claims.theft_claim.label" .
+
+autoins:VandalismClaim a skos:Concept ;
+  skos:inScheme autoins:ClaimTypeScheme ;
+  skos:prefLabel "Vandalism" ;
+  skos:definition "Intentional damage to vehicle" ;
+  autoins:i18nKey "claims.vandalism_claim.label" .
+
+autoins:WindshieldClaim a skos:Concept ;
+  skos:inScheme autoins:ClaimTypeScheme ;
+  skos:prefLabel "Windshield/Glass" ;
+  skos:definition "Windshield or glass damage" ;
+  autoins:i18nKey "claims.windshield_claim.label" .
+
+autoins:LiabilityClaim a skos:Concept ;
+  skos:inScheme autoins:ClaimTypeScheme ;
+  skos:prefLabel "Liability" ;
+  skos:definition "Third party liability claim" ;
+  autoins:i18nKey "claims.liability_claim.label" .
+
+autoins:ComprehensiveClaim a skos:Concept ;
+  skos:inScheme autoins:ClaimTypeScheme ;
+  skos:prefLabel "Comprehensive" ;
+  skos:definition "Weather, fire, flood, or other comprehensive coverage" ;
+  autoins:i18nKey "claims.comprehensive_claim.label" .
+
+# Fault Status Vocabulary
+autoins:FaultStatusScheme a skos:ConceptScheme ;
+  rdfs:label "Fault Status Classifications" ;
+  skos:prefLabel "Standardized fault determinations for risk assessment" ;
+  autoins:i18nKey "claims.fault_status_scheme.label" .
+
+autoins:AtFault a skos:Concept ;
+  skos:inScheme autoins:FaultStatusScheme ;
+  skos:prefLabel "At-fault" ;
+  skos:definition "Policyholder determined to be at fault" ;
+  autoins:i18nKey "claims.at_fault.label" .
+
+autoins:NotAtFault a skos:Concept ;
+  skos:inScheme autoins:FaultStatusScheme ;
+  skos:prefLabel "Not-at-fault" ;
+  skos:definition "Policyholder not at fault for incident" ;
+  autoins:i18nKey "claims.not_at_fault.label" .
+
+autoins:PartialFault a skos:Concept ;
+  skos:inScheme autoins:FaultStatusScheme ;
+  skos:prefLabel "Partial fault" ;
+  skos:definition "Shared fault determination" ;
+  autoins:i18nKey "claims.partial_fault.label" .
+
+############################################################
+## CLAIMS OBJECT PROPERTIES
+############################################################
+
+autoins:hasClaimsHistory a owl:ObjectProperty ;
+  rdfs:domain autoins:QuoteRequest ;
+  rdfs:range autoins:ClaimsHistory ;
+  rdfs:label "has claims history" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  rdfs:comment "Links to claims history" ;
+  autoins:i18nKey "claims.has_claims_history.label" .
+
+############################################################
+## CLAIMS HISTORY PROPERTIES
+############################################################
+
+autoins:hasClaims a owl:DatatypeProperty ;
+  rdfs:domain autoins:ClaimsHistory ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "has claims" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Have you made any insurance claims in the last 5 years?" ;
+  autoins:i18nKey "claims.has_claims.label" ;
+  autoins:helpTextKey "claims.has_claims.help" .
+
+autoins:hasAccidents a owl:DatatypeProperty ;
+  rdfs:domain autoins:ClaimsHistory ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "has accidents" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Have you been involved in any accidents in the last 5 years?" ;
+  autoins:i18nKey "claims.has_accidents.label" ;
+  autoins:helpTextKey "claims.has_accidents.help" .
+
+autoins:claimsCount a owl:DatatypeProperty ;
+  rdfs:domain autoins:ClaimsHistory ;
+  rdfs:range xsd:integer ;
+  rdfs:label "claims count" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Total number of claims in the last 5 years" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 5 ;
+  autoins:i18nKey "claims.claims_count.label" ;
+  autoins:helpTextKey "claims.claims_count.help" .
+
+autoins:accidentsCount a owl:DatatypeProperty ;
+  rdfs:domain autoins:ClaimsHistory ;
+  rdfs:range xsd:integer ;
+  rdfs:label "accidents count" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Total number of accidents in the last 5 years" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 10 ;
+  autoins:i18nKey "claims.accidents_count.label" ;
+  autoins:helpTextKey "claims.accidents_count.help" .
+
+############################################################
+## INDIVIDUAL CLAIM PROPERTIES
+############################################################
+
+autoins:claimDate a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:date ;
+  rdfs:label "claim date" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Date when the claim was made" ;
+  autoins:i18nKey "claims.claim_date.label" ;
+  autoins:helpTextKey "claims.claim_date.help" .
+
+autoins:incidentDate a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:date ;
+  rdfs:label "incident date" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Date when the actual incident occurred" ;
+  autoins:i18nKey "claims.incident_date.label" ;
+  autoins:helpTextKey "claims.incident_date.help" .
+
+autoins:claimType a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:string ;
+  rdfs:label "claim type" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("Accident Damage" "Theft" "Fire" "Flood" "Vandalism" "Glass Damage" "Storm Damage" "Third Party" "Collision" "Comprehensive" "Liability" "Other") ;
+  autoins:formHelpText "Type of claim made" ;
+  autoins:i18nKey "claims.claim_type.label" ;
+  autoins:helpTextKey "claims.claim_type.help" .
+
+autoins:claimAmount a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "claim amount" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Total amount claimed (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 100000 ;
+  autoins:i18nKey "claims.claim_amount.label" ;
+  autoins:helpTextKey "claims.claim_amount.help" ;
+  # GDPR Compliance - SENSITIVE FINANCIAL DATA
+  autoins:dataClassification autoins:SensitivePersonalData ;
+  autoins:personalDataCategory autoins:FinancialData ;
+  autoins:accessLevel autoins:StaffAccess ;
+  autoins:viewPermission "STAFF,MANAGER,ADMIN,AUDITOR" ;
+  autoins:editPermission "STAFF,MANAGER,ADMIN" ;
+  autoins:deletePermission "ADMIN" ;
+  autoins:obfuscationMethod autoins:PartialMasking ;
+  autoins:maskingPattern "£**,***" ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:consentPurpose "Claims processing and fraud detection" ;
+  autoins:consentBasis autoins:LegitimateInterests ;
+  autoins:retentionPeriod "P10Y" ;
+  autoins:retentionReason "Insurance regulatory and legal requirements" ;
+  autoins:auditRequired "true"^^xsd:boolean ;
+  autoins:logLevel autoins:CriticalLogging .
+
+autoins:paidAmount a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "paid amount" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Actual amount paid by insurer (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 100000 ;
+  autoins:i18nKey "claims.paid_amount.label" ;
+  autoins:helpTextKey "claims.paid_amount.help" .
+
+autoins:claimStatus a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:string ;
+  rdfs:label "claim status" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("Open" "Closed" "Settled" "Declined" "Withdrawn" "Under Investigation" "Closed-Paid" "Closed-Denied") ;
+  autoins:formHelpText "Current status of the claim" ;
+  autoins:i18nKey "claims.claim_status.label" ;
+  autoins:helpTextKey "claims.claim_status.help" .
+
+autoins:faultStatus a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:string ;
+  rdfs:label "fault status" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("At Fault" "Not At Fault" "Split Liability" "Disputed" "Unknown" "Partial Fault") ;
+  autoins:formHelpText "Who was at fault for the incident?" ;
+  autoins:i18nKey "claims.fault_status.label" ;
+  autoins:helpTextKey "claims.fault_status.help" .
+
+autoins:faultPercentage a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:integer ;
+  rdfs:label "fault percentage" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Percentage of fault attributed to you (0-100%)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 100 ;
+  autoins:i18nKey "claims.fault_percentage.label" ;
+  autoins:helpTextKey "claims.fault_percentage.help" .
+
+autoins:policeReported a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "police reported" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Was the incident reported to police?" ;
+  autoins:i18nKey "claims.police_reported.label" ;
+  autoins:helpTextKey "claims.police_reported.help" .
+
+autoins:crimeReference a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:string ;
+  rdfs:label "crime reference" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Police crime reference number (if applicable)" ;
+  autoins:i18nKey "claims.crime_reference.label" ;
+  autoins:helpTextKey "claims.crime_reference.help" .
+
+autoins:claimDescription a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:string ;
+  rdfs:label "claim description" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Brief description of the incident" ;
+  autoins:i18nKey "claims.claim_description.label" ;
+  autoins:helpTextKey "claims.claim_description.help" .
+
+autoins:claimNumber a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:string ;
+  rdfs:label "claim number" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Unique claim identifier from insurer" ;
+  autoins:i18nKey "claims.claim_number.label" ;
+  autoins:helpTextKey "claims.claim_number.help" .
+
+############################################################
+## CLAIM SETTLEMENT PROPERTIES
+############################################################
+
+autoins:settledAmount a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "settled amount" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Amount actually paid by insurer (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 100000 ;
+  autoins:i18nKey "claims.settled_amount.label" ;
+  autoins:helpTextKey "claims.settled_amount.help" .
+
+autoins:excessPaid a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "excess paid" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Excess amount paid by you (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 5000 ;
+  autoins:i18nKey "claims.excess_paid.label" ;
+  autoins:helpTextKey "claims.excess_paid.help" .
+
+autoins:recoveryAmount a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "recovery amount" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Amount recovered from third party (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 100000 ;
+  autoins:i18nKey "claims.recovery_amount.label" ;
+  autoins:helpTextKey "claims.recovery_amount.help" .
+
+autoins:settlementDate a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:date ;
+  rdfs:label "settlement date" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Date when claim was settled" ;
+  autoins:i18nKey "claims.settlement_date.label" ;
+  autoins:helpTextKey "claims.settlement_date.help" .
+
+autoins:deductibleAmount a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "deductible amount" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Deductible paid by policyholder (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 5000 ;
+  autoins:i18nKey "claims.deductible_amount.label" ;
+  autoins:helpTextKey "claims.deductible_amount.help" .
+
+############################################################
+## ACCIDENT PROPERTIES
+############################################################
+
+autoins:accidentDate a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "accident date" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Date and time when the accident occurred" ;
+  autoins:i18nKey "claims.accident_date.label" ;
+  autoins:helpTextKey "claims.accident_date.help" .
+
+autoins:accidentType a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:string ;
+  rdfs:label "accident type" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("Collision" "Single Vehicle" "Multi-Vehicle" "Pedestrian" "Cyclist" "Animal" "Object" "Weather Related") ;
+  autoins:formHelpText "Type of accident" ;
+  autoins:i18nKey "claims.accident_type.label" ;
+  autoins:helpTextKey "claims.accident_type.help" .
+
+autoins:accidentSeverity a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:string ;
+  rdfs:label "accident severity" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("Minor" "Moderate" "Serious" "Fatal") ;
+  autoins:formHelpText "Severity of the accident" ;
+  autoins:i18nKey "claims.accident_severity.label" ;
+  autoins:helpTextKey "claims.accident_severity.help" .
+
+autoins:accidentLocation a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:string ;
+  rdfs:label "accident location" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Location where accident occurred" ;
+  autoins:i18nKey "claims.accident_location.label" ;
+  autoins:helpTextKey "claims.accident_location.help" .
+
+autoins:accidentCause a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:string ;
+  rdfs:label "accident cause" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:enumerationValues ("Speeding" "Careless Driving" "Weather" "Mechanical Failure" "Road Conditions" "Other Driver" "Distraction" "Fatigue" "Other") ;
+  autoins:formHelpText "Primary cause of the accident" ;
+  autoins:i18nKey "claims.accident_cause.label" ;
+  autoins:helpTextKey "claims.accident_cause.help" .
+
+autoins:claimMade a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "claim made" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Was an insurance claim made for this accident?" ;
+  autoins:i18nKey "claims.claim_made.label" ;
+  autoins:helpTextKey "claims.claim_made.help" .
+
+autoins:accidentDescription a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:string ;
+  rdfs:label "accident description" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Brief description of what happened" ;
+  autoins:i18nKey "claims.accident_description.label" ;
+  autoins:helpTextKey "claims.accident_description.help" .
+
+autoins:damageDescription a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:string ;
+  rdfs:label "damage description" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Detailed description of vehicle/property damage" ;
+  autoins:i18nKey "claims.damage_description.label" ;
+  autoins:helpTextKey "claims.damage_description.help" .
+
+autoins:estimatedDamageAmount a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "estimated damage amount" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Estimated cost of damage - key risk indicator (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 100000 ;
+  autoins:i18nKey "claims.estimated_damage_amount.label" ;
+  autoins:helpTextKey "claims.estimated_damage_amount.help" .
+
+############################################################
+## INJURY & DAMAGE PROPERTIES
+############################################################
+
+autoins:injuriesReported a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "injuries reported" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Were any injuries reported?" ;
+  autoins:i18nKey "claims.injuries_reported.label" ;
+  autoins:helpTextKey "claims.injuries_reported.help" .
+
+autoins:injuryCount a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:integer ;
+  rdfs:label "injury count" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Number of people injured" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 20 ;
+  autoins:i18nKey "claims.injury_count.label" ;
+  autoins:helpTextKey "claims.injury_count.help" .
+
+autoins:vehicleDamage a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:string ;
+  rdfs:label "vehicle damage" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:enumerationValues ("None" "Minor" "Moderate" "Severe" "Total Loss") ;
+  autoins:formHelpText "Extent of vehicle damage" ;
+  autoins:i18nKey "claims.vehicle_damage.label" ;
+  autoins:helpTextKey "claims.vehicle_damage.help" .
+
+autoins:propertyDamage a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "property damage" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Was any other property damaged?" ;
+  autoins:i18nKey "claims.property_damage.label" ;
+  autoins:helpTextKey "claims.property_damage.help" .
+
+autoins:emergencyServices a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "emergency services" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Were emergency services called?" ;
+  autoins:i18nKey "claims.emergency_services.label" ;
+  autoins:helpTextKey "claims.emergency_services.help" .
+
+autoins:numberOfVehiclesInvolved a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:integer ;
+  rdfs:label "number of vehicles involved" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Total vehicles involved in accident" ;
+  autoins:minInclusive 1 ;
+  autoins:maxInclusive 10 ;
+  autoins:i18nKey "claims.number_of_vehicles_involved.label" ;
+  autoins:helpTextKey "claims.number_of_vehicles_involved.help" .
+
+autoins:numberOfInjuries a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:integer ;
+  rdfs:label "number of injuries" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Total number of people injured" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 20 ;
+  autoins:i18nKey "claims.number_of_injuries.label" ;
+  autoins:helpTextKey "claims.number_of_injuries.help" .
+
+############################################################
+## POLICE & LEGAL PROPERTIES
+############################################################
+
+autoins:policeReportFiled a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "police report filed" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Whether official police report was filed" ;
+  autoins:i18nKey "claims.police_report_filed.label" ;
+  autoins:helpTextKey "claims.police_report_filed.help" .
+
+autoins:policeReportNumber a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:string ;
+  rdfs:label "police report number" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Official police report reference number" ;
+  autoins:i18nKey "claims.police_report_number.label" ;
+  autoins:helpTextKey "claims.police_report_number.help" .
+
+autoins:citationIssued a owl:DatatypeProperty ;
+  rdfs:domain autoins:Accident ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "citation issued" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Whether traffic citation was issued" ;
+  autoins:i18nKey "claims.citation_issued.label" ;
+  autoins:helpTextKey "claims.citation_issued.help" .
+
+############################################################
+## CONVICTION PROPERTIES (INTEGRATED FROM DRIVER MODULE)
+############################################################
+
+autoins:convictionDate a owl:DatatypeProperty ;
+  rdfs:domain autoins:Conviction ;
+  rdfs:range xsd:date ;
+  rdfs:label "conviction date" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Date of the driving conviction" ;
+  autoins:i18nKey "claims.conviction_date.label" ;
+  autoins:helpTextKey "claims.conviction_date.help" .
+
+autoins:convictionType a owl:DatatypeProperty ;
+  rdfs:domain autoins:Conviction ;
+  rdfs:range xsd:string ;
+  rdfs:label "conviction type" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("Speeding" "Careless Driving" "Dangerous Driving" "Drink Driving" "Drug Driving" "No Insurance" "No Licence" "Other") ;
+  autoins:formHelpText "Type of driving conviction" ;
+  autoins:i18nKey "claims.conviction_type.label" ;
+  autoins:helpTextKey "claims.conviction_type.help" .
+
+autoins:convictionPenalty a owl:DatatypeProperty ;
+  rdfs:domain autoins:Conviction ;
+  rdfs:range xsd:string ;
+  rdfs:label "conviction penalty" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formHelpText "Penalty imposed (points, fine, disqualification)" ;
+  autoins:i18nKey "claims.conviction_penalty.label" ;
+  autoins:helpTextKey "claims.conviction_penalty.help" .
+
+autoins:convictionPoints a owl:DatatypeProperty ;
+  rdfs:domain autoins:Conviction ;
+  rdfs:range xsd:integer ;
+  rdfs:label "conviction points" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Number of penalty points received" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 12 ;
+  autoins:i18nKey "claims.conviction_points.label" ;
+  autoins:helpTextKey "claims.conviction_points.help" .
+
+autoins:convictionFine a owl:DatatypeProperty ;
+  rdfs:domain autoins:Conviction ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "conviction fine" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Fine amount imposed (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 10000 ;
+  autoins:i18nKey "claims.conviction_fine.label" ;
+  autoins:helpTextKey "claims.conviction_fine.help" .
+
+autoins:disqualificationPeriod a owl:DatatypeProperty ;
+  rdfs:domain autoins:Conviction ;
+  rdfs:range xsd:integer ;
+  rdfs:label "disqualification period" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Disqualification period in months" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 120 ;
+  autoins:i18nKey "claims.disqualification_period.label" ;
+  autoins:helpTextKey "claims.disqualification_period.help" .
+
+autoins:convictionActive a owl:DatatypeProperty ;
+  rdfs:domain autoins:Conviction ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "conviction active" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Is this conviction still active on your licence?" ;
+  autoins:i18nKey "claims.conviction_active.label" ;
+  autoins:helpTextKey "claims.conviction_active.help" .
+
+############################################################
+## THIRD PARTY & REPAIR INFORMATION
+############################################################
+
+autoins:thirdPartyInvolved a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "third party involved" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Was a third party involved in the incident?" ;
+  autoins:i18nKey "claims.third_party_involved.label" ;
+  autoins:helpTextKey "claims.third_party_involved.help" .
+
+autoins:thirdPartyInsurer a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:string ;
+  rdfs:label "third party insurer" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Third party's insurance company" ;
+  autoins:i18nKey "claims.third_party_insurer.label" ;
+  autoins:helpTextKey "claims.third_party_insurer.help" .
+
+autoins:repairRequired a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "repair required" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Was vehicle repair required?" ;
+  autoins:i18nKey "claims.repair_required.label" ;
+  autoins:helpTextKey "claims.repair_required.help" .
+
+autoins:repairCost a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "repair cost" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Total cost of repairs (£)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 50000 ;
+  autoins:i18nKey "claims.repair_cost.label" ;
+  autoins:helpTextKey "claims.repair_cost.help" .
+
+autoins:totalLoss a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "total loss" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Was the vehicle declared a total loss?" ;
+  autoins:i18nKey "claims.total_loss.label" ;
+  autoins:helpTextKey "claims.total_loss.help" .
+
+############################################################
+## CLAIMS VALIDATION PROPERTIES
+############################################################
+
+autoins:withinTimeLimit a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "within time limit" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Was claim made within policy time limits?" ;
+  autoins:i18nKey "claims.within_time_limit.label" ;
+  autoins:helpTextKey "claims.within_time_limit.help" .
+
+autoins:previouslyDeclared a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "previously declared" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Was this claim previously declared to other insurers?" ;
+  autoins:i18nKey "claims.previously_declared.label" ;
+  autoins:helpTextKey "claims.previously_declared.help" .
+
+autoins:affectsNCD a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "affects NCD" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formHelpText "Does this claim affect your no claims discount?" ;
+  autoins:i18nKey "claims.affects_ncd.label" ;
+  autoins:helpTextKey "claims.affects_ncd.help" .
+
+############################################################
+## SHACL VALIDATION SHAPES FOR CLAIMS
+############################################################
+
+autoins:ClaimShape a sh:NodeShape ;
+  sh:targetClass autoins:Claim ;
+  rdfs:label "Claim Validation Shape" ;
+  sh:property [
+    sh:path autoins:claimDate ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Claim date is required"
+  ] ;
+  sh:property [
+    sh:path autoins:claimType ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in ("Accident Damage" "Theft" "Fire" "Flood" "Vandalism" "Glass Damage" "Storm Damage" "Third Party" "Collision" "Comprehensive" "Liability" "Other") ;
+    sh:message "Valid claim type must be selected"
+  ] ;
+  sh:property [
+    sh:path autoins:claimAmount ;
+    sh:datatype xsd:decimal ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 100000 ;
+    sh:message "Claim amount must be between £0 and £100,000"
+  ] ;
+  sh:property [
+    sh:path autoins:faultStatus ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in ("At Fault" "Not At Fault" "Split Liability" "Disputed" "Unknown" "Partial Fault") ;
+    sh:message "Fault status must be specified"
+  ] .
+
+autoins:AccidentShape a sh:NodeShape ;
+  sh:targetClass autoins:Accident ;
+  rdfs:label "Accident Validation Shape" ;
+  sh:property [
+    sh:path autoins:accidentDate ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Accident date is required"
+  ] ;
+  sh:property [
+    sh:path autoins:accidentType ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in ("Collision" "Single Vehicle" "Multi-Vehicle" "Pedestrian" "Cyclist" "Animal" "Object" "Weather Related") ;
+    sh:message "Valid accident type must be selected"
+  ] ;
+  sh:property [
+    sh:path autoins:claimMade ;
+    sh:datatype xsd:boolean ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Must specify if claim was made"
+  ] .
+
+autoins:ConvictionShape a sh:NodeShape ;
+  sh:targetClass autoins:Conviction ;
+  rdfs:label "Conviction Validation Shape" ;
+  sh:property [
+    sh:path autoins:convictionDate ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Conviction date is required"
+  ] ;
+  sh:property [
+    sh:path autoins:convictionType ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in ("Speeding" "Careless Driving" "Dangerous Driving" "Drink Driving" "Drug Driving" "No Insurance" "No Licence" "Other") ;
+    sh:message "Valid conviction type must be selected"
+  ] ;
+  sh:property [
+    sh:path autoins:convictionPoints ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 12 ;
+    sh:message "Conviction points must be between 0 and 12"
+  ] .
+
+############################################################
+## END OF CLAIMS HISTORY MODULE
+############################################################

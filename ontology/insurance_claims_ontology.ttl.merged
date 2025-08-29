@@ -1,0 +1,466 @@
+# [SECTION 1: THE INSURANCE RISK ONTOLOGY]
+@prefix : <http://example.org/ontology/insurance_claims#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+############################################################
+## ONTOLOGY METADATA
+############################################################
+
+: a owl:Ontology ;
+  rdfs:label "Insurance Claims & Risk Assessment Ontology" ;
+  owl:versionInfo "v1.0.0-2025-01-24" ;
+  dct:creator "CLIENT-UX Insurance Risk Assessment" ;
+  dct:description """Specialized ontology for modeling claims history and accidents 
+    required for insurance policy underwriting and risk assessment. Designed to capture
+    precise data points needed by insurance companies to assess risk and price policies.""" ;
+  dct:rights "Copyright 2025 CLIENT-UX" .
+
+############################################################
+## CORE RISK EVENT CLASSES
+############################################################
+
+# Root Risk Event Class
+:RiskEvent a owl:Class ;
+  rdfs:label "Risk Event" ;
+  rdfs:comment "Any incident that impacts insurance risk assessment, whether claimed or not" .
+
+# Primary Risk Event Sub-Classes
+:Claim a owl:Class ;
+  rdfs:subClassOf :RiskEvent ;
+  rdfs:label "Insurance Claim" ;
+  rdfs:comment "A formal request made to an insurance company for coverage or compensation" .
+
+:Accident a owl:Class ;
+  rdfs:subClassOf :RiskEvent ;
+  rdfs:label "Accident/Incident" ;
+  rdfs:comment "An incident that may or may not have resulted in a formal insurance claim - critical for risk assessment" .
+
+############################################################
+## ANCILLARY CLASSES FOR UNDERWRITING
+############################################################
+
+:InsuranceCompany a owl:Class ;
+  rdfs:subClassOf foaf:Organization ;
+  rdfs:label "Insurance Company" ;
+  rdfs:comment "Insurance provider or underwriter" .
+
+:Policy a owl:Class ;
+  rdfs:label "Insurance Policy" ;
+  rdfs:comment "Insurance policy contract under which claim was made" .
+
+:Vehicle a owl:Class ;
+  rdfs:label "Vehicle" ;
+  rdfs:comment "Motor vehicle involved in risk event" .
+
+:Person a owl:Class ;
+  rdfs:subClassOf foaf:Person ;
+  rdfs:label "Person" ;
+  rdfs:comment "Individual involved in risk event (driver, passenger, third party)" .
+
+:Damage a owl:Class ;
+  rdfs:label "Damage Assessment" ;
+  rdfs:comment "Physical or property damage resulting from risk event" .
+
+:Address a owl:Class ;
+  rdfs:label "Address" ;
+  rdfs:comment "Geographic location of risk event" .
+
+:PoliceReport a owl:Class ;
+  rdfs:label "Police Report" ;
+  rdfs:comment "Official police documentation of incident" .
+
+############################################################
+## CONTROLLED VOCABULARIES (SKOS CONCEPT SCHEMES)
+############################################################
+
+# Claim Type Vocabulary
+:ClaimTypeScheme a skos:ConceptScheme ;
+  rdfs:label "Insurance Claim Types" ;
+  skos:prefLabel "Standardized claim type classifications for underwriting" .
+
+:CollisionClaim a skos:Concept ;
+  skos:inScheme :ClaimTypeScheme ;
+  skos:prefLabel "Collision" ;
+  skos:definition "Vehicle collision with another vehicle or object" .
+
+:TheftClaim a skos:Concept ;
+  skos:inScheme :ClaimTypeScheme ;
+  skos:prefLabel "Theft" ;
+  skos:definition "Vehicle theft or attempted theft" .
+
+:VandalismClaim a skos:Concept ;
+  skos:inScheme :ClaimTypeScheme ;
+  skos:prefLabel "Vandalism" ;
+  skos:definition "Intentional damage to vehicle" .
+
+:WindshieldClaim a skos:Concept ;
+  skos:inScheme :ClaimTypeScheme ;
+  skos:prefLabel "Windshield/Glass" ;
+  skos:definition "Windshield or glass damage" .
+
+:LiabilityClaim a skos:Concept ;
+  skos:inScheme :ClaimTypeScheme ;
+  skos:prefLabel "Liability" ;
+  skos:definition "Third party liability claim" .
+
+:ComprehensiveClaim a skos:Concept ;
+  skos:inScheme :ClaimTypeScheme ;
+  skos:prefLabel "Comprehensive" ;
+  skos:definition "Weather, fire, flood, or other comprehensive coverage" .
+
+# Fault Status Vocabulary
+:FaultStatusScheme a skos:ConceptScheme ;
+  rdfs:label "Fault Status Classifications" ;
+  skos:prefLabel "Standardized fault determinations for risk assessment" .
+
+:AtFault a skos:Concept ;
+  skos:inScheme :FaultStatusScheme ;
+  skos:prefLabel "At-fault" ;
+  skos:definition "Policyholder determined to be at fault" .
+
+:NotAtFault a skos:Concept ;
+  skos:inScheme :FaultStatusScheme ;
+  skos:prefLabel "Not-at-fault" ;
+  skos:definition "Policyholder not at fault for incident" .
+
+:PartialFault a skos:Concept ;
+  skos:inScheme :FaultStatusScheme ;
+  skos:prefLabel "Partial fault" ;
+  skos:definition "Shared fault determination" .
+
+:FaultDisputed a skos:Concept ;
+  skos:inScheme :FaultStatusScheme ;
+  skos:prefLabel "Fault disputed" ;
+  skos:definition "Fault determination under dispute" .
+
+# Claim Status Vocabulary
+:ClaimStatusScheme a skos:ConceptScheme ;
+  rdfs:label "Claim Status Classifications" ;
+  skos:prefLabel "Current status of insurance claims" .
+
+:OpenClaim a skos:Concept ;
+  skos:inScheme :ClaimStatusScheme ;
+  skos:prefLabel "Open" ;
+  skos:definition "Claim currently being processed" .
+
+:ClosedPaid a skos:Concept ;
+  skos:inScheme :ClaimStatusScheme ;
+  skos:prefLabel "Closed-Paid" ;
+  skos:definition "Claim settled and payment made" .
+
+:ClosedDenied a skos:Concept ;
+  skos:inScheme :ClaimStatusScheme ;
+  skos:prefLabel "Closed-Denied" ;
+  skos:definition "Claim denied by insurer" .
+
+:ClosedWithdrawn a skos:Concept ;
+  skos:inScheme :ClaimStatusScheme ;
+  skos:prefLabel "Closed-Withdrawn" ;
+  skos:definition "Claim withdrawn by policyholder" .
+
+############################################################
+## CLAIM CLASS PROPERTIES (UNDERWRITING FOCUS)
+############################################################
+
+# Temporal Properties
+:claimDate a owl:DatatypeProperty ;
+  rdfs:domain :Claim ;
+  rdfs:range xsd:date ;
+  rdfs:label "Claim Date" ;
+  rdfs:comment "Date when claim was filed with insurer" .
+
+:incidentDate a owl:DatatypeProperty ;
+  rdfs:domain :Claim ;
+  rdfs:range xsd:date ;
+  rdfs:label "Incident Date" ;
+  rdfs:comment "Date when the actual incident occurred" .
+
+:settlementDate a owl:DatatypeProperty ;
+  rdfs:domain :Claim ;
+  rdfs:range xsd:date ;
+  rdfs:label "Settlement Date" ;
+  rdfs:comment "Date when claim was settled or closed" .
+
+# Classification Properties
+:claimType a owl:ObjectProperty ;
+  rdfs:domain :Claim ;
+  rdfs:range skos:Concept ;
+  rdfs:label "Claim Type" ;
+  rdfs:comment "Standardized classification of claim type for risk assessment" .
+
+:faultStatus a owl:ObjectProperty ;
+  rdfs:domain :Claim ;
+  rdfs:range skos:Concept ;
+  rdfs:label "Fault Status" ;
+  rdfs:comment "Fault determination - critical for risk pricing" .
+
+:claimStatus a owl:ObjectProperty ;
+  rdfs:domain :Claim ;
+  rdfs:range skos:Concept ;
+  rdfs:label "Claim Status" ;
+  rdfs:comment "Current processing status of claim" .
+
+# Financial Properties (Critical for Underwriting)
+:claimAmount a owl:DatatypeProperty ;
+  rdfs:domain :Claim ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "Claim Amount" ;
+  rdfs:comment "Total amount claimed from insurer" .
+
+:paidAmount a owl:DatatypeProperty ;
+  rdfs:domain :Claim ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "Paid Amount" ;
+  rdfs:comment "Actual amount paid by insurer" .
+
+:deductibleAmount a owl:DatatypeProperty ;
+  rdfs:domain :Claim ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "Deductible Amount" ;
+  rdfs:comment "Deductible paid by policyholder" .
+
+:reserveAmount a owl:DatatypeProperty ;
+  rdfs:domain :Claim ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "Reserve Amount" ;
+  rdfs:comment "Amount reserved by insurer for claim" .
+
+# Descriptive Properties
+:claimNumber a owl:DatatypeProperty ;
+  rdfs:domain :Claim ;
+  rdfs:range xsd:string ;
+  rdfs:label "Claim Number" ;
+  rdfs:comment "Unique claim identifier from insurer" .
+
+:description a owl:DatatypeProperty ;
+  rdfs:domain :Claim ;
+  rdfs:range xsd:string ;
+  rdfs:label "Claim Description" ;
+  rdfs:comment "Detailed description of claim circumstances" .
+
+:adjusterNotes a owl:DatatypeProperty ;
+  rdfs:domain :Claim ;
+  rdfs:range xsd:string ;
+  rdfs:label "Adjuster Notes" ;
+  rdfs:comment "Insurance adjuster's assessment notes" .
+
+# Object Properties (Relationships)
+:madeAgainstPolicy a owl:ObjectProperty ;
+  rdfs:domain :Claim ;
+  rdfs:range :Policy ;
+  rdfs:label "Made Against Policy" ;
+  rdfs:comment "Insurance policy under which claim was filed" .
+
+:paidByInsurer a owl:ObjectProperty ;
+  rdfs:domain :Claim ;
+  rdfs:range :InsuranceCompany ;
+  rdfs:label "Paid By Insurer" ;
+  rdfs:comment "Insurance company that processed the claim" .
+
+:involvesDamage a owl:ObjectProperty ;
+  rdfs:domain :Claim ;
+  rdfs:range :Damage ;
+  rdfs:label "Involves Damage" ;
+  rdfs:comment "Damage assessment associated with claim" .
+
+############################################################
+## ACCIDENT CLASS PROPERTIES (RISK ASSESSMENT FOCUS)
+############################################################
+
+# Temporal Properties
+:accidentDate a owl:DatatypeProperty ;
+  rdfs:domain :Accident ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "Accident Date/Time" ;
+  rdfs:comment "Precise date and time of accident occurrence" .
+
+# Location Properties
+:accidentLocation a owl:DatatypeProperty ;
+  rdfs:domain :Accident ;
+  rdfs:range xsd:string ;
+  rdfs:label "Accident Location" ;
+  rdfs:comment "Detailed location description of accident" .
+
+:locationAddress a owl:ObjectProperty ;
+  rdfs:domain :Accident ;
+  rdfs:range :Address ;
+  rdfs:label "Location Address" ;
+  rdfs:comment "Structured address of accident location" .
+
+# Damage Assessment Properties
+:damageDescription a owl:DatatypeProperty ;
+  rdfs:domain :Accident ;
+  rdfs:range xsd:string ;
+  rdfs:label "Damage Description" ;
+  rdfs:comment "Detailed description of vehicle/property damage" .
+
+:estimatedDamageAmount a owl:DatatypeProperty ;
+  rdfs:domain :Accident ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "Estimated Damage Amount" ;
+  rdfs:comment "Estimated cost of damage - key risk indicator" .
+
+:actualRepairCost a owl:DatatypeProperty ;
+  rdfs:domain :Accident ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "Actual Repair Cost" ;
+  rdfs:comment "Actual cost of repairs if completed" .
+
+# Police/Legal Properties
+:policeReportFiled a owl:DatatypeProperty ;
+  rdfs:domain :Accident ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Police Report Filed" ;
+  rdfs:comment "Whether official police report was filed" .
+
+:policeReportNumber a owl:DatatypeProperty ;
+  rdfs:domain :Accident ;
+  rdfs:range xsd:string ;
+  rdfs:label "Police Report Number" ;
+  rdfs:comment "Official police report reference number" .
+
+:citationIssued a owl:DatatypeProperty ;
+  rdfs:domain :Accident ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Citation Issued" ;
+  rdfs:comment "Whether traffic citation was issued" .
+
+# Risk Assessment Properties (Critical for Underwriting)
+:faultPercentage a owl:DatatypeProperty ;
+  rdfs:domain :Accident ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Fault Percentage" ;
+  rdfs:comment "Percentage of fault attributed to policyholder (0-100)" .
+
+:numberOfVehiclesInvolved a owl:DatatypeProperty ;
+  rdfs:domain :Accident ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Number of Vehicles Involved" ;
+  rdfs:comment "Total vehicles involved in accident" .
+
+:numberOfInjuries a owl:DatatypeProperty ;
+  rdfs:domain :Accident ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Number of Injuries" ;
+  rdfs:comment "Total number of people injured" .
+
+:injurySeverity a owl:DatatypeProperty ;
+  rdfs:domain :Accident ;
+  rdfs:range xsd:string ;
+  rdfs:label "Injury Severity" ;
+  rdfs:comment "Severity classification of injuries (Minor/Moderate/Severe/Fatal)" .
+
+:speedAtImpact a owl:DatatypeProperty ;
+  rdfs:domain :Accident ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Speed at Impact" ;
+  rdfs:comment "Estimated vehicle speed at time of impact (mph)" .
+
+# Claim Decision Properties
+:claimFiled a owl:DatatypeProperty ;
+  rdfs:domain :Accident ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Claim Filed" ;
+  rdfs:comment "Whether insurance claim was filed for this accident" .
+
+:reasonNoClaimFiled a owl:DatatypeProperty ;
+  rdfs:domain :Accident ;
+  rdfs:range xsd:string ;
+  rdfs:label "Reason No Claim Filed" ;
+  rdfs:comment "Explanation for why no claim was filed (e.g., below deductible, avoid premium increase)" .
+
+# Object Properties (Relationships)
+:involvedVehicle a owl:ObjectProperty ;
+  rdfs:domain :Accident ;
+  rdfs:range :Vehicle ;
+  rdfs:label "Involved Vehicle" ;
+  rdfs:comment "Vehicle involved in the accident" .
+
+:involvedDriver a owl:ObjectProperty ;
+  rdfs:domain :Accident ;
+  rdfs:range :Person ;
+  rdfs:label "Involved Driver" ;
+  rdfs:comment "Driver involved in the accident" .
+
+:relatedClaim a owl:ObjectProperty ;
+  rdfs:domain :Accident ;
+  rdfs:range :Claim ;
+  rdfs:label "Related Claim" ;
+  rdfs:comment "Insurance claim filed as result of this accident" .
+
+:hasPoliceReport a owl:ObjectProperty ;
+  rdfs:domain :Accident ;
+  rdfs:range :PoliceReport ;
+  rdfs:label "Has Police Report" ;
+  rdfs:comment "Official police report documenting the accident" .
+
+############################################################
+## SUPPORTING CLASS PROPERTIES
+############################################################
+
+# Insurance Company Properties
+:companyName a owl:DatatypeProperty ;
+  rdfs:domain :InsuranceCompany ;
+  rdfs:range xsd:string ;
+  rdfs:label "Company Name" ;
+  rdfs:comment "Legal name of insurance company" .
+
+:naic_code a owl:DatatypeProperty ;
+  rdfs:domain :InsuranceCompany ;
+  rdfs:range xsd:string ;
+  rdfs:label "NAIC Code" ;
+  rdfs:comment "National Association of Insurance Commissioners company code" .
+
+# Policy Properties
+:policyNumber a owl:DatatypeProperty ;
+  rdfs:domain :Policy ;
+  rdfs:range xsd:string ;
+  rdfs:label "Policy Number" ;
+  rdfs:comment "Unique policy identifier" .
+
+:policyEffectiveDate a owl:DatatypeProperty ;
+  rdfs:domain :Policy ;
+  rdfs:range xsd:date ;
+  rdfs:label "Policy Effective Date" ;
+  rdfs:comment "Date when policy coverage began" .
+
+:policyExpirationDate a owl:DatatypeProperty ;
+  rdfs:domain :Policy ;
+  rdfs:range xsd:date ;
+  rdfs:label "Policy Expiration Date" ;
+  rdfs:comment "Date when policy coverage ended" .
+
+# Vehicle Properties
+:vehicleVIN a owl:DatatypeProperty ;
+  rdfs:domain :Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "Vehicle VIN" ;
+  rdfs:comment "Vehicle Identification Number" .
+
+:vehicleMake a owl:DatatypeProperty ;
+  rdfs:domain :Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "Vehicle Make" ;
+  rdfs:comment "Vehicle manufacturer" .
+
+:vehicleModel a owl:DatatypeProperty ;
+  rdfs:domain :Vehicle ;
+  rdfs:range xsd:string ;
+  rdfs:label "Vehicle Model" ;
+  rdfs:comment "Vehicle model name" .
+
+:vehicleYear a owl:DatatypeProperty ;
+  rdfs:domain :Vehicle ;
+  rdfs:range xsd:gYear ;
+  rdfs:label "Vehicle Year" ;
+  rdfs:comment "Vehicle model year" .
+
+############################################################
+## END OF INSURANCE CLAIMS ONTOLOGY
+############################################################

@@ -1,0 +1,468 @@
+@prefix autoins: <https://autoins.example/ontology#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf:   <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <https://schema.org/> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct:    <http://purl.org/dc/terms/> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix gdpr:   <https://w3id.org/GDPRtEXT#> .
+@prefix dpv:    <https://w3id.org/dpv#> .
+
+############################################################
+## AI DATA COMPLIANCE & GDPR ONTOLOGY MODULE
+############################################################
+
+autoins:DataComplianceModule a owl:Ontology ;
+  rdfs:label "AI Data Compliance & GDPR Module" ;
+  owl:versionInfo "v1.0.0-2025-01-24" ;
+  dct:creator "CLIENT-UX" ;
+  dct:description "Comprehensive data protection, GDPR compliance, and privacy framework for insurance data processing" ;
+  owl:imports autoins: , gdpr: , dpv: .
+
+############################################################
+## GDPR COMPLIANCE ANNOTATION PROPERTIES
+############################################################
+
+# Data Classification Properties
+autoins:dataClassification a owl:AnnotationProperty ;
+  rdfs:label "data classification" ;
+  rdfs:range skos:Concept ;
+  rdfs:comment "GDPR data classification level (Personal, Sensitive, Public, Anonymous)" ;
+  autoins:i18nKey "compliance.data_classification.label" .
+
+autoins:personalDataCategory a owl:AnnotationProperty ;
+  rdfs:label "personal data category" ;
+  rdfs:range skos:Concept ;
+  rdfs:comment "Category of personal data under GDPR Article 4" ;
+  autoins:i18nKey "compliance.personal_data_category.label" .
+
+autoins:sensitiveDataType a owl:AnnotationProperty ;
+  rdfs:label "sensitive data type" ;
+  rdfs:range skos:Concept ;
+  rdfs:comment "Special category of personal data under GDPR Article 9" ;
+  autoins:i18nKey "compliance.sensitive_data_type.label" .
+
+# Access Control Properties
+autoins:accessLevel a owl:AnnotationProperty ;
+  rdfs:label "access level" ;
+  rdfs:range skos:Concept ;
+  rdfs:comment "Required access level to view this data" ;
+  autoins:i18nKey "compliance.access_level.label" .
+
+autoins:viewPermission a owl:AnnotationProperty ;
+  rdfs:label "view permission" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Role-based permission required to view field" ;
+  autoins:i18nKey "compliance.view_permission.label" .
+
+autoins:editPermission a owl:AnnotationProperty ;
+  rdfs:label "edit permission" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Role-based permission required to edit field" ;
+  autoins:i18nKey "compliance.edit_permission.label" .
+
+autoins:deletePermission a owl:AnnotationProperty ;
+  rdfs:label "delete permission" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Role-based permission required to delete field" ;
+  autoins:i18nKey "compliance.delete_permission.label" .
+
+# Data Obfuscation Properties
+autoins:obfuscationMethod a owl:AnnotationProperty ;
+  rdfs:label "obfuscation method" ;
+  rdfs:range skos:Concept ;
+  rdfs:comment "Method used to obfuscate sensitive data" ;
+  autoins:i18nKey "compliance.obfuscation_method.label" .
+
+autoins:maskingPattern a owl:AnnotationProperty ;
+  rdfs:label "masking pattern" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Pattern for data masking (e.g., 'XXX-XX-1234')" ;
+  autoins:i18nKey "compliance.masking_pattern.label" .
+
+autoins:anonymizationLevel a owl:AnnotationProperty ;
+  rdfs:label "anonymization level" ;
+  rdfs:range skos:Concept ;
+  rdfs:comment "Level of anonymization applied to data" ;
+  autoins:i18nKey "compliance.anonymization_level.label" .
+
+# Consent Management Properties
+autoins:consentRequired a owl:AnnotationProperty ;
+  rdfs:label "consent required" ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Whether explicit consent is required for processing" ;
+  autoins:i18nKey "compliance.consent_required.label" .
+
+autoins:consentPurpose a owl:AnnotationProperty ;
+  rdfs:label "consent purpose" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Specific purpose for which consent is required" ;
+  autoins:i18nKey "compliance.consent_purpose.label" .
+
+autoins:consentBasis a owl:AnnotationProperty ;
+  rdfs:label "consent basis" ;
+  rdfs:range skos:Concept ;
+  rdfs:comment "Legal basis for data processing under GDPR Article 6" ;
+  autoins:i18nKey "compliance.consent_basis.label" .
+
+# Data Retention Properties
+autoins:retentionPeriod a owl:AnnotationProperty ;
+  rdfs:label "retention period" ;
+  rdfs:range xsd:duration ;
+  rdfs:comment "Maximum period data can be retained" ;
+  autoins:i18nKey "compliance.retention_period.label" .
+
+autoins:retentionReason a owl:AnnotationProperty ;
+  rdfs:label "retention reason" ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Business or legal reason for data retention" ;
+  autoins:i18nKey "compliance.retention_reason.label" .
+
+autoins:deletionTrigger a owl:AnnotationProperty ;
+  rdfs:label "deletion trigger" ;
+  rdfs:range skos:Concept ;
+  rdfs:comment "Event that triggers automatic data deletion" ;
+  autoins:i18nKey "compliance.deletion_trigger.label" .
+
+# Audit & Logging Properties
+autoins:auditRequired a owl:AnnotationProperty ;
+  rdfs:label "audit required" ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Whether access to this field must be audited" ;
+  autoins:i18nKey "compliance.audit_required.label" .
+
+autoins:logLevel a owl:AnnotationProperty ;
+  rdfs:label "log level" ;
+  rdfs:range skos:Concept ;
+  rdfs:comment "Level of logging required for field access" ;
+  autoins:i18nKey "compliance.log_level.label" .
+
+############################################################
+## GDPR CONTROLLED VOCABULARIES (SKOS SCHEMES)
+############################################################
+
+# Data Classification Scheme
+autoins:DataClassificationScheme a skos:ConceptScheme ;
+  rdfs:label "GDPR Data Classification Scheme" ;
+  skos:prefLabel "Standardized data classification levels for GDPR compliance" ;
+  autoins:i18nKey "compliance.data_classification_scheme.label" .
+
+autoins:PersonalData a skos:Concept ;
+  skos:inScheme autoins:DataClassificationScheme ;
+  skos:prefLabel "Personal Data" ;
+  skos:definition "Data relating to an identified or identifiable natural person (GDPR Art. 4)" ;
+  autoins:i18nKey "compliance.personal_data.label" .
+
+autoins:SensitivePersonalData a skos:Concept ;
+  skos:inScheme autoins:DataClassificationScheme ;
+  skos:prefLabel "Sensitive Personal Data" ;
+  skos:definition "Special categories of personal data (GDPR Art. 9)" ;
+  autoins:i18nKey "compliance.sensitive_personal_data.label" .
+
+autoins:PublicData a skos:Concept ;
+  skos:inScheme autoins:DataClassificationScheme ;
+  skos:prefLabel "Public Data" ;
+  skos:definition "Data that is publicly available and not subject to GDPR" ;
+  autoins:i18nKey "compliance.public_data.label" .
+
+autoins:AnonymousData a skos:Concept ;
+  skos:inScheme autoins:DataClassificationScheme ;
+  skos:prefLabel "Anonymous Data" ;
+  skos:definition "Data that cannot be linked to an identifiable person" ;
+  autoins:i18nKey "compliance.anonymous_data.label" .
+
+autoins:PseudonymizedData a skos:Concept ;
+  skos:inScheme autoins:DataClassificationScheme ;
+  skos:prefLabel "Pseudonymized Data" ;
+  skos:definition "Personal data processed in such a manner that it can no longer be attributed to a specific data subject without additional information" ;
+  autoins:i18nKey "compliance.pseudonymized_data.label" .
+
+# Personal Data Categories Scheme
+autoins:PersonalDataCategoryScheme a skos:ConceptScheme ;
+  rdfs:label "Personal Data Categories" ;
+  skos:prefLabel "Categories of personal data under GDPR" ;
+  autoins:i18nKey "compliance.personal_data_category_scheme.label" .
+
+autoins:IdentityData a skos:Concept ;
+  skos:inScheme autoins:PersonalDataCategoryScheme ;
+  skos:prefLabel "Identity Data" ;
+  skos:definition "Name, address, date of birth, identification numbers" ;
+  autoins:i18nKey "compliance.identity_data.label" .
+
+autoins:ContactData a skos:Concept ;
+  skos:inScheme autoins:PersonalDataCategoryScheme ;
+  skos:prefLabel "Contact Data" ;
+  skos:definition "Email, phone, postal address, social media handles" ;
+  autoins:i18nKey "compliance.contact_data.label" .
+
+autoins:FinancialData a skos:Concept ;
+  skos:inScheme autoins:PersonalDataCategoryScheme ;
+  skos:prefLabel "Financial Data" ;
+  skos:definition "Bank details, payment information, credit history" ;
+  autoins:i18nKey "compliance.financial_data.label" .
+
+autoins:BehavioralData a skos:Concept ;
+  skos:inScheme autoins:PersonalDataCategoryScheme ;
+  skos:prefLabel "Behavioral Data" ;
+  skos:definition "Driving patterns, usage data, preferences" ;
+  autoins:i18nKey "compliance.behavioral_data.label" .
+
+autoins:BiometricData a skos:Concept ;
+  skos:inScheme autoins:PersonalDataCategoryScheme ;
+  skos:prefLabel "Biometric Data" ;
+  skos:definition "Fingerprints, facial recognition, voice patterns" ;
+  autoins:i18nKey "compliance.biometric_data.label" .
+
+# Access Level Scheme
+autoins:AccessLevelScheme a skos:ConceptScheme ;
+  rdfs:label "Access Level Classifications" ;
+  skos:prefLabel "Role-based access control levels" ;
+  autoins:i18nKey "compliance.access_level_scheme.label" .
+
+autoins:PublicAccess a skos:Concept ;
+  skos:inScheme autoins:AccessLevelScheme ;
+  skos:prefLabel "Public Access" ;
+  skos:definition "Data accessible to all users" ;
+  autoins:i18nKey "compliance.public_access.label" .
+
+autoins:UserAccess a skos:Concept ;
+  skos:inScheme autoins:AccessLevelScheme ;
+  skos:prefLabel "User Access" ;
+  skos:definition "Data accessible to authenticated users" ;
+  autoins:i18nKey "compliance.user_access.label" .
+
+autoins:StaffAccess a skos:Concept ;
+  skos:inScheme autoins:AccessLevelScheme ;
+  skos:prefLabel "Staff Access" ;
+  skos:definition "Data accessible to company staff members" ;
+  autoins:i18nKey "compliance.staff_access.label" .
+
+autoins:ManagerAccess a skos:Concept ;
+  skos:inScheme autoins:AccessLevelScheme ;
+  skos:prefLabel "Manager Access" ;
+  skos:definition "Data accessible to management level" ;
+  autoins:i18nKey "compliance.manager_access.label" .
+
+autoins:AdminAccess a skos:Concept ;
+  skos:inScheme autoins:AccessLevelScheme ;
+  skos:prefLabel "Admin Access" ;
+  skos:definition "Data accessible to system administrators" ;
+  autoins:i18nKey "compliance.admin_access.label" .
+
+autoins:AuditorAccess a skos:Concept ;
+  skos:inScheme autoins:AccessLevelScheme ;
+  skos:prefLabel "Auditor Access" ;
+  skos:definition "Data accessible to compliance auditors" ;
+  autoins:i18nKey "compliance.auditor_access.label" .
+
+# Obfuscation Method Scheme
+autoins:ObfuscationMethodScheme a skos:ConceptScheme ;
+  rdfs:label "Data Obfuscation Methods" ;
+  skos:prefLabel "Methods for protecting sensitive data" ;
+  autoins:i18nKey "compliance.obfuscation_method_scheme.label" .
+
+autoins:FullMasking a skos:Concept ;
+  skos:inScheme autoins:ObfuscationMethodScheme ;
+  skos:prefLabel "Full Masking" ;
+  skos:definition "Replace all characters with mask characters (e.g., ****)" ;
+  autoins:i18nKey "compliance.full_masking.label" .
+
+autoins:PartialMasking a skos:Concept ;
+  skos:inScheme autoins:ObfuscationMethodScheme ;
+  skos:prefLabel "Partial Masking" ;
+  skos:definition "Mask only part of the data (e.g., XXX-XX-1234)" ;
+  autoins:i18nKey "compliance.partial_masking.label" .
+
+autoins:Hashing a skos:Concept ;
+  skos:inScheme autoins:ObfuscationMethodScheme ;
+  skos:prefLabel "Hashing" ;
+  skos:definition "Replace data with cryptographic hash" ;
+  autoins:i18nKey "compliance.hashing.label" .
+
+autoins:Encryption a skos:Concept ;
+  skos:inScheme autoins:ObfuscationMethodScheme ;
+  skos:prefLabel "Encryption" ;
+  skos:definition "Encrypt data with reversible encryption" ;
+  autoins:i18nKey "compliance.encryption.label" .
+
+autoins:Tokenization a skos:Concept ;
+  skos:inScheme autoins:ObfuscationMethodScheme ;
+  skos:prefLabel "Tokenization" ;
+  skos:definition "Replace sensitive data with non-sensitive tokens" ;
+  autoins:i18nKey "compliance.tokenization.label" .
+
+autoins:Redaction a skos:Concept ;
+  skos:inScheme autoins:ObfuscationMethodScheme ;
+  skos:prefLabel "Redaction" ;
+  skos:definition "Remove or black out sensitive information" ;
+  autoins:i18nKey "compliance.redaction.label" .
+
+# Legal Basis Scheme (GDPR Article 6)
+autoins:LegalBasisScheme a skos:ConceptScheme ;
+  rdfs:label "GDPR Legal Basis for Processing" ;
+  skos:prefLabel "Legal grounds for processing personal data under GDPR Article 6" ;
+  autoins:i18nKey "compliance.legal_basis_scheme.label" .
+
+autoins:Consent a skos:Concept ;
+  skos:inScheme autoins:LegalBasisScheme ;
+  skos:prefLabel "Consent (Art. 6(1)(a))" ;
+  skos:definition "The data subject has given consent to the processing" ;
+  autoins:i18nKey "compliance.consent.label" .
+
+autoins:Contract a skos:Concept ;
+  skos:inScheme autoins:LegalBasisScheme ;
+  skos:prefLabel "Contract (Art. 6(1)(b))" ;
+  skos:definition "Processing is necessary for the performance of a contract" ;
+  autoins:i18nKey "compliance.contract.label" .
+
+autoins:LegalObligation a skos:Concept ;
+  skos:inScheme autoins:LegalBasisScheme ;
+  skos:prefLabel "Legal Obligation (Art. 6(1)(c))" ;
+  skos:definition "Processing is necessary for compliance with a legal obligation" ;
+  autoins:i18nKey "compliance.legal_obligation.label" .
+
+autoins:VitalInterests a skos:Concept ;
+  skos:inScheme autoins:LegalBasisScheme ;
+  skos:prefLabel "Vital Interests (Art. 6(1)(d))" ;
+  skos:definition "Processing is necessary to protect vital interests" ;
+  autoins:i18nKey "compliance.vital_interests.label" .
+
+autoins:PublicTask a skos:Concept ;
+  skos:inScheme autoins:LegalBasisScheme ;
+  skos:prefLabel "Public Task (Art. 6(1)(e))" ;
+  skos:definition "Processing is necessary for the performance of a public task" ;
+  autoins:i18nKey "compliance.public_task.label" .
+
+autoins:LegitimateInterests a skos:Concept ;
+  skos:inScheme autoins:LegalBasisScheme ;
+  skos:prefLabel "Legitimate Interests (Art. 6(1)(f))" ;
+  skos:definition "Processing is necessary for legitimate interests" ;
+  autoins:i18nKey "compliance.legitimate_interests.label" .
+
+############################################################
+## DATA SUBJECT RIGHTS CLASSES
+############################################################
+
+autoins:DataSubjectRights a owl:Class ;
+  rdfs:label "Data Subject Rights" ;
+  rdfs:comment "GDPR rights available to data subjects" ;
+  autoins:i18nKey "compliance.data_subject_rights.label" .
+
+autoins:RightOfAccess a owl:Class ;
+  rdfs:subClassOf autoins:DataSubjectRights ;
+  rdfs:label "Right of Access (Art. 15)" ;
+  rdfs:comment "Right to obtain confirmation and access to personal data" ;
+  autoins:i18nKey "compliance.right_of_access.label" .
+
+autoins:RightToRectification a owl:Class ;
+  rdfs:subClassOf autoins:DataSubjectRights ;
+  rdfs:label "Right to Rectification (Art. 16)" ;
+  rdfs:comment "Right to have inaccurate personal data rectified" ;
+  autoins:i18nKey "compliance.right_to_rectification.label" .
+
+autoins:RightToErasure a owl:Class ;
+  rdfs:subClassOf autoins:DataSubjectRights ;
+  rdfs:label "Right to Erasure (Art. 17)" ;
+  rdfs:comment "Right to have personal data erased ('right to be forgotten')" ;
+  autoins:i18nKey "compliance.right_to_erasure.label" .
+
+autoins:RightToPortability a owl:Class ;
+  rdfs:subClassOf autoins:DataSubjectRights ;
+  rdfs:label "Right to Data Portability (Art. 20)" ;
+  rdfs:comment "Right to receive personal data in a structured, machine-readable format" ;
+  autoins:i18nKey "compliance.right_to_portability.label" .
+
+autoins:RightToObject a owl:Class ;
+  rdfs:subClassOf autoins:DataSubjectRights ;
+  rdfs:label "Right to Object (Art. 21)" ;
+  rdfs:comment "Right to object to processing of personal data" ;
+  autoins:i18nKey "compliance.right_to_object.label" .
+
+############################################################
+## CONSENT MANAGEMENT CLASSES
+############################################################
+
+autoins:ConsentRecord a owl:Class ;
+  rdfs:label "Consent Record" ;
+  rdfs:comment "Record of consent given by data subject" ;
+  autoins:i18nKey "compliance.consent_record.label" .
+
+autoins:ConsentWithdrawal a owl:Class ;
+  rdfs:label "Consent Withdrawal" ;
+  rdfs:comment "Record of consent withdrawal by data subject" ;
+  autoins:i18nKey "compliance.consent_withdrawal.label" .
+
+############################################################
+## AUDIT & COMPLIANCE CLASSES
+############################################################
+
+autoins:DataProcessingActivity a owl:Class ;
+  rdfs:label "Data Processing Activity" ;
+  rdfs:comment "Record of processing activities under GDPR Article 30" ;
+  autoins:i18nKey "compliance.data_processing_activity.label" .
+
+autoins:DataBreachRecord a owl:Class ;
+  rdfs:label "Data Breach Record" ;
+  rdfs:comment "Record of personal data breach under GDPR Article 33" ;
+  autoins:i18nKey "compliance.data_breach_record.label" .
+
+autoins:DataProtectionImpactAssessment a owl:Class ;
+  rdfs:label "Data Protection Impact Assessment" ;
+  rdfs:comment "DPIA record under GDPR Article 35" ;
+  autoins:i18nKey "compliance.dpia.label" .
+
+############################################################
+## COMPLIANCE VALIDATION PROPERTIES
+############################################################
+
+autoins:gdprCompliant a owl:DatatypeProperty ;
+  rdfs:domain owl:Thing ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "GDPR compliant" ;
+  rdfs:comment "Whether the data processing is GDPR compliant" ;
+  autoins:i18nKey "compliance.gdpr_compliant.label" .
+
+autoins:complianceNotes a owl:DatatypeProperty ;
+  rdfs:domain owl:Thing ;
+  rdfs:range xsd:string ;
+  rdfs:label "compliance notes" ;
+  rdfs:comment "Additional notes regarding compliance status" ;
+  autoins:i18nKey "compliance.compliance_notes.label" .
+
+autoins:lastComplianceReview a owl:DatatypeProperty ;
+  rdfs:domain owl:Thing ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "last compliance review" ;
+  rdfs:comment "Date of last compliance review" ;
+  autoins:i18nKey "compliance.last_compliance_review.label" .
+
+############################################################
+## SHACL VALIDATION SHAPES FOR COMPLIANCE
+############################################################
+
+autoins:GDPRComplianceShape a sh:NodeShape ;
+  rdfs:label "GDPR Compliance Validation Shape" ;
+  sh:property [
+    sh:path autoins:dataClassification ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Data classification is required for all personal data fields"
+  ] ;
+  sh:property [
+    sh:path autoins:consentBasis ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Legal basis for processing must be specified"
+  ] ;
+  sh:property [
+    sh:path autoins:retentionPeriod ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Data retention period must be specified"
+  ] .
+
+############################################################
+## END OF DATA COMPLIANCE MODULE
+############################################################

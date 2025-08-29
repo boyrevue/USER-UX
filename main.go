@@ -42,7 +42,6 @@ func main() {
 	}
 
 	app := &App{
-		Ontology: LoadOntology(),
 		Sessions: make(map[string]*QuoteSession),
 		Store:    store,
 	}
@@ -137,19 +136,10 @@ func main() {
 	api.HandleFunc("/process-document", ProcessDocumentHandler).Methods("POST")
 	api.HandleFunc("/validate-document", ValidateDocumentHandler).Methods("POST")
 
-	// AI Form Analysis routes
-	api.HandleFunc("/analyze-form", AnalyzeFormHandler).Methods("POST")
-	api.HandleFunc("/map-fields", MapFieldsHandler).Methods("POST")
-	api.HandleFunc("/shacl-transform", SHACLTransformHandler).Methods("POST")
+	// TTL Ontology API routes
+	api.HandleFunc("/ontology", HandleOntologyAPI).Methods("GET")
 
-	// Web Spider routes
-	api.HandleFunc("/web-spider", WebSpiderHandler).Methods("POST")
-
-	// Stealth Browser routes
-	api.HandleFunc("/stealth-browser", StealthBrowserHandler).Methods("POST")
-
-	// Money Supermarket Infiltration
-	api.HandleFunc("/infiltrate/moneysupermarket", MoneySupermarketInfiltrationHandler).Methods("POST")
+	// Admin functions removed for CLIENT-UX
 
 	// Debug endpoint for testing OCR on specific images
 	api.HandleFunc("/debug/ocr-test", app.handleDebugOCRTest).Methods("GET")
@@ -173,11 +163,13 @@ func main() {
 		port = "3000"
 	}
 
-	fmt.Println("====================================")
-	fmt.Println("✅ Enhanced Insurance Quote App v2.2")
+	fmt.Println("========================================")
+	fmt.Println("✅ CLIENT-UX Personal Data Manager v3.0")
 	fmt.Printf("🌐 Open: http://localhost:%s\n", port)
-	fmt.Println("🌍 Languages: EN/DE, DVLA lookup, masks")
-	fmt.Println("====================================")
+	fmt.Println("🏢 Domains: Insurance, Finance, Legal, Health")
+	fmt.Println("🎤 Voice/TTS, Smart Dialogs, OCR, i18n")
+	fmt.Println("🔗 RDF/SHACL Ontologies, Vendor Integration")
+	fmt.Println("========================================")
 	log.Fatal(http.ListenAndServe(":"+port, handler))
 }
 
