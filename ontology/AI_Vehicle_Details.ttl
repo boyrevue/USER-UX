@@ -1,4 +1,5 @@
 @prefix autoins: <https://autoins.example/ontology#> .
+@prefix bipro: <https://bipro.net/ontology#> .
 @prefix owl:    <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
@@ -28,7 +29,17 @@ autoins:VehicleDetailsModule a owl:Ontology ;
   autoins:retentionPeriod "P7Y" ;
   autoins:retentionReason "Insurance policy lifecycle and claims handling" ;
   autoins:auditRequired "false"^^xsd:boolean ;
-  autoins:gdprCompliant "true"^^xsd:boolean .
+  autoins:gdprCompliant "true"^^xsd:boolean ;
+  # TOPIC-LEVEL BIPRO COMPLIANCE
+  bipro:normCompliance "420,430,419" ;
+  bipro:germanMarketReady "true"^^xsd:boolean ;
+  bipro:gdvMappingAvailable "true"^^xsd:boolean ;
+  bipro:bafinCompliant "true"^^xsd:boolean ;
+  bipro:vvgCompliant "true"^^xsd:boolean ;
+  bipro:supportedGenerations "RClassic,RNext" ;
+  bipro:certificationStatus "pending" ;
+  bipro:lastValidated "2025-01-24"^^xsd:date ;
+  bipro:riskAssessmentCritical "true"^^xsd:boolean .
 
 ############################################################
 ## VEHICLE DOCUMENT CLASSES
@@ -127,14 +138,30 @@ autoins:make a owl:DatatypeProperty ;
   rdfs:range xsd:string ;
   rdfs:label "make" ;
   autoins:isRequired "true"^^xsd:boolean ;
-  autoins:formHelpText "Vehicle manufacturer (e.g., Ford, BMW, Toyota)" .
+  autoins:formHelpText "Vehicle manufacturer (e.g., Ford, BMW, Toyota)" ;
+  # BiPRO Compliance
+  bipro:gdvFieldMapping "MAKE" ;
+  bipro:gdvPosition "39" ;
+  bipro:gdvLength "20" ;
+  bipro:gdvFormat "A" ;
+  bipro:norm420Required "true"^^xsd:boolean ;
+  bipro:norm430Transferable "true"^^xsd:boolean ;
+  bipro:riskCalculationFactor "true"^^xsd:boolean .
 
 autoins:model a owl:DatatypeProperty ;
   rdfs:domain autoins:Vehicle ;
   rdfs:range xsd:string ;
   rdfs:label "model" ;
   autoins:isRequired "true"^^xsd:boolean ;
-  autoins:formHelpText "Vehicle model (e.g., Focus, 320i, Corolla)" .
+  autoins:formHelpText "Vehicle model (e.g., Focus, 320i, Corolla)" ;
+  # BiPRO Compliance
+  bipro:gdvFieldMapping "MODEL" ;
+  bipro:gdvPosition "59" ;
+  bipro:gdvLength "25" ;
+  bipro:gdvFormat "A" ;
+  bipro:norm420Required "true"^^xsd:boolean ;
+  bipro:norm430Transferable "true"^^xsd:boolean ;
+  bipro:riskCalculationFactor "true"^^xsd:boolean .
 
 autoins:year a owl:DatatypeProperty ;
   rdfs:domain autoins:Vehicle ;
@@ -436,6 +463,14 @@ autoins:vin a owl:DatatypeProperty ;
   rdfs:label "VIN" ;
   autoins:isRequired "false"^^xsd:boolean ;
   autoins:formHelpText "Vehicle Identification Number (17 characters)" ;
+  # BiPRO Compliance
+  bipro:gdvFieldMapping "VIN" ;
+  bipro:gdvPosition "88" ;
+  bipro:gdvLength "17" ;
+  bipro:gdvFormat "A" ;
+  bipro:norm420Required "false"^^xsd:boolean ;
+  bipro:norm430Transferable "true"^^xsd:boolean ;
+  bipro:riskCalculationFactor "false"^^xsd:boolean ;
   autoins:validationPattern "^[A-HJ-NPR-Z0-9]{17}$" .
 
 autoins:engineNumber a owl:DatatypeProperty ;

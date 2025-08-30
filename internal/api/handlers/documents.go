@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/client-ux/internal/services/ocr"
+	"client-ux/internal/services/ocr"
 )
 
 func ProcessDocument(w http.ResponseWriter, r *http.Request) {

@@ -51,6 +51,8 @@
     "ontology/AI_Claims_History.ttl",
     "ontology/AI_Insurance_Payments.ttl",
     "ontology/AI_Data_Compliance.ttl",
+    "ontology/BiPRO_Compliance.ttl",
+    "ontology/ACORD_PC_Canonical.ttl",
     "ontology/user_ux.ttl",
     "ontology/user_documents.ttl",
     "ontology/user_credentials_pci.ttl",

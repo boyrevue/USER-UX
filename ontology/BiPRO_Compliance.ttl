@@ -1,0 +1,469 @@
+@prefix autoins: <https://autoins.example/ontology#> .
+@prefix bipro: <https://bipro.net/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <https://schema.org/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+############################################################
+## BIPRO COMPLIANCE ONTOLOGY MODULE
+############################################################
+
+autoins:BiPROComplianceModule a owl:Ontology ;
+  rdfs:label "BiPRO Compliance Module" ;
+  owl:versionInfo "v1.0.0-2025-01-24" ;
+  dct:creator "CLIENT-UX" ;
+  dct:description "BiPRO standards compliance ontology for German insurance market integration" ;
+  owl:imports autoins: ;
+  # GDPR Compliance - Business Data
+  autoins:dataClassification autoins:BusinessData ;
+  autoins:personalDataCategory autoins:ProcessingData ;
+  autoins:accessLevel autoins:SystemAccess ;
+  autoins:consentRequired "false"^^xsd:boolean ;
+  autoins:retentionPeriod "P10Y" ;
+  autoins:auditRequired "true"^^xsd:boolean ;
+  autoins:gdprCompliant "true"^^xsd:boolean .
+
+############################################################
+## BIPRO CORE CLASSES
+############################################################
+
+# BiPRO Service Base Class
+bipro:BiPROService a owl:Class ;
+  rdfs:label "BiPRO Service" ;
+  rdfs:comment "Base class for all BiPRO compliant services" ;
+  autoins:i18nKey "bipro.service.label" .
+
+# BiPRO Norm Base Class
+bipro:BiPRONorm a owl:Class ;
+  rdfs:label "BiPRO Norm" ;
+  rdfs:comment "Represents a specific BiPRO standard norm" ;
+  autoins:i18nKey "bipro.norm.label" .
+
+# BiPRO Message Base Class
+bipro:BiPROMessage a owl:Class ;
+  rdfs:label "BiPRO Message" ;
+  rdfs:comment "Base class for BiPRO message exchanges" ;
+  autoins:i18nKey "bipro.message.label" .
+
+############################################################
+## NORM 420 - TARIFICATION, OFFER, APPLICATION (TAA)
+############################################################
+
+# Norm 420 Classes
+bipro:Norm420 a bipro:BiPRONorm ;
+  rdfs:label "BiPRO Norm 420 - TAA" ;
+  rdfs:comment "Tarification, Offer, Application standard" ;
+  bipro:normNumber "420" ;
+  bipro:version "2024.1" ;
+  bipro:status "active" ;
+  autoins:i18nKey "bipro.norm420.label" .
+
+bipro:TariffCalculation a owl:Class ;
+  rdfs:subClassOf autoins:ReserveCalculation ;
+  rdfs:label "BiPRO Tariff Calculation" ;
+  rdfs:comment "BiPRO compliant tariff calculation service" ;
+  bipro:implementsNorm bipro:Norm420 ;
+  autoins:i18nKey "bipro.tariff_calculation.label" .
+
+bipro:OfferGeneration a owl:Class ;
+  rdfs:subClassOf bipro:BiPROService ;
+  rdfs:label "BiPRO Offer Generation" ;
+  rdfs:comment "Standardized insurance offer generation" ;
+  bipro:implementsNorm bipro:Norm420 ;
+  autoins:i18nKey "bipro.offer_generation.label" .
+
+bipro:ApplicationSubmission a owl:Class ;
+  rdfs:subClassOf bipro:BiPROService ;
+  rdfs:label "BiPRO Application Submission" ;
+  rdfs:comment "Standardized insurance application submission" ;
+  bipro:implementsNorm bipro:Norm420 ;
+  autoins:i18nKey "bipro.application_submission.label" .
+
+############################################################
+## NORM 430 - TRANSFER SERVICES
+############################################################
+
+# Norm 430 Classes
+bipro:Norm430 a bipro:BiPRONorm ;
+  rdfs:label "BiPRO Norm 430 - Transfer Services" ;
+  rdfs:comment "Electronic document and data transmission" ;
+  bipro:normNumber "430" ;
+  bipro:version "2024.1" ;
+  bipro:status "active" ;
+  autoins:i18nKey "bipro.norm430.label" .
+
+bipro:DocumentTransfer a owl:Class ;
+  rdfs:subClassOf autoins:DocumentProcessing ;
+  rdfs:label "BiPRO Document Transfer" ;
+  rdfs:comment "Standardized document transfer service" ;
+  bipro:implementsNorm bipro:Norm430 ;
+  autoins:i18nKey "bipro.document_transfer.label" .
+
+bipro:GDVDataTransfer a owl:Class ;
+  rdfs:subClassOf bipro:DocumentTransfer ;
+  rdfs:label "GDV Data Transfer" ;
+  rdfs:comment "GDV format data transfer (Norm 430.1)" ;
+  bipro:subNorm "430.1" ;
+  autoins:i18nKey "bipro.gdv_transfer.label" .
+
+bipro:PaymentIrregularityTransfer a owl:Class ;
+  rdfs:subClassOf bipro:DocumentTransfer ;
+  rdfs:label "Payment Irregularity Transfer" ;
+  rdfs:comment "Payment reminders and dunning notices (Norm 430.2)" ;
+  bipro:subNorm "430.2" ;
+  autoins:i18nKey "bipro.payment_irregularity.label" .
+
+bipro:ContractTransactionTransfer a owl:Class ;
+  rdfs:subClassOf bipro:DocumentTransfer ;
+  rdfs:label "Contract Transaction Transfer" ;
+  rdfs:comment "Contract-related business transactions (Norm 430.4)" ;
+  bipro:subNorm "430.4" ;
+  autoins:i18nKey "bipro.contract_transaction.label" .
+
+bipro:ClaimsDataTransfer a owl:Class ;
+  rdfs:subClassOf bipro:DocumentTransfer ;
+  rdfs:label "Claims Data Transfer" ;
+  rdfs:comment "Claims and benefit-related data (Norm 430.5)" ;
+  bipro:subNorm "430.5" ;
+  autoins:i18nKey "bipro.claims_transfer.label" .
+
+############################################################
+## NORM 440 - DIRECT ACCESS (DEEP LINK)
+############################################################
+
+# Norm 440 Classes
+bipro:Norm440 a bipro:BiPRONorm ;
+  rdfs:label "BiPRO Norm 440 - Direct Access" ;
+  rdfs:comment "Direct portal access without additional authentication" ;
+  bipro:normNumber "440" ;
+  bipro:version "2024.1" ;
+  bipro:status "active" ;
+  autoins:i18nKey "bipro.norm440.label" .
+
+bipro:DeepLinkAccess a owl:Class ;
+  rdfs:subClassOf bipro:BiPROService ;
+  rdfs:label "BiPRO Deep Link Access" ;
+  rdfs:comment "Direct access to insurer portals from broker systems" ;
+  bipro:implementsNorm bipro:Norm440 ;
+  autoins:i18nKey "bipro.deep_link.label" .
+
+bipro:SSOIntegration a owl:Class ;
+  rdfs:subClassOf bipro:DeepLinkAccess ;
+  rdfs:label "SSO Integration" ;
+  rdfs:comment "Single Sign-On integration for seamless access" ;
+  autoins:i18nKey "bipro.sso_integration.label" .
+
+############################################################
+## NORM 419 - RISK DATA SERVICE
+############################################################
+
+# Norm 419 Classes
+bipro:Norm419 a bipro:BiPRONorm ;
+  rdfs:label "BiPRO Norm 419 - Risk Data Service" ;
+  rdfs:comment "Standardized risk data transmission and offer responses" ;
+  bipro:normNumber "419" ;
+  bipro:version "2024.1" ;
+  bipro:status "active" ;
+  autoins:i18nKey "bipro.norm419.label" .
+
+bipro:RiskDataService a owl:Class ;
+  rdfs:subClassOf autoins:RiskAnalysis ;
+  rdfs:label "BiPRO Risk Data Service" ;
+  rdfs:comment "Standardized risk assessment and data exchange" ;
+  bipro:implementsNorm bipro:Norm419 ;
+  autoins:i18nKey "bipro.risk_data_service.label" .
+
+############################################################
+## NORM 490 - BROKER MANDATE/PORTFOLIO TRANSFER
+############################################################
+
+# Norm 490 Classes
+bipro:Norm490 a bipro:BiPRONorm ;
+  rdfs:label "BiPRO Norm 490 - Broker Mandate" ;
+  rdfs:comment "Broker mandate and portfolio transfer" ;
+  bipro:normNumber "490" ;
+  bipro:version "2024.1" ;
+  bipro:status "active" ;
+  autoins:i18nKey "bipro.norm490.label" .
+
+bipro:BrokerMandateTransfer a owl:Class ;
+  rdfs:subClassOf bipro:BiPROService ;
+  rdfs:label "Broker Mandate Transfer" ;
+  rdfs:comment "Standardized broker mandate and portfolio transfer" ;
+  bipro:implementsNorm bipro:Norm490 ;
+  autoins:i18nKey "bipro.broker_mandate.label" .
+
+############################################################
+## BIPRO PROPERTIES
+############################################################
+
+# BiPRO Identification Properties
+bipro:normNumber a owl:DatatypeProperty ;
+  rdfs:domain bipro:BiPRONorm ;
+  rdfs:range xsd:string ;
+  rdfs:label "norm number" ;
+  rdfs:comment "BiPRO norm identification number" ;
+  autoins:i18nKey "bipro.norm_number.label" .
+
+bipro:version a owl:DatatypeProperty ;
+  rdfs:domain bipro:BiPRONorm ;
+  rdfs:range xsd:string ;
+  rdfs:label "version" ;
+  rdfs:comment "BiPRO norm version" ;
+  autoins:i18nKey "bipro.version.label" .
+
+bipro:subNorm a owl:DatatypeProperty ;
+  rdfs:domain bipro:BiPROService ;
+  rdfs:range xsd:string ;
+  rdfs:label "sub norm" ;
+  rdfs:comment "BiPRO sub-norm identifier" ;
+  autoins:i18nKey "bipro.sub_norm.label" .
+
+bipro:status a owl:DatatypeProperty ;
+  rdfs:domain bipro:BiPRONorm ;
+  rdfs:range xsd:string ;
+  rdfs:label "status" ;
+  rdfs:comment "BiPRO norm status (active, deprecated, draft)" ;
+  autoins:enumerationValues ("active" "deprecated" "draft" "retired") ;
+  autoins:i18nKey "bipro.status.label" .
+
+# BiPRO Implementation Properties
+bipro:implementsNorm a owl:ObjectProperty ;
+  rdfs:domain bipro:BiPROService ;
+  rdfs:range bipro:BiPRONorm ;
+  rdfs:label "implements norm" ;
+  rdfs:comment "Links service to implemented BiPRO norm" ;
+  autoins:i18nKey "bipro.implements_norm.label" .
+
+bipro:supportedFormats a owl:DatatypeProperty ;
+  rdfs:domain bipro:DocumentTransfer ;
+  rdfs:range xsd:string ;
+  rdfs:label "supported formats" ;
+  rdfs:comment "Supported data formats for transfer" ;
+  autoins:enumerationValues ("GDV" "XML" "JSON" "PDF" "ZIP") ;
+  autoins:i18nKey "bipro.supported_formats.label" .
+
+bipro:compressionMethods a owl:DatatypeProperty ;
+  rdfs:domain bipro:DocumentTransfer ;
+  rdfs:range xsd:string ;
+  rdfs:label "compression methods" ;
+  rdfs:comment "Supported compression methods" ;
+  autoins:enumerationValues ("ZIP" "GZIP" "NONE") ;
+  autoins:i18nKey "bipro.compression_methods.label" .
+
+# BiPRO Authentication Properties
+bipro:authenticationMethod a owl:DatatypeProperty ;
+  rdfs:domain bipro:DeepLinkAccess ;
+  rdfs:range xsd:string ;
+  rdfs:label "authentication method" ;
+  rdfs:comment "Authentication method for deep link access" ;
+  autoins:enumerationValues ("OAuth2" "SAML" "X509" "JWT") ;
+  autoins:i18nKey "bipro.authentication_method.label" .
+
+bipro:sessionTimeout a owl:DatatypeProperty ;
+  rdfs:domain bipro:DeepLinkAccess ;
+  rdfs:range xsd:duration ;
+  rdfs:label "session timeout" ;
+  rdfs:comment "Session timeout for deep link access" ;
+  autoins:i18nKey "bipro.session_timeout.label" .
+
+# BiPRO Message Properties
+bipro:messageId a owl:DatatypeProperty ;
+  rdfs:domain bipro:BiPROMessage ;
+  rdfs:range xsd:string ;
+  rdfs:label "message ID" ;
+  rdfs:comment "Unique message identifier" ;
+  autoins:i18nKey "bipro.message_id.label" .
+
+bipro:timestamp a owl:DatatypeProperty ;
+  rdfs:domain bipro:BiPROMessage ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "timestamp" ;
+  rdfs:comment "Message timestamp" ;
+  autoins:i18nKey "bipro.timestamp.label" .
+
+bipro:sender a owl:DatatypeProperty ;
+  rdfs:domain bipro:BiPROMessage ;
+  rdfs:range xsd:string ;
+  rdfs:label "sender" ;
+  rdfs:comment "Message sender identification" ;
+  autoins:i18nKey "bipro.sender.label" .
+
+bipro:receiver a owl:DatatypeProperty ;
+  rdfs:domain bipro:BiPROMessage ;
+  rdfs:range xsd:string ;
+  rdfs:label "receiver" ;
+  rdfs:comment "Message receiver identification" ;
+  autoins:i18nKey "bipro.receiver.label" .
+
+############################################################
+## GDV FORMAT PROPERTIES
+############################################################
+
+# GDV (Gesamtverband der Deutschen Versicherungswirtschaft) Format
+bipro:GDVRecord a owl:Class ;
+  rdfs:label "GDV Record" ;
+  rdfs:comment "German insurance industry standard data record" ;
+  autoins:i18nKey "bipro.gdv_record.label" .
+
+bipro:gdvVersion a owl:DatatypeProperty ;
+  rdfs:domain bipro:GDVRecord ;
+  rdfs:range xsd:string ;
+  rdfs:label "GDV version" ;
+  rdfs:comment "GDV format version (e.g., GDV 2018)" ;
+  autoins:i18nKey "bipro.gdv_version.label" .
+
+bipro:recordType a owl:DatatypeProperty ;
+  rdfs:domain bipro:GDVRecord ;
+  rdfs:range xsd:string ;
+  rdfs:label "record type" ;
+  rdfs:comment "GDV record type identifier" ;
+  autoins:i18nKey "bipro.record_type.label" .
+
+bipro:recordLength a owl:DatatypeProperty ;
+  rdfs:domain bipro:GDVRecord ;
+  rdfs:range xsd:integer ;
+  rdfs:label "record length" ;
+  rdfs:comment "GDV record length in characters" ;
+  autoins:i18nKey "bipro.record_length.label" .
+
+############################################################
+## BIPRO SHACL VALIDATION SHAPES
+############################################################
+
+# BiPRO Service Validation Shape
+bipro:BiPROServiceShape a sh:NodeShape ;
+  sh:targetClass bipro:BiPROService ;
+  rdfs:label "BiPRO Service Validation" ;
+  sh:property [
+    sh:path bipro:implementsNorm ;
+    sh:minCount 1 ;
+    sh:class bipro:BiPRONorm ;
+    sh:message "🔧 BIPRO ERROR: Service must implement at least one BiPRO norm." ;
+    autoins:validationSeverity "ERROR" ;
+    autoins:validationCode "BIPRO_MISSING_NORM"
+  ] ;
+  sh:property [
+    sh:path bipro:version ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "📋 BIPRO ERROR: BiPRO version is required." ;
+    autoins:validationSeverity "ERROR" ;
+    autoins:validationCode "BIPRO_MISSING_VERSION"
+  ] .
+
+# Norm 420 Tariff Calculation Validation
+bipro:TariffCalculationShape a sh:NodeShape ;
+  sh:targetClass bipro:TariffCalculation ;
+  rdfs:label "BiPRO Tariff Calculation Validation" ;
+  sh:property [
+    sh:path autoins:baseReserve ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0 ;
+    sh:message "💰 BIPRO 420 ERROR: Base tariff amount must be non-negative." ;
+    autoins:validationSeverity "ERROR" ;
+    autoins:validationCode "BIPRO_420_INVALID_AMOUNT"
+  ] .
+
+# Norm 430 Document Transfer Validation
+bipro:DocumentTransferShape a sh:NodeShape ;
+  sh:targetClass bipro:DocumentTransfer ;
+  rdfs:label "BiPRO Document Transfer Validation" ;
+  sh:property [
+    sh:path bipro:supportedFormats ;
+    sh:minCount 1 ;
+    sh:in ("GDV" "XML" "JSON" "PDF" "ZIP") ;
+    sh:message "📄 BIPRO 430 ERROR: At least one supported format must be specified." ;
+    autoins:validationSeverity "ERROR" ;
+    autoins:validationCode "BIPRO_430_MISSING_FORMAT"
+  ] .
+
+# GDV Record Validation
+bipro:GDVRecordShape a sh:NodeShape ;
+  sh:targetClass bipro:GDVRecord ;
+  rdfs:label "GDV Record Validation" ;
+  sh:property [
+    sh:path bipro:gdvVersion ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:pattern "^GDV\\s+\\d{4}$" ;
+    sh:message "🇩🇪 GDV ERROR: GDV version must be in format 'GDV YYYY'." ;
+    autoins:validationSeverity "ERROR" ;
+    autoins:validationCode "GDV_INVALID_VERSION"
+  ] ;
+  sh:property [
+    sh:path bipro:recordType ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:pattern "^\\d{4}$" ;
+    sh:message "🔢 GDV ERROR: Record type must be 4-digit number." ;
+    autoins:validationSeverity "ERROR" ;
+    autoins:validationCode "GDV_INVALID_RECORD_TYPE"
+  ] .
+
+############################################################
+## BIPRO COMPLIANCE ANNOTATIONS
+############################################################
+
+# Compliance Metadata
+bipro:ComplianceMetadata a owl:Class ;
+  rdfs:label "BiPRO Compliance Metadata" ;
+  rdfs:comment "Metadata for BiPRO compliance tracking" ;
+  autoins:i18nKey "bipro.compliance_metadata.label" .
+
+bipro:certificationStatus a owl:DatatypeProperty ;
+  rdfs:domain bipro:ComplianceMetadata ;
+  rdfs:range xsd:string ;
+  rdfs:label "certification status" ;
+  rdfs:comment "BiPRO certification status" ;
+  autoins:enumerationValues ("certified" "pending" "not_certified" "expired") ;
+  autoins:i18nKey "bipro.certification_status.label" .
+
+bipro:certificationDate a owl:DatatypeProperty ;
+  rdfs:domain bipro:ComplianceMetadata ;
+  rdfs:range xsd:date ;
+  rdfs:label "certification date" ;
+  rdfs:comment "Date of BiPRO certification" ;
+  autoins:i18nKey "bipro.certification_date.label" .
+
+bipro:testSuiteVersion a owl:DatatypeProperty ;
+  rdfs:domain bipro:ComplianceMetadata ;
+  rdfs:range xsd:string ;
+  rdfs:label "test suite version" ;
+  rdfs:comment "BiPRO test suite version used for validation" ;
+  autoins:i18nKey "bipro.test_suite_version.label" .
+
+############################################################
+## GERMAN MARKET SPECIFIC PROPERTIES
+############################################################
+
+# German Insurance Regulatory Properties
+bipro:bafinCompliant a owl:DatatypeProperty ;
+  rdfs:domain bipro:BiPROService ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "BaFin compliant" ;
+  rdfs:comment "Compliance with German Federal Financial Supervisory Authority" ;
+  autoins:i18nKey "bipro.bafin_compliant.label" .
+
+bipro:germanDataProtectionCompliant a owl:DatatypeProperty ;
+  rdfs:domain bipro:BiPROService ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "German data protection compliant" ;
+  rdfs:comment "Compliance with German data protection laws (BDSG)" ;
+  autoins:i18nKey "bipro.german_data_protection.label" .
+
+bipro:insuranceContractLawCompliant a owl:DatatypeProperty ;
+  rdfs:domain bipro:BiPROService ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "insurance contract law compliant" ;
+  rdfs:comment "Compliance with German Insurance Contract Law (VVG)" ;
+  autoins:i18nKey "bipro.insurance_contract_law.label" .
+
+############################################################
+## END OF BIPRO COMPLIANCE MODULE
+############################################################

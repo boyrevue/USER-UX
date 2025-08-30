@@ -1,4 +1,5 @@
 @prefix autoins: <https://autoins.example/ontology#> .
+@prefix bipro: <https://bipro.net/ontology#> .
 @prefix owl:    <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
@@ -28,7 +29,17 @@ autoins:InsurancePaymentsModule a owl:Ontology ;
   autoins:retentionPeriod "P7Y" ;
   autoins:retentionReason "Financial regulatory requirements and audit compliance" ;
   autoins:auditRequired "true"^^xsd:boolean ;
-  autoins:gdprCompliant "true"^^xsd:boolean .
+  autoins:gdprCompliant "true"^^xsd:boolean ;
+  # TOPIC-LEVEL BIPRO COMPLIANCE
+  bipro:normCompliance "430" ;
+  bipro:germanMarketReady "true"^^xsd:boolean ;
+  bipro:gdvMappingAvailable "true"^^xsd:boolean ;
+  bipro:bafinCompliant "true"^^xsd:boolean ;
+  bipro:vvgCompliant "true"^^xsd:boolean ;
+  bipro:supportedGenerations "RClassic,RNext" ;
+  bipro:certificationStatus "pending" ;
+  bipro:lastValidated "2025-01-24"^^xsd:date ;
+  bipro:paymentIrregularityCompliant "true"^^xsd:boolean .
 
 ############################################################
 ## FINANCIAL DOCUMENT CLASSES

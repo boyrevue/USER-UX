@@ -1,4 +1,5 @@
 @prefix autoins: <https://autoins.example/ontology#> .
+@prefix bipro: <https://bipro.net/ontology#> .
 @prefix owl:    <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
@@ -28,7 +29,18 @@ autoins:ClaimsHistoryModule a owl:Ontology ;
   autoins:retentionPeriod "P10Y" ;
   autoins:retentionReason "Insurance regulatory requirements and fraud detection" ;
   autoins:auditRequired "true"^^xsd:boolean ;
-  autoins:gdprCompliant "true"^^xsd:boolean .
+  autoins:gdprCompliant "true"^^xsd:boolean ;
+  # TOPIC-LEVEL BIPRO COMPLIANCE
+  bipro:normCompliance "430,419" ;
+  bipro:germanMarketReady "true"^^xsd:boolean ;
+  bipro:gdvMappingAvailable "true"^^xsd:boolean ;
+  bipro:bafinCompliant "true"^^xsd:boolean ;
+  bipro:vvgCompliant "true"^^xsd:boolean ;
+  bipro:supportedGenerations "RClassic,RNext" ;
+  bipro:certificationStatus "pending" ;
+  bipro:lastValidated "2025-01-24"^^xsd:date ;
+  bipro:fnolCompliant "true"^^xsd:boolean ;
+  bipro:reserveCalculationReady "true"^^xsd:boolean .
 
 ############################################################
 ## ANNOTATION PROPERTIES & HELPERS

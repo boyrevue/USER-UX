@@ -1,0 +1,481 @@
+@prefix acord: <http://acord.org/ontology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix gdpr: <http://gdpr.eu/ontology#> .
+@prefix bipro: <https://bipro.net/ontology#> .
+@prefix polaris: <http://polaris.uk/ontology#> .
+@prefix sivi: <http://sivi.nl/ontology#> .
+@prefix eiac: <http://eiac.es/ontology#> .
+@prefix dvla: <http://dvla.gov.uk/ontology#> .
+@prefix ecall: <http://ecall.eu/ontology#> .
+@prefix eidas: <http://eidas.eu/ontology#> .
+
+# ============================================================
+# ACORD P&C CANONICAL ONTOLOGY FOR INSURANCE
+# ============================================================
+# This serves as the internal canonical model that maps to:
+# - BiPRO (Germany)
+# - Polaris (UK)
+# - SIVI AFS (Netherlands) 
+# - EIAC (Spain)
+# - EDI-Courtage (France)
+# ============================================================
+
+acord:ACORDCanonicalModule a rdfs:Class ;
+    rdfs:label "ACORD P&C Canonical Module"@en ;
+    rdfs:comment "Internal canonical insurance model based on ACORD P&C standards"@en ;
+    # Market compliance metadata
+    polaris:ukCompliant "true"^^xsd:boolean ;
+    sivi:nlCompliant "true"^^xsd:boolean ;
+    eiac:esCompliant "true"^^xsd:boolean ;
+    bipro:deCompliant "true"^^xsd:boolean ;
+    gdpr:compliant "true"^^xsd:boolean ;
+    # Supported formats
+    acord:supportedFormats "XML,JSON,EDI" ;
+    acord:version "2024.1" ;
+    acord:lastUpdated "2025-08-30T05:35:00Z"^^xsd:dateTime .
+
+# ============================================================
+# POLICY CANONICAL MODEL
+# ============================================================
+
+acord:Policy a rdfs:Class ;
+    rdfs:label "Insurance Policy"@en ;
+    rdfs:comment "Canonical policy model mapping to all market standards"@en .
+
+acord:policyNumber a rdfs:Property ;
+    rdfs:label "policy number"@en ;
+    rdfs:domain acord:Policy ;
+    rdfs:range xsd:string ;
+    # Market mappings
+    polaris:fieldMapping "PolicyNumber" ;
+    sivi:fieldMapping "policyNumber" ;
+    eiac:fieldMapping "numeroPoliza" ;
+    bipro:gdvFieldMapping "POLICY_NUMBER" ;
+    # GDPR classification
+    gdpr:dataCategory gdpr:PersonalData ;
+    gdpr:processingBasis gdpr:Contract ;
+    gdpr:retentionPeriod "P7Y" .
+
+acord:effectiveDate a rdfs:Property ;
+    rdfs:label "effective date"@en ;
+    rdfs:domain acord:Policy ;
+    rdfs:range xsd:date ;
+    polaris:fieldMapping "EffectiveDate" ;
+    sivi:fieldMapping "effectiveDate" ;
+    eiac:fieldMapping "fechaEfecto" ;
+    bipro:gdvFieldMapping "EFFECTIVE_DATE" .
+
+acord:expirationDate a rdfs:Property ;
+    rdfs:label "expiration date"@en ;
+    rdfs:domain acord:Policy ;
+    rdfs:range xsd:date ;
+    polaris:fieldMapping "ExpirationDate" ;
+    sivi:fieldMapping "expirationDate" ;
+    eiac:fieldMapping "fechaVencimiento" ;
+    bipro:gdvFieldMapping "EXPIRATION_DATE" .
+
+acord:premium a rdfs:Property ;
+    rdfs:label "premium"@en ;
+    rdfs:domain acord:Policy ;
+    rdfs:range xsd:decimal ;
+    polaris:fieldMapping "GrossPremium" ;
+    sivi:fieldMapping "premium.amount" ;
+    eiac:fieldMapping "importePrima" ;
+    bipro:gdvFieldMapping "PREMIUM_AMOUNT" ;
+    gdpr:dataCategory gdpr:PersonalData ;
+    gdpr:processingBasis gdpr:Contract .
+
+# ============================================================
+# VEHICLE CANONICAL MODEL (Private Motor)
+# ============================================================
+
+acord:Vehicle a rdfs:Class ;
+    rdfs:label "Motor Vehicle"@en ;
+    rdfs:comment "Canonical vehicle model for private motor insurance"@en .
+
+acord:registrationNumber a rdfs:Property ;
+    rdfs:label "registration number"@en ;
+    rdfs:label "number plate"@en ;
+    rdfs:domain acord:Vehicle ;
+    rdfs:range xsd:string ;
+    # UK specific
+    polaris:fieldMapping "VRM" ;
+    dvla:vesField "registrationNumber" ;
+    # EU mappings
+    sivi:fieldMapping "vehicle.licensePlate" ;
+    eiac:fieldMapping "matricula" ;
+    bipro:gdvFieldMapping "REGISTRATION" ;
+    # GDPR
+    gdpr:dataCategory gdpr:PersonalData ;
+    gdpr:processingBasis gdpr:LegitimateInterest ;
+    gdpr:retentionPeriod "P5Y" .
+
+acord:vin a rdfs:Property ;
+    rdfs:label "VIN"@en ;
+    rdfs:label "Vehicle Identification Number"@en ;
+    rdfs:domain acord:Vehicle ;
+    rdfs:range xsd:string ;
+    polaris:fieldMapping "VIN" ;
+    dvla:vesField "vin" ;
+    sivi:fieldMapping "vehicle.vin" ;
+    eiac:fieldMapping "bastidor" ;
+    bipro:gdvFieldMapping "VIN" ;
+    gdpr:dataCategory gdpr:PersonalData ;
+    gdpr:processingBasis gdpr:Contract .
+
+acord:make a rdfs:Property ;
+    rdfs:label "make"@en ;
+    rdfs:domain acord:Vehicle ;
+    rdfs:range xsd:string ;
+    polaris:fieldMapping "Make" ;
+    dvla:vesField "make" ;
+    sivi:fieldMapping "vehicle.make" ;
+    eiac:fieldMapping "marca" ;
+    bipro:gdvFieldMapping "MAKE" .
+
+acord:model a rdfs:Property ;
+    rdfs:label "model"@en ;
+    rdfs:domain acord:Vehicle ;
+    rdfs:range xsd:string ;
+    polaris:fieldMapping "Model" ;
+    dvla:vesField "model" ;
+    sivi:fieldMapping "vehicle.model" ;
+    eiac:fieldMapping "modelo" ;
+    bipro:gdvFieldMapping "MODEL" .
+
+acord:yearOfManufacture a rdfs:Property ;
+    rdfs:label "year of manufacture"@en ;
+    rdfs:domain acord:Vehicle ;
+    rdfs:range xsd:gYear ;
+    polaris:fieldMapping "YearOfManufacture" ;
+    dvla:vesField "yearOfManufacture" ;
+    sivi:fieldMapping "vehicle.yearOfManufacture" ;
+    eiac:fieldMapping "anoFabricacion" ;
+    bipro:gdvFieldMapping "YEAR" .
+
+acord:securityLevel a rdfs:Property ;
+    rdfs:label "security level"@en ;
+    rdfs:comment "Thatcham security rating for UK market"@en ;
+    rdfs:domain acord:Vehicle ;
+    rdfs:range xsd:string ;
+    polaris:fieldMapping "ThatchamCategory" ;
+    polaris:codeList "ThatchamSecurityCodes" ;
+    sivi:fieldMapping "vehicle.securityLevel" ;
+    eiac:fieldMapping "nivelSeguridad" .
+
+# ============================================================
+# DRIVER CANONICAL MODEL
+# ============================================================
+
+acord:Driver a rdfs:Class ;
+    rdfs:label "Driver"@en ;
+    rdfs:comment "Canonical driver model with licence validation"@en .
+
+acord:licenceNumber a rdfs:Property ;
+    rdfs:label "licence number"@en ;
+    rdfs:domain acord:Driver ;
+    rdfs:range xsd:string ;
+    polaris:fieldMapping "LicenceNumber" ;
+    dvla:addField "licenceNumber" ;
+    sivi:fieldMapping "driver.licenceNumber" ;
+    eiac:fieldMapping "numeroCarnet" ;
+    bipro:gdvFieldMapping "LICENSE_NUMBER" ;
+    gdpr:dataCategory gdpr:PersonalData ;
+    gdpr:processingBasis gdpr:LegitimateInterest ;
+    gdpr:retentionPeriod "P5Y" .
+
+acord:licenceIssueDate a rdfs:Property ;
+    rdfs:label "licence issue date"@en ;
+    rdfs:domain acord:Driver ;
+    rdfs:range xsd:date ;
+    polaris:fieldMapping "LicenceIssueDate" ;
+    dvla:addField "issueDate" ;
+    sivi:fieldMapping "driver.licenceIssueDate" ;
+    eiac:fieldMapping "fechaExpedicion" ;
+    bipro:gdvFieldMapping "LICENSE_ISSUE_DATE" .
+
+acord:licencePoints a rdfs:Property ;
+    rdfs:label "licence points"@en ;
+    rdfs:comment "Penalty points on driving licence"@en ;
+    rdfs:domain acord:Driver ;
+    rdfs:range xsd:integer ;
+    polaris:fieldMapping "PenaltyPoints" ;
+    dvla:addField "penaltyPoints" ;
+    sivi:fieldMapping "driver.penaltyPoints" ;
+    eiac:fieldMapping "puntos" ;
+    bipro:gdvFieldMapping "PENALTY_POINTS" ;
+    gdpr:dataCategory gdpr:PersonalData ;
+    gdpr:processingBasis gdpr:LegitimateInterest .
+
+acord:yearsHeld a rdfs:Property ;
+    rdfs:label "years licence held"@en ;
+    rdfs:domain acord:Driver ;
+    rdfs:range xsd:decimal ;
+    polaris:fieldMapping "YearsHeld" ;
+    sivi:fieldMapping "driver.yearsHeld" ;
+    eiac:fieldMapping "anosCarnet" ;
+    bipro:gdvFieldMapping "YEARS_HELD" .
+
+# ============================================================
+# CLAIMS CANONICAL MODEL
+# ============================================================
+
+acord:Claim a rdfs:Class ;
+    rdfs:label "Insurance Claim"@en ;
+    rdfs:comment "Canonical claim model for FNOL and lifecycle management"@en .
+
+acord:claimNumber a rdfs:Property ;
+    rdfs:label "claim number"@en ;
+    rdfs:domain acord:Claim ;
+    rdfs:range xsd:string ;
+    polaris:fieldMapping "ClaimNumber" ;
+    sivi:fieldMapping "claim.claimNumber" ;
+    eiac:fieldMapping "numeroSiniestro" ;
+    bipro:gdvFieldMapping "CLAIM_NUMBER" ;
+    # UK Claims Portal A2A
+    acord:claimsPortalField "ClaimantRepresentativeReference" ;
+    gdpr:dataCategory gdpr:PersonalData ;
+    gdpr:processingBasis gdpr:LegitimateInterest .
+
+acord:dateOfLoss a rdfs:Property ;
+    rdfs:label "date of loss"@en ;
+    rdfs:domain acord:Claim ;
+    rdfs:range xsd:dateTime ;
+    polaris:fieldMapping "DateOfLoss" ;
+    sivi:fieldMapping "claim.dateOfLoss" ;
+    eiac:fieldMapping "fechaSiniestro" ;
+    bipro:gdvFieldMapping "LOSS_DATE" ;
+    acord:claimsPortalField "AccidentDate" .
+
+acord:accidentLocation a rdfs:Property ;
+    rdfs:label "accident location"@en ;
+    rdfs:domain acord:Claim ;
+    rdfs:range xsd:string ;
+    polaris:fieldMapping "AccidentLocation" ;
+    sivi:fieldMapping "claim.location" ;
+    eiac:fieldMapping "lugarSiniestro" ;
+    bipro:gdvFieldMapping "ACCIDENT_LOCATION" ;
+    acord:claimsPortalField "AccidentLocation" .
+
+acord:geoCoordinates a rdfs:Property ;
+    rdfs:label "geo coordinates"@en ;
+    rdfs:comment "GPS coordinates from eCall or telematics"@en ;
+    rdfs:domain acord:Claim ;
+    rdfs:range xsd:string ;
+    ecall:msdField "position" ;
+    sivi:fieldMapping "claim.coordinates" ;
+    eiac:fieldMapping "coordenadas" ;
+    gdpr:dataCategory gdpr:PersonalData ;
+    gdpr:processingBasis gdpr:LegitimateInterest .
+
+# ============================================================
+# eCALL MSD (Minimum Set of Data) INTEGRATION
+# ============================================================
+
+acord:ECallMSD a rdfs:Class ;
+    rdfs:label "eCall Minimum Set of Data"@en ;
+    rdfs:comment "EN 15722 standard crash data from eCall system"@en .
+
+acord:crashSeverity a rdfs:Property ;
+    rdfs:label "crash severity"@en ;
+    rdfs:domain acord:ECallMSD ;
+    rdfs:range xsd:string ;
+    ecall:msdField "crashSeverity" ;
+    acord:claimsPortalField "InjurySeverity" .
+
+acord:vehicleHeading a rdfs:Property ;
+    rdfs:label "vehicle heading"@en ;
+    rdfs:domain acord:ECallMSD ;
+    rdfs:range xsd:decimal ;
+    ecall:msdField "vehicleDirection" .
+
+acord:occupantCount a rdfs:Property ;
+    rdfs:label "occupant count"@en ;
+    rdfs:domain acord:ECallMSD ;
+    rdfs:range xsd:integer ;
+    ecall:msdField "numberOfPassengers" ;
+    acord:claimsPortalField "NumberOfOccupants" .
+
+# ============================================================
+# eIDAS SIGNATURE SUPPORT
+# ============================================================
+
+acord:ESignature a rdfs:Class ;
+    rdfs:label "Electronic Signature"@en ;
+    rdfs:comment "eIDAS compliant electronic signature for claims mandates"@en .
+
+acord:signatureType a rdfs:Property ;
+    rdfs:label "signature type"@en ;
+    rdfs:domain acord:ESignature ;
+    rdfs:range xsd:string ;
+    eidas:signatureLevel "QES" ; # Qualified Electronic Signature
+    eidas:trustLevel "high" .
+
+acord:signatureTimestamp a rdfs:Property ;
+    rdfs:label "signature timestamp"@en ;
+    rdfs:domain acord:ESignature ;
+    rdfs:range xsd:dateTime ;
+    eidas:timestampAuthority "qualified" .
+
+acord:signerCertificate a rdfs:Property ;
+    rdfs:label "signer certificate"@en ;
+    rdfs:domain acord:ESignature ;
+    rdfs:range xsd:string ;
+    eidas:certificateType "qualified" ;
+    gdpr:dataCategory gdpr:PersonalData ;
+    gdpr:processingBasis gdpr:Consent .
+
+# ============================================================
+# MARKET ADAPTER MAPPINGS
+# ============================================================
+
+# UK Polaris Standards
+acord:PolarisAdapter a rdfs:Class ;
+    rdfs:label "Polaris UK Adapter"@en ;
+    rdfs:comment "Maps canonical model to Polaris Private Motor standards"@en ;
+    polaris:version "2024.1" ;
+    polaris:supportedTransactions "Quote,MTA,Renewal,Cancellation" ;
+    polaris:dataFormat "EDI,XML,JSON" .
+
+# Netherlands SIVI AFS
+acord:SIVIAdapter a rdfs:Class ;
+    rdfs:label "SIVI AFS Adapter"@en ;
+    rdfs:comment "Maps canonical model to SIVI AFS JSON Schemas"@en ;
+    sivi:version "2024.1" ;
+    sivi:supportedSchemas "Policy,Schade" ;
+    sivi:dataFormat "JSON" ;
+    sivi:openApiSpec "true"^^xsd:boolean .
+
+# Spain EIAC
+acord:EIACAdapter a rdfs:Class ;
+    rdfs:label "EIAC Spain Adapter"@en ;
+    rdfs:comment "Maps canonical model to EIAC v05/v06 standards"@en ;
+    eiac:version "v06" ;
+    eiac:supportedDocuments "Policies,Receipts,Siniestros" ;
+    eiac:dataFormat "XML" ;
+    eiac:xsdValidation "true"^^xsd:boolean .
+
+# France EDI-Courtage
+acord:EDICourtageAdapter a rdfs:Class ;
+    rdfs:label "EDI-Courtage France Adapter"@en ;
+    rdfs:comment "Maps canonical model to French broker-insurer exchange"@en ;
+    acord:frenchCompliant "true"^^xsd:boolean ;
+    acord:secureExchange "true"^^xsd:boolean ;
+    eidas:signatureSupport "true"^^xsd:boolean .
+
+# ============================================================
+# VALIDATION SERVICES INTEGRATION
+# ============================================================
+
+# UK DVLA Services
+acord:DVLAIntegration a rdfs:Class ;
+    rdfs:label "DVLA API Integration"@en ;
+    rdfs:comment "Integration with DVLA VES and ADD services"@en ;
+    dvla:vesEndpoint "https://driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles" ;
+    dvla:addEndpoint "https://driver-vehicle-licensing.api.gov.uk/driving-record/v1/driver" ;
+    dvla:authMethod "OAuth2" .
+
+# UK Claims Portal A2A
+acord:ClaimsPortalIntegration a rdfs:Class ;
+    rdfs:label "UK Claims Portal A2A Integration"@en ;
+    rdfs:comment "Integration with Claims Portal and OIC systems"@en ;
+    acord:rtaPortal "https://www.claimsportal.org.uk" ;
+    acord:oicPortal "https://www.officialinjuryclaim.org.uk" ;
+    acord:supportedProtocols "SOAP,REST" ;
+    acord:dualRunning "true"^^xsd:boolean ; # Until June 2026
+    acord:soapEndpoint "https://et.claimsportal.crif.com/soap" ;
+    acord:restEndpoint "https://et.claimsportal.crif.com/rest" .
+
+# ============================================================
+# REGULATORY COMPLIANCE
+# ============================================================
+
+# EU Motor Insurance Directive
+acord:EUMotorDirective a rdfs:Class ;
+    rdfs:label "EU Motor Insurance Directive Compliance"@en ;
+    rdfs:comment "Compliance with 2009/103/EC for cross-border claims history"@en ;
+    acord:directiveNumber "2009/103/EC" ;
+    acord:claimsHistoryPeriod "P5Y" ; # 5 years
+    acord:crossBorderSupport "true"^^xsd:boolean .
+
+# MID/Navigate (UK Motor Insurance Database)
+acord:MIDNavigate a rdfs:Class ;
+    rdfs:label "MID Navigate Integration"@en ;
+    rdfs:comment "UK Motor Insurance Database compliance via MIB Navigate"@en ;
+    acord:midDatabase "https://www.mib.org.uk" ;
+    acord:navigateService "true"^^xsd:boolean ;
+    acord:legalRequirement "true"^^xsd:boolean .
+
+# ============================================================
+# SHACL VALIDATION SHAPES
+# ============================================================
+
+acord:PolicyShape a sh:NodeShape ;
+    sh:targetClass acord:Policy ;
+    sh:property [
+        sh:path acord:policyNumber ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Policy number is required and must be unique"@en ;
+    ] ;
+    sh:property [
+        sh:path acord:effectiveDate ;
+        sh:minCount 1 ;
+        sh:datatype xsd:date ;
+        sh:message "Effective date is required"@en ;
+    ] ;
+    sh:property [
+        sh:path acord:expirationDate ;
+        sh:minCount 1 ;
+        sh:datatype xsd:date ;
+        sh:message "Expiration date is required"@en ;
+    ] .
+
+acord:VehicleShape a sh:NodeShape ;
+    sh:targetClass acord:Vehicle ;
+    sh:property [
+        sh:path acord:registrationNumber ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[A-Z]{2}[0-9]{2}[A-Z]{3}$|^[A-Z][0-9]{1,3}[A-Z]{3}$" ; # UK format
+        sh:message "Valid UK registration number required"@en ;
+    ] ;
+    sh:property [
+        sh:path acord:vin ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[A-HJ-NPR-Z0-9]{17}$" ;
+        sh:message "VIN must be 17 characters, excluding I, O, Q"@en ;
+    ] .
+
+acord:DriverShape a sh:NodeShape ;
+    sh:targetClass acord:Driver ;
+    sh:property [
+        sh:path acord:licenceNumber ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Driving licence number is required"@en ;
+    ] ;
+    sh:property [
+        sh:path acord:licencePoints ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 12 ;
+        sh:message "Licence points must be between 0 and 12"@en ;
+    ] .
+
+acord:ClaimShape a sh:NodeShape ;
+    sh:targetClass acord:Claim ;
+    sh:property [
+        sh:path acord:claimNumber ;
+        sh:minCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "Claim number is required"@en ;
+    ] ;
+    sh:property [
+        sh:path acord:dateOfLoss ;
+        sh:minCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Date of loss is required for FNOL"@en ;
+    ] .
