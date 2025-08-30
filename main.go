@@ -21,6 +21,8 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
+
+	apihandlers "client-ux/internal/api/handlers"
 )
 
 type App struct {
@@ -138,6 +140,14 @@ func main() {
 
 	// TTL Ontology API routes
 	api.HandleFunc("/ontology", HandleOntologyAPI).Methods("GET")
+
+	// Grounded AI and semantic processing endpoints
+	groundedHandler := apihandlers.NewGroundedAIHandler()
+	api.HandleFunc("/grounded/query", groundedHandler.ProcessGroundedQuery).Methods("POST")
+	api.HandleFunc("/grounded/reserve", groundedHandler.CalculateReserve).Methods("POST")
+	api.HandleFunc("/grounded/fraud", groundedHandler.AssessFraud).Methods("POST")
+	api.HandleFunc("/grounded/fnol", groundedHandler.ValidateFNOL).Methods("POST")
+	api.HandleFunc("/grounded/prompt", groundedHandler.GetSystemPrompt).Methods("GET")
 
 	// Admin functions removed for CLIENT-UX
 

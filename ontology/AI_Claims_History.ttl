@@ -1187,5 +1187,338 @@ autoins:ValidationImplementationNotes a owl:Class ;
   """ .
 
 ############################################################
+## FNOL (FIRST NOTICE OF LOSS) COMPLETENESS VALIDATION
+############################################################
+
+# FNOL Completeness Shape - Ensures all required elements for claim processing
+autoins:FNOLCompletenessShape a sh:NodeShape ;
+  sh:targetClass autoins:Claim ;
+  rdfs:label "FNOL Completeness Validation" ;
+  rdfs:comment "Validates that a claim has all required elements for First Notice of Loss processing" ;
+  sh:property [
+    sh:path autoins:hasIncident ;
+    sh:minCount 1 ;
+    sh:class autoins:Accident ;
+    sh:message "🚨 FNOL ERROR: Claim must link to an incident/accident record for complete First Notice of Loss processing." ;
+    autoins:validationSeverity "ERROR" ;
+    autoins:validationCode "FNOL_MISSING_INCIDENT" ;
+    autoins:i18nKey "validation.fnol.missing_incident"
+  ] ;
+  sh:property [
+    sh:path [ sh:inversePath autoins:relatesToPolicy ] ;
+    sh:minCount 1 ;
+    sh:class autoins:Policy ;
+    sh:message "📋 FNOL ERROR: Claim must relate to a valid insurance policy for processing." ;
+    autoins:validationSeverity "ERROR" ;
+    autoins:validationCode "FNOL_MISSING_POLICY" ;
+    autoins:i18nKey "validation.fnol.missing_policy"
+  ] ;
+  sh:property [
+    sh:path autoins:claimDate ;
+    sh:minCount 1 ;
+    sh:datatype xsd:date ;
+    sh:message "📅 FNOL ERROR: Claim date is required for First Notice of Loss." ;
+    autoins:validationSeverity "ERROR" ;
+    autoins:validationCode "FNOL_MISSING_CLAIM_DATE" ;
+    autoins:i18nKey "validation.fnol.missing_claim_date"
+  ] ;
+  sh:property [
+    sh:path autoins:incidentDate ;
+    sh:minCount 1 ;
+    sh:datatype xsd:date ;
+    sh:message "📅 FNOL ERROR: Incident date is required for First Notice of Loss." ;
+    autoins:validationSeverity "ERROR" ;
+    autoins:validationCode "FNOL_MISSING_INCIDENT_DATE" ;
+    autoins:i18nKey "validation.fnol.missing_incident_date"
+  ] ;
+  sh:property [
+    sh:path autoins:claimType ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "🏷️ FNOL ERROR: Claim type must be specified for processing." ;
+    autoins:validationSeverity "ERROR" ;
+    autoins:validationCode "FNOL_MISSING_CLAIM_TYPE" ;
+    autoins:i18nKey "validation.fnol.missing_claim_type"
+  ] ;
+  sh:property [
+    sh:path autoins:claimDescription ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 10 ;
+    sh:message "📝 FNOL ERROR: Detailed claim description (minimum 10 characters) is required for processing." ;
+    autoins:validationSeverity "ERROR" ;
+    autoins:validationCode "FNOL_INSUFFICIENT_DESCRIPTION" ;
+    autoins:i18nKey "validation.fnol.insufficient_description"
+  ] .
+
+# Policy Relationship Property
+autoins:relatesToPolicy a owl:ObjectProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range autoins:Policy ;
+  rdfs:label "relates to policy" ;
+  rdfs:comment "Links a claim to the insurance policy under which it is made" ;
+  autoins:i18nKey "claims.relates_to_policy.label" .
+
+# Incident Relationship Property  
+autoins:hasIncident a owl:ObjectProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range autoins:Accident ;
+  rdfs:label "has incident" ;
+  rdfs:comment "Links a claim to the underlying incident/accident" ;
+  autoins:i18nKey "claims.has_incident.label" .
+
+############################################################
+## RESERVE CALCULATION ONTOLOGY
+############################################################
+
+# Reserve Calculation Classes
+autoins:ReserveCalculation a owl:Class ;
+  rdfs:label "Reserve Calculation" ;
+  rdfs:comment "Automated reserve calculation for claims based on severity tables and risk factors" ;
+  autoins:i18nKey "claims.reserve_calculation.label" .
+
+autoins:SeverityTable a owl:Class ;
+  rdfs:label "Severity Table" ;
+  rdfs:comment "Lookup table for base reserve amounts by loss type and vehicle value" ;
+  autoins:i18nKey "claims.severity_table.label" .
+
+autoins:FraudIndicator a owl:Class ;
+  rdfs:label "Fraud Indicator" ;
+  rdfs:comment "Automated fraud detection signals that affect reserve calculations" ;
+  autoins:i18nKey "claims.fraud_indicator.label" .
+
+# Reserve Calculation Properties
+autoins:baseReserve a owl:DatatypeProperty ;
+  rdfs:domain autoins:ReserveCalculation ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "base reserve" ;
+  rdfs:comment "Base reserve amount from severity table lookup" ;
+  autoins:i18nKey "claims.base_reserve.label" .
+
+autoins:fraudModifier a owl:DatatypeProperty ;
+  rdfs:domain autoins:ReserveCalculation ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "fraud modifier" ;
+  rdfs:comment "Reserve adjustment for fraud signals (+10% of base)" ;
+  autoins:i18nKey "claims.fraud_modifier.label" .
+
+autoins:liabilityModifier a owl:DatatypeProperty ;
+  rdfs:domain autoins:ReserveCalculation ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "liability modifier" ;
+  rdfs:comment "Reserve adjustment for uncertain liability (+15% of base)" ;
+  autoins:i18nKey "claims.liability_modifier.label" .
+
+autoins:partsModifier a owl:DatatypeProperty ;
+  rdfs:domain autoins:ReserveCalculation ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "parts modifier" ;
+  rdfs:comment "Reserve adjustment for parts backorder (+5% of base)" ;
+  autoins:i18nKey "claims.parts_modifier.label" .
+
+autoins:finalReserve a owl:DatatypeProperty ;
+  rdfs:domain autoins:ReserveCalculation ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "final reserve" ;
+  rdfs:comment "Final calculated reserve amount after all modifiers" ;
+  autoins:i18nKey "claims.final_reserve.label" .
+
+autoins:reserveBand a owl:DatatypeProperty ;
+  rdfs:domain autoins:ReserveCalculation ;
+  rdfs:range xsd:string ;
+  rdfs:label "reserve band" ;
+  rdfs:comment "Quantized reserve band (e.g., £0-2k, £2-5k, £5-10k)" ;
+  autoins:enumerationValues ("£0-2k" "£2k-5k" "£5k-10k" "£10k-25k" "£25k-50k" "£50k+") ;
+  autoins:i18nKey "claims.reserve_band.label" .
+
+# Fraud Detection Properties
+autoins:hasFraudSignals a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "has fraud signals" ;
+  rdfs:comment "Indicates presence of automated fraud detection signals" ;
+  autoins:i18nKey "claims.has_fraud_signals.label" .
+
+autoins:liabilityUncertain a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "liability uncertain" ;
+  rdfs:comment "Indicates uncertain liability determination" ;
+  autoins:i18nKey "claims.liability_uncertain.label" .
+
+autoins:partsBackorder a owl:DatatypeProperty ;
+  rdfs:domain autoins:Claim ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "parts backorder" ;
+  rdfs:comment "Indicates parts availability issues affecting repair timeline" ;
+  autoins:i18nKey "claims.parts_backorder.label" .
+
+autoins:vehicleACV a owl:DatatypeProperty ;
+  rdfs:domain autoins:Vehicle ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "actual cash value" ;
+  rdfs:comment "Current actual cash value of vehicle for reserve calculations" ;
+  autoins:i18nKey "vehicle.actual_cash_value.label" .
+
+############################################################
+## GROUNDED PROMPT PATTERN ONTOLOGY
+############################################################
+
+# Grounded AI Response Classes
+autoins:GroundedResponse a owl:Class ;
+  rdfs:label "Grounded AI Response" ;
+  rdfs:comment "AI response that must be grounded in graph data and calculations" ;
+  autoins:i18nKey "ai.grounded_response.label" .
+
+autoins:FactReference a owl:Class ;
+  rdfs:label "Fact Reference" ;
+  rdfs:comment "Reference to specific graph facts used in AI reasoning" ;
+  autoins:i18nKey "ai.fact_reference.label" .
+
+autoins:CalculationReference a owl:Class ;
+  rdfs:label "Calculation Reference" ;
+  rdfs:comment "Reference to specific calculations performed" ;
+  autoins:i18nKey "ai.calculation_reference.label" .
+
+# Grounded Response Properties
+autoins:usedFacts a owl:ObjectProperty ;
+  rdfs:domain autoins:GroundedResponse ;
+  rdfs:range autoins:FactReference ;
+  rdfs:label "used facts" ;
+  rdfs:comment "List of graph facts (IRIs) used in generating the response" ;
+  autoins:i18nKey "ai.used_facts.label" .
+
+autoins:performedCalculations a owl:ObjectProperty ;
+  rdfs:domain autoins:GroundedResponse ;
+  rdfs:range autoins:CalculationReference ;
+  rdfs:label "performed calculations" ;
+  rdfs:comment "List of calculations performed during response generation" ;
+  autoins:i18nKey "ai.performed_calculations.label" .
+
+autoins:factIRI a owl:DatatypeProperty ;
+  rdfs:domain autoins:FactReference ;
+  rdfs:range xsd:anyURI ;
+  rdfs:label "fact IRI" ;
+  rdfs:comment "IRI of the graph fact used in reasoning" ;
+  autoins:i18nKey "ai.fact_iri.label" .
+
+autoins:factValue a owl:DatatypeProperty ;
+  rdfs:domain autoins:FactReference ;
+  rdfs:range xsd:string ;
+  rdfs:label "fact value" ;
+  rdfs:comment "Value of the graph fact used in reasoning" ;
+  autoins:i18nKey "ai.fact_value.label" .
+
+autoins:calculationType a owl:DatatypeProperty ;
+  rdfs:domain autoins:CalculationReference ;
+  rdfs:range xsd:string ;
+  rdfs:label "calculation type" ;
+  rdfs:comment "Type of calculation performed (COVERAGE_CALC, RESERVE_CALC, FRAUD_SCORER)" ;
+  autoins:enumerationValues ("SPARQL_SELECT" "COVERAGE_CALC" "RESERVE_CALC" "FRAUD_SCORER") ;
+  autoins:i18nKey "ai.calculation_type.label" .
+
+autoins:calculationResult a owl:DatatypeProperty ;
+  rdfs:domain autoins:CalculationReference ;
+  rdfs:range xsd:string ;
+  rdfs:label "calculation result" ;
+  rdfs:comment "Result of the calculation performed" ;
+  autoins:i18nKey "ai.calculation_result.label" .
+
+# AI Tool Availability Properties
+autoins:availableTools a owl:DatatypeProperty ;
+  rdfs:domain autoins:GroundedResponse ;
+  rdfs:range xsd:string ;
+  rdfs:label "available tools" ;
+  rdfs:comment "List of tools available for grounded reasoning" ;
+  autoins:enumerationValues ("SPARQL_SELECT" "COVERAGE_CALC" "RESERVE_CALC" "FRAUD_SCORER") ;
+  autoins:i18nKey "ai.available_tools.label" .
+
+autoins:requiresFollowUp a owl:DatatypeProperty ;
+  rdfs:domain autoins:GroundedResponse ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "requires follow up" ;
+  rdfs:comment "Indicates if response requires targeted follow-up question" ;
+  autoins:i18nKey "ai.requires_follow_up.label" .
+
+autoins:followUpQuestion a owl:DatatypeProperty ;
+  rdfs:domain autoins:GroundedResponse ;
+  rdfs:range xsd:string ;
+  rdfs:label "follow up question" ;
+  rdfs:comment "Specific targeted follow-up question to gather missing facts" ;
+  autoins:i18nKey "ai.follow_up_question.label" .
+
+############################################################
+## SYSTEM PROMPT TEMPLATES FOR GROUNDED AI
+############################################################
+
+# System Prompt Class
+autoins:SystemPrompt a owl:Class ;
+  rdfs:label "System Prompt" ;
+  rdfs:comment "Structured system prompts for grounded AI responses" ;
+  autoins:i18nKey "ai.system_prompt.label" .
+
+# Grounded Claims Processing Prompt
+autoins:GroundedClaimsPrompt a autoins:SystemPrompt ;
+  rdfs:label "Grounded Claims Processing Prompt" ;
+  autoins:promptText """
+You are a grounded AI assistant for insurance claims processing. You must answer only from the knowledge graph and attached calculations.
+
+MANDATORY TOOLS AVAILABLE:
+- SPARQL_SELECT: Query the insurance ontology graph
+- COVERAGE_CALC: Calculate policy coverage amounts
+- RESERVE_CALC: Calculate claim reserves using severity tables
+- FRAUD_SCORER: Assess fraud risk indicators
+
+GROUNDING REQUIREMENTS:
+1. You MUST use SPARQL_SELECT to retrieve facts from the graph before answering
+2. You MUST use appropriate calculation tools for any numerical assessments
+3. If a fact is missing from the graph, ask ONE targeted follow-up question, then re-check
+4. Your final answer MUST list the IRIs of all facts used in your reasoning
+5. You MUST cite specific calculation results with their input parameters
+
+RESPONSE FORMAT:
+- Answer: [Your grounded response]
+- Facts Used: [List of IRIs from graph queries]
+- Calculations: [List of calculations performed with results]
+- Follow-up Needed: [Yes/No - if missing critical information]
+
+FORBIDDEN ACTIONS:
+- Never make assumptions not supported by graph data
+- Never provide estimates without using RESERVE_CALC tool
+- Never assess coverage without using COVERAGE_CALC tool
+- Never ignore fraud indicators without using FRAUD_SCORER tool
+
+User Query: {user_query}
+Context: {graph_context}
+"""@en ;
+  autoins:i18nKey "ai.grounded_claims_prompt.text" ;
+  autoins:complianceLevel autoins:GDPR_Strict ;
+  autoins:allowedDataCategories autoins:ClaimsData, autoins:PolicyData ;
+  autoins:requiredTools "SPARQL_SELECT,COVERAGE_CALC,RESERVE_CALC,FRAUD_SCORER" .
+
+############################################################
+## VALIDATION SHAPES FOR GROUNDED RESPONSES
+############################################################
+
+# Grounded Response Validation Shape
+autoins:GroundedResponseShape a sh:NodeShape ;
+  sh:targetClass autoins:GroundedResponse ;
+  rdfs:label "Grounded Response Validation" ;
+  sh:property [
+    sh:path autoins:usedFacts ;
+    sh:minCount 1 ;
+    sh:message "🔍 GROUNDING ERROR: Response must reference at least one graph fact (IRI)." ;
+    autoins:validationSeverity "ERROR" ;
+    autoins:validationCode "MISSING_FACT_REFERENCES"
+  ] ;
+  sh:property [
+    sh:path autoins:performedCalculations ;
+    sh:minCount 0 ;
+    sh:message "🧮 CALCULATION INFO: Calculations performed during response generation." ;
+    autoins:validationSeverity "INFO" ;
+    autoins:validationCode "CALCULATIONS_PERFORMED"
+  ] .
+
+############################################################
 ## END OF CLAIMS HISTORY MODULE
 ############################################################

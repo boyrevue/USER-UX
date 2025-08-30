@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"mime/multipart"
 	"net/http"
 	"os"
 	"os/exec"
@@ -69,7 +68,7 @@ func (s *Service) ProcessUpload(r *http.Request) (*ProcessResult, error) {
 	}
 
 	file := files[0]
-	
+
 	// Save uploaded file
 	src, err := file.Open()
 	if err != nil {
@@ -80,10 +79,10 @@ func (s *Service) ProcessUpload(r *http.Request) (*ProcessResult, error) {
 	// Create unique filename
 	timestamp := strconv.FormatInt(time.Now().Unix(), 10)
 	filename := fmt.Sprintf("%s_%s_%s", uploadType, selectedDocumentType, timestamp)
-	
+
 	// Ensure static directory exists
 	os.MkdirAll(filepath.Join(s.staticDir, "mrz"), 0755)
-	
+
 	// Save file
 	filePath := filepath.Join(s.staticDir, "mrz", filename+".png")
 	dst, err := os.Create(filePath)
@@ -125,10 +124,10 @@ func (s *Service) processPassport(filePath, uploadType, timestamp string) (*Proc
 			"original": filePath,
 		},
 		Metadata: map[string]interface{}{
-			"engine":         "passporteye",
-			"ocrConfidence":  result.Confidence,
+			"engine":          "passporteye",
+			"ocrConfidence":   result.Confidence,
 			"fieldConfidence": result.Confidence,
-			"mrzExtracted":   result.Success,
+			"mrzExtracted":    result.Success,
 		},
 	}, nil
 }
@@ -157,8 +156,8 @@ func (s *Service) processDrivingLicence(filePath, uploadType, timestamp string) 
 			"original": filePath,
 		},
 		Metadata: map[string]interface{}{
-			"engine":         "tesseract",
-			"ocrConfidence":  0.8,
+			"engine":          "tesseract",
+			"ocrConfidence":   0.8,
 			"fieldConfidence": 0.8,
 		},
 	}, nil
@@ -176,8 +175,8 @@ func (s *Service) processGenericDocument(filePath, uploadType, documentType, tim
 	}
 
 	return &ProcessResult{
-		DocumentType:    documentType,
-		UploadType:      uploadType,
+		DocumentType: documentType,
+		UploadType:   uploadType,
 		ExtractedFields: map[string]interface{}{
 			"rawText": text,
 		},
@@ -187,8 +186,8 @@ func (s *Service) processGenericDocument(filePath, uploadType, documentType, tim
 			"original": filePath,
 		},
 		Metadata: map[string]interface{}{
-			"engine":         "tesseract",
-			"ocrConfidence":  0.7,
+			"engine":          "tesseract",
+			"ocrConfidence":   0.7,
 			"fieldConfidence": 0.7,
 		},
 	}, nil
@@ -213,7 +212,7 @@ func (s *Service) extractWithPassportEye(imagePath, timestamp string) (*Passport
 
 func (s *Service) extractDrivingLicenceData(text string) map[string]interface{} {
 	data := make(map[string]interface{})
-	
+
 	// Extract licence number (pattern: ABCDE123456FG789)
 	licencePattern := `[A-Z]{5}\d{6}[A-Z]{2}\d{3}`
 	if matches := regexp.MustCompile(licencePattern).FindStringSubmatch(text); len(matches) > 0 {

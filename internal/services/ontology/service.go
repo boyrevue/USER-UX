@@ -86,8 +86,8 @@ func (s *Service) GetFormDefinitions() (map[string]OntologySection, error) {
 	}
 
 	// Combine all TTL content
-	content := string(driverData) + "\n" + string(vehicleData) + "\n" + string(policyData) + "\n" + 
-		string(claimsData) + "\n" + string(paymentsData) + "\n" + string(complianceData) + "\n" + 
+	content := string(driverData) + "\n" + string(vehicleData) + "\n" + string(policyData) + "\n" +
+		string(claimsData) + "\n" + string(paymentsData) + "\n" + string(complianceData) + "\n" +
 		string(userUxData) + "\n" + string(documentsData) + "\n" + string(personalDocsData)
 
 	// Parse the combined TTL content
