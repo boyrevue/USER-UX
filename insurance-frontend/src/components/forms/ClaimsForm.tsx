@@ -1,28 +1,32 @@
 import React from 'react';
-import { Claim } from '../../types';
-
-
-interface ClaimsFormProps {
-  claims: Claim[];
-  updateClaim: (index: number, field: string, value: string) => void;
-  addClaim: () => void;
-  removeClaim: (index: number) => void;
-}
+import { Card, Button } from 'flowbite-react';
+import { ClaimsFormProps } from '../../types';
 
 const ClaimsForm: React.FC<ClaimsFormProps> = ({ 
-  claims, 
-  updateClaim, 
-  addClaim, 
-  removeClaim 
+  claims,
+  accidents,
+  updateClaim,
+  updateAccident,
+  addClaim,
+  addAccident,
+  removeClaim,
+  removeAccident
 }) => {
   return (
-    <div className="claims-form">
-      {/* Claims form content will be moved here */}
-      <h3>Claims History</h3>
-      {/* Form fields */}
-    </div>
+    <Card>
+      <h3 className="text-lg font-semibold mb-4">Claims & Accidents History</h3>
+      <div className="space-y-4">
+        <div>
+          <h4 className="font-medium mb-2">Claims ({claims.length})</h4>
+          <Button onClick={addClaim} size="sm">Add Claim</Button>
+        </div>
+        <div>
+          <h4 className="font-medium mb-2">Accidents ({accidents.length})</h4>
+          <Button onClick={addAccident} size="sm">Add Accident</Button>
+        </div>
+      </div>
+    </Card>
   );
 };
-
 
 export default ClaimsForm;

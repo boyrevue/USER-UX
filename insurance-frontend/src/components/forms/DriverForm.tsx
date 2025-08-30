@@ -1,20 +1,12 @@
 import React from 'react';
-import { Driver } from '../../types';
-
-
-interface DriverFormProps {
-  driver: Driver;
-  index: number;
-  updateDriver: (index: number, field: string, value: string) => void;
-  removeDriver: (index: number) => void;
-  // Add other props as needed
-}
+import { DriverFormProps } from '../../types';
 
 const DriverForm: React.FC<DriverFormProps> = ({ 
   driver, 
   index, 
   updateDriver, 
-  removeDriver 
+  removeDriver,
+  validationErrors = []
 }) => {
   return (
     <div className="driver-form">
