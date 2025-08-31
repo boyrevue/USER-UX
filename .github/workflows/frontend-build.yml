@@ -1,0 +1,49 @@
+name: Frontend Build and Package
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'insurance-frontend/**'
+      - '.github/workflows/frontend-build.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'insurance-frontend/**'
+
+jobs:
+  build-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: insurance-frontend/package-lock.json
+
+      - name: Install deps
+        working-directory: insurance-frontend
+        run: npm ci
+
+      - name: Build
+        working-directory: insurance-frontend
+        run: npm run build
+
+      - name: Package static artifacts
+        run: |
+          mkdir -p artifact/static
+          cp -R insurance-frontend/build/* artifact/static/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-static
+          path: artifact/static
+          if-no-files-found: error
+
+
