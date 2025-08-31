@@ -1,0 +1,43 @@
+{
+  "id": "98ea6957-5ca4-4d0b-8b51-9076fe6cd63d",
+  "language": "en",
+  "drivers": [],
+  "vehicle": {
+    "registration": "",
+    "make": "",
+    "model": "",
+    "year": 0,
+    "mileage": 0,
+    "value": 0,
+    "overnightLocation": "",
+    "hasModifications": false
+  },
+  "policy": {
+    "coverType": "",
+    "startDate": "0001-01-01T00:00:00Z",
+    "voluntaryExcess": 0,
+    "ncdYears": 0,
+    "protectNCD": false
+  },
+  "claims": {
+    "hasClaims": false
+  },
+  "payment": {
+    "frequency": "",
+    "method": ""
+  },
+  "extras": {
+    "breakdownCover": "",
+    "legalExpenses": false,
+    "courtesyCar": false
+  },
+  "marketing": {
+    "emailMarketing": false,
+    "smsMarketing": false,
+    "postMarketing": false
+  },
+  "progress": {},
+  "formData": {},
+  "createdAt": "2025-08-30T08:55:13.340631+02:00",
+  "lastAccessed": "2025-08-30T08:55:13.340631+02:00"
+}

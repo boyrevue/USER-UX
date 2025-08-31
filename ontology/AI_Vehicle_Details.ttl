@@ -318,33 +318,116 @@ autoins:hasModifications a owl:DatatypeProperty ;
   rdfs:domain autoins:Vehicle ;
   rdfs:range xsd:boolean ;
   rdfs:label "has modifications" ;
-  autoins:isRequired "true"^^xsd:boolean ;
-  autoins:formHelpText "Has the vehicle been modified from manufacturer specification?" .
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:defaultValue "false"^^xsd:boolean ;
+  autoins:formHelpText "Has the vehicle been modified from manufacturer specification? This includes any performance, cosmetic, or functional changes" ;
+  autoins:triggerSection "modifications" ;
+  autoins:sectionCollapsible "true"^^xsd:boolean ;
+  autoins:sectionDefaultClosed "true"^^xsd:boolean ;
+  autoins:triggerConditional "modifications,modificationValue,modificationDeclared" .
 
 autoins:modifications a owl:DatatypeProperty ;
   rdfs:domain autoins:Vehicle ;
   rdfs:range xsd:string ;
-  rdfs:label "modifications" ;
+  rdfs:label "vehicle modifications" ;
   autoins:isRequired "false"^^xsd:boolean ;
-  autoins:enumerationValues ("Engine Tuning" "Exhaust System" "Suspension" "Wheels/Tyres" "Body Kit" "Interior" "Audio System" "Lighting" "Performance Chip" "Turbo/Supercharger") ;
-  autoins:formHelpText "Type of modifications (if any)" ;
-  autoins:conditionalRequirement "Required if modifications are present" .
+  autoins:isMultiSelect "true"^^xsd:boolean ;
+  autoins:formSection "modifications" ;
+  autoins:enumerationValues (
+    "1. Performance & Engine - Engine swaps / replacements"
+    "1. Performance & Engine - Turbocharging / supercharging"
+    "1. Performance & Engine - ECU remapping / tuning chips"
+    "1. Performance & Engine - Exhaust changes (sports exhaust, decat pipes)"
+    "1. Performance & Engine - Air intake modifications"
+    "1. Performance & Engine - Cooling system upgrades (radiators, intercoolers)"
+    "2. Suspension & Handling - Lowered or raised suspension"
+    "2. Suspension & Handling - Performance springs or coilovers"
+    "2. Suspension & Handling - Upgraded shock absorbers"
+    "2. Suspension & Handling - Strut braces / anti-roll bars"
+    "2. Suspension & Handling - Wheel alignment geometry changes"
+    "3. Brakes & Safety - Upgraded brake discs/pads/calipers"
+    "3. Brakes & Safety - Performance braking system"
+    "3. Brakes & Safety - ABS modifications"
+    "3. Brakes & Safety - Roll cages or roll bars"
+    "3. Brakes & Safety - Removal of airbags"
+    "4. Bodywork & Cosmetic - Body kits (skirts, bumpers, spoilers)"
+    "4. Bodywork & Cosmetic - Wide-arch kits or flared arches"
+    "4. Bodywork & Cosmetic - Custom paintwork or wraps"
+    "4. Bodywork & Cosmetic - Decals or vinyls"
+    "4. Bodywork & Cosmetic - Bonnet vents or scoops"
+    "4. Bodywork & Cosmetic - Roof conversions (sunroof, convertible conversions)"
+    "5. Wheels & Tyres - Alloy wheels (aftermarket)"
+    "5. Wheels & Tyres - Oversized or undersized wheels"
+    "5. Wheels & Tyres - Performance tyres / low-profile tyres"
+    "5. Wheels & Tyres - Spacers / widened track"
+    "6. Interior & Comfort - Aftermarket seats (racing buckets, leather upgrades)"
+    "6. Interior & Comfort - Steering wheel replacement"
+    "6. Interior & Comfort - Dashboard modifications"
+    "6. Interior & Comfort - Trim changes (carbon fibre, custom finishes)"
+    "6. Interior & Comfort - Soundproofing or removal of rear seats"
+    "7. Lighting & Electrical - HID / LED headlight conversions"
+    "7. Lighting & Electrical - Underbody neon / LED kits"
+    "7. Lighting & Electrical - Upgraded interior lighting"
+    "7. Lighting & Electrical - Additional fog lights / spotlights"
+    "7. Lighting & Electrical - Smoked or tinted lights"
+    "8. Audio & Infotainment - Upgraded sound systems / subwoofers"
+    "8. Audio & Infotainment - In-dash multimedia screens"
+    "8. Audio & Infotainment - GPS / navigation units"
+    "8. Audio & Infotainment - Additional speakers or amplifiers"
+    "9. Security & Tracking - Immobilisers (aftermarket)"
+    "9. Security & Tracking - Alarms"
+    "9. Security & Tracking - Vehicle trackers"
+    "9. Security & Tracking - Steering locks or kill switches"
+    "10. Miscellaneous / Structural - Tow bars"
+    "10. Miscellaneous / Structural - Roof racks / roof boxes"
+    "10. Miscellaneous / Structural - Camper van or van conversions"
+    "10. Miscellaneous / Structural - Pick-up bed modifications"
+    "10. Miscellaneous / Structural - Armouring / bulletproofing (rare, but insurers ask)"
+  ) ;
+  autoins:defaultValue "None" ;
+  autoins:formHelpText "Select all modifications made to your vehicle. Each modification type affects your insurance premium and must be declared to your insurer"@en ;
+  autoins:formHelpText "Wählen Sie alle an Ihrem Fahrzeug vorgenommenen Modifikationen aus. Jede Modifikation beeinflusst Ihre Versicherungsprämie und muss Ihrem Versicherer gemeldet werden"@de ;
+  autoins:formHelpText "Sélectionnez toutes les modifications apportées à votre véhicule. Chaque type de modification affecte votre prime d'assurance et doit être déclaré à votre assureur"@fr ;
+  autoins:formHelpText "Seleccione todas las modificaciones realizadas en su vehículo. Cada tipo de modificación afecta su prima de seguro y debe declararse a su asegurador"@es ;
+  autoins:conditionalRequirement "hasModifications=true" ;
+  autoins:conditionalDisplay "hasModifications=true" ;
+  autoins:i18nKey "vehicle.modifications.label" ;
+  autoins:helpTextKey "vehicle.modifications.help" ;
+  # GDPR Compliance Annotations
+  autoins:dataClassification autoins:PersonalData ;
+  autoins:personalDataCategory autoins:BehavioralData ;
+  autoins:accessLevel autoins:UserAccess ;
+  autoins:viewPermission "USER,STAFF,MANAGER,ADMIN" ;
+  autoins:editPermission "USER,STAFF,MANAGER,ADMIN" ;
+  autoins:deletePermission "ADMIN" ;
+  autoins:consentRequired "false"^^xsd:boolean ;
+  autoins:consentBasis autoins:LegitimateInterest ;
+  autoins:retentionPeriod "P7Y" ;
+  autoins:retentionReason "Insurance risk assessment and regulatory compliance" ;
+  autoins:auditRequired "false"^^xsd:boolean ;
 
 autoins:modificationValue a owl:DatatypeProperty ;
   rdfs:domain autoins:Vehicle ;
   rdfs:range xsd:decimal ;
-  rdfs:label "modification value" ;
+  rdfs:label "total modification value (£)" ;
   autoins:isRequired "false"^^xsd:boolean ;
-  autoins:formHelpText "Total value of modifications (£)" ;
+  autoins:conditionalRequirement "hasModifications=true" ;
+  autoins:conditionalDisplay "hasModifications=true" ;
+  autoins:formSection "modifications" ;
+  autoins:formHelpText "Total value of all modifications in pounds (£). This affects your insurance premium" ;
   autoins:minInclusive 0 ;
-  autoins:maxInclusive 50000 .
+  autoins:maxInclusive 100000 .
 
 autoins:modificationDeclared a owl:DatatypeProperty ;
   rdfs:domain autoins:Vehicle ;
   rdfs:range xsd:boolean ;
-  rdfs:label "modification declared" ;
+  rdfs:label "modifications declared to DVLA" ;
   autoins:isRequired "false"^^xsd:boolean ;
-  autoins:formHelpText "Have modifications been declared to DVLA?" .
+  autoins:conditionalRequirement "hasModifications=true" ;
+  autoins:conditionalDisplay "hasModifications=true" ;
+  autoins:formSection "modifications" ;
+  autoins:defaultValue "false"^^xsd:boolean ;
+  autoins:formHelpText "Have all modifications been declared to DVLA? Some modifications require DVLA notification" .
 
 ############################################################
 ## VEHICLE SECURITY

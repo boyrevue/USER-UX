@@ -21,6 +21,7 @@ func SetupRoutes() *mux.Router {
 	api := r.PathPrefix("/api").Subrouter()
 	api.HandleFunc("/health", handlers.HealthCheck).Methods("GET")
 	api.HandleFunc("/ontology", handlers.GetOntology).Methods("GET")
+	api.HandleFunc("/validate-ai-input", handlers.ValidateAIInput).Methods("POST")
 	api.HandleFunc("/process-document", handlers.ProcessDocument).Methods("POST")
 	api.HandleFunc("/save-session", handlers.SaveSession).Methods("POST")
 	api.HandleFunc("/sessions/{id}", handlers.GetSession).Methods("GET")

@@ -1,0 +1,10 @@
+{
+  "deployment_time": "2025-08-30T04:25:48Z",
+  "process_id": 79703,
+  "static_files": {
+    "css": "static/css/main.7657af7d.css",
+    "js": "static/js/main.3be6fdd2.js"
+  },
+  "status": "deployed",
+  "url": "http://localhost:3000"
+}

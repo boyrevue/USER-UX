@@ -1,0 +1,458 @@
+@prefix autoins: <http://example.org/auto-insurance#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+############################################################
+## CLAIMS & ACCIDENTS "OTHER" SCENARIOS ONTOLOGY
+## Comprehensive guide for non-standard accident and claim types
+## Links to main claims form for "Other" accident/claim details
+############################################################
+
+# Base Classes
+autoins:AccidentScenario a owl:Class ;
+  rdfs:label "Accident Scenario Type" ;
+  rdfs:comment "Categories of accidents and claims not covered by standard types" .
+
+autoins:ClaimCategory a owl:Class ;
+  rdfs:label "Claim Category" ;
+  rdfs:comment "Categories of insurance claims for risk assessment" .
+
+############################################################
+## COMPREHENSIVE CLAIMS & ACCIDENTS GUIDANCE
+############################################################
+
+autoins:ClaimsAccidentsGuidance a owl:Class ;
+  rdfs:label "Claims and Accidents Declaration Guidance" ;
+  autoins:whyInsurerNeed "Insurers need specific details to: 1) Assign fault (liability), 2) Validate the claim credibility, 3) Assess value and repair method, 4) Determine policy coverage and exclusions." ;
+  autoins:faultAssignment "Precise details help claims adjuster determine who was at fault. 'Hit stationary object' is clear fault. 'Damage from falling object' may be no-fault comprehensive claim." ;
+  autoins:claimValidation "Specific story is more credible. Vague descriptions can be red flag for potential fraud." ;
+  autoins:repairAssessment "Knowing exact cause helps assessors know what to look for and how best to repair damage." ;
+  autoins:policyCoverage "Some policies have specific exclusions or conditions. Exact nature determines if incident is covered." ;
+  autoins:descriptionPrinciple "Primary job is to describe incident and damage with precise detail to give insurer clear picture of event." .
+
+############################################################
+## WEATHER & ENVIRONMENTAL DAMAGE SCENARIOS
+############################################################
+
+# Falling Objects
+autoins:FallingObjectsDamage a autoins:AccidentScenario ;
+  rdfs:label "Falling Objects Damage" ;
+  autoins:scenarioType "Weather & Environmental Damage" ;
+  autoins:description "Damage caused by objects falling from above onto vehicle" ;
+  autoins:commonCauses "Tree branch, debris from truck, construction materials, ice from buildings, roof tiles" ;
+  autoins:faultAssignment "Usually no-fault comprehensive claim unless negligence involved" ;
+  autoins:insuranceImpact "Low to Medium risk - environmental hazard, not driver error" ;
+  autoins:goodExample "Damage from a falling tree branch during a storm while parked at [specific address]" ;
+  autoins:badExample "Something fell on my car" ;
+  autoins:requiredDetails "1) What fell (tree branch, debris, etc.), 2) Weather conditions, 3) Exact location, 4) Time of incident, 5) Extent of damage" ;
+  autoins:category autoins:EnvironmentalClaim ;
+  autoins:severity "Medium" ;
+  autoins:displayOrder "1" .
+
+# Landslide/Rockfall
+autoins:LandslideRockfallDamage a autoins:AccidentScenario ;
+  rdfs:label "Landslide/Rockfall Damage" ;
+  autoins:scenarioType "Weather & Environmental Damage" ;
+  autoins:description "Damage from rocks, earth, or debris from hillsides or cliffs" ;
+  autoins:commonCauses "Rockfall from hillside, landslide debris, cliff erosion, quarry blasting" ;
+  autoins:faultAssignment "No-fault comprehensive claim - natural hazard" ;
+  autoins:insuranceImpact "Medium risk - geographical hazard, location-dependent" ;
+  autoins:goodExample "Rock from hillside hit windscreen and bonnet while driving on A470 near Brecon at 2pm" ;
+  autoins:badExample "A rock hit my car" ;
+  autoins:requiredDetails "1) Source of rock/debris, 2) Exact location/road, 3) Driving conditions, 4) Size of rock/debris, 5) Damage caused" ;
+  autoins:category autoins:EnvironmentalClaim ;
+  autoins:severity "Medium" ;
+  autoins:displayOrder "2" .
+
+# Earthquake Damage
+autoins:EarthquakeDamage a autoins:AccidentScenario ;
+  rdfs:label "Earthquake Damage" ;
+  autoins:scenarioType "Weather & Environmental Damage" ;
+  autoins:description "Vehicle damage caused by earthquake or seismic activity" ;
+  autoins:commonCauses "Ground movement, falling debris during earthquake, structural collapse" ;
+  autoins:faultAssignment "No-fault comprehensive claim - natural disaster" ;
+  autoins:insuranceImpact "High risk event but rare in UK - may have specific policy exclusions" ;
+  autoins:goodExample "Vehicle damaged by falling masonry during 4.2 magnitude earthquake in Dover on [date]" ;
+  autoins:badExample "Earthquake damaged my car" ;
+  autoins:requiredDetails "1) Earthquake magnitude and location, 2) Type of damage (falling debris, ground movement), 3) Official earthquake reports, 4) Extent of vehicle damage" ;
+  autoins:category autoins:NaturalDisasterClaim ;
+  autoins:severity "High" ;
+  autoins:displayOrder "3" ;
+  autoins:rareEvent "true"^^xsd:boolean .
+
+# Chemical/Spillage Damage
+autoins:ChemicalSpillageDamage a autoins:AccidentScenario ;
+  rdfs:label "Chemical/Spillage Damage" ;
+  autoins:scenarioType "Weather & Environmental Damage" ;
+  autoins:description "Damage from chemicals, paint, tar, or other substances on road or from vehicles" ;
+  autoins:commonCauses "Road tar, paint spillage, chemical transport accidents, industrial spillages" ;
+  autoins:faultAssignment "May be third-party claim if spillage from another vehicle, otherwise comprehensive" ;
+  autoins:insuranceImpact "Medium risk - depends on substance and extent of damage" ;
+  autoins:goodExample "Paint damage to bonnet and windscreen from road resurfacing work on M25 Junction 15" ;
+  autoins:badExample "Something spilled on my car" ;
+  autoins:requiredDetails "1) Type of substance (tar, paint, chemicals), 2) Source of spillage, 3) Location and circumstances, 4) Areas of vehicle affected, 5) Cleanup requirements" ;
+  autoins:category autoins:EnvironmentalClaim ;
+  autoins:severity "Medium" ;
+  autoins:displayOrder "4" .
+
+############################################################
+## PARKING & NON-COLLISION INCIDENTS
+############################################################
+
+# Keying/Deliberate Scratching
+autoins:KeyingDamage a autoins:AccidentScenario ;
+  rdfs:label "Keying/Deliberate Scratching" ;
+  autoins:scenarioType "Parking & Non-Collision Incidents" ;
+  autoins:description "Deliberate damage to paintwork using keys or sharp objects" ;
+  autoins:commonCauses "Malicious damage, vandalism, parking disputes, random acts" ;
+  autoins:faultAssignment "No-fault comprehensive claim - criminal damage" ;
+  autoins:insuranceImpact "Medium risk - indicates area crime levels, may affect premiums" ;
+  autoins:goodExample "Vehicle was keyed on driver's side door and rear quarter panel while parked on Main Street overnight" ;
+  autoins:badExample "Someone scratched my car" ;
+  autoins:requiredDetails "1) Extent of scratching (panels affected), 2) Location where parked, 3) Time period parked, 4) Whether reported to police, 5) Any witnesses" ;
+  autoins:category autoins:MaliciousDamageClaim ;
+  autoins:severity "Medium" ;
+  autoins:displayOrder "5" ;
+  autoins:criminalAct "true"^^xsd:boolean .
+
+# Shopping Trolley Damage
+autoins:ShoppingTrolleyDamage a autoins:AccidentScenario ;
+  rdfs:label "Shopping Trolley Damage" ;
+  autoins:scenarioType "Parking & Non-Collision Incidents" ;
+  autoins:description "Damage from runaway or wind-blown shopping trolleys" ;
+  autoins:commonCauses "Wind-blown trolleys, inadequate trolley parks, slope-related incidents" ;
+  autoins:faultAssignment "Usually comprehensive claim, may be third-party if store negligence" ;
+  autoins:insuranceImpact "Low risk - minor incident, common occurrence" ;
+  autoins:goodExample "Runaway shopping trolley hit passenger door causing dent while parked at Tesco car park" ;
+  autoins:badExample "Trolley hit my car" ;
+  autoins:requiredDetails "1) Location (which store/car park), 2) Weather conditions (windy), 3) Damage caused, 4) Store incident report number, 5) CCTV availability" ;
+  autoins:category autoins:MinorAccidentClaim ;
+  autoins:severity "Low" ;
+  autoins:displayOrder "6" .
+
+# Garage/Lift Damage
+autoins:GarageLiftDamage a autoins:AccidentScenario ;
+  rdfs:label "Garage/Lift Damage" ;
+  autoins:scenarioType "Parking & Non-Collision Incidents" ;
+  autoins:description "Damage from car lifts, garage equipment, or closing doors/gates" ;
+  autoins:commonCauses "Hydraulic lift failure, garage door malfunction, automatic gate closure" ;
+  autoins:faultAssignment "May be third-party claim against garage/property owner" ;
+  autoins:insuranceImpact "Medium risk - equipment failure, may indicate maintenance issues" ;
+  autoins:goodExample "Vehicle damaged by malfunctioning hydraulic lift at ABC Garage, causing scrapes to underside" ;
+  autoins:badExample "Garage equipment damaged my car" ;
+  autoins:requiredDetails "1) Type of equipment involved, 2) Garage/location details, 3) Equipment maintenance records, 4) Damage assessment, 5) Garage incident report" ;
+  autoins:category autoins:EquipmentFailureClaim ;
+  autoins:severity "Medium" ;
+  autoins:displayOrder "7" .
+
+############################################################
+## MYSTERY DAMAGE SCENARIOS
+############################################################
+
+# Unknown Cause Damage
+autoins:MysteryDamage a autoins:AccidentScenario ;
+  rdfs:label "Mystery/Unknown Cause Damage" ;
+  autoins:scenarioType "Mystery Damage" ;
+  autoins:description "Damage discovered with no knowledge of how, when, or where it occurred" ;
+  autoins:commonCauses "Hit and run while parked, damage during parking, unwitnessed incidents" ;
+  autoins:faultAssignment "Comprehensive claim - unknown circumstances" ;
+  autoins:insuranceImpact "Medium risk - potential fraud indicator, requires careful assessment" ;
+  autoins:goodExample "Discovered large dent on passenger door. Unknown cause or time of incident. No note was left. Vehicle parked overnight on residential street." ;
+  autoins:badExample "There's a dent" ;
+  autoins:requiredDetails "1) When damage was discovered, 2) Last time vehicle was known undamaged, 3) Where vehicle was parked, 4) Description of damage, 5) Any potential witnesses" ;
+  autoins:category autoins:UnknownCauseClaim ;
+  autoins:severity "Medium" ;
+  autoins:displayOrder "8" ;
+  autoins:honestyRequired "true"^^xsd:boolean ;
+  autoins:fraudRisk "Medium" .
+
+############################################################
+## TECHNICAL/MECHANICAL FAILURE SCENARIOS
+############################################################
+
+# Engine Fire/Seizure
+autoins:EngineFailureDamage a autoins:AccidentScenario ;
+  rdfs:label "Engine Fire/Seizure" ;
+  autoins:scenarioType "Technical or Mechanical Failure" ;
+  autoins:description "Damage caused by internal mechanical failures leading to fire or seizure" ;
+  autoins:commonCauses "Oil starvation, cooling system failure, electrical faults, manufacturing defects" ;
+  autoins:faultAssignment "Comprehensive claim, may be manufacturer warranty issue" ;
+  autoins:insuranceImpact "High risk - indicates potential maintenance issues or manufacturing defects" ;
+  autoins:goodExample "Claim for fire damage originating from fault in engine bay wiring loom, fire service attended" ;
+  autoins:badExample "Car caught fire" ;
+  autoins:requiredDetails "1) Symptoms before failure, 2) Maintenance history, 3) Fire service report, 4) Cause of failure, 5) Extent of damage" ;
+  autoins:category autoins:MechanicalFailureClaim ;
+  autoins:severity "High" ;
+  autoins:displayOrder "9" ;
+  autoins:maintenanceRelevant "true"^^xsd:boolean .
+
+# Brake Failure Incident
+autoins:BrakeFailureIncident a autoins:AccidentScenario ;
+  rdfs:label "Brake Failure Leading to Incident" ;
+  autoins:scenarioType "Technical or Mechanical Failure" ;
+  autoins:description "Accident caused by sudden brake system failure" ;
+  autoins:commonCauses "Brake fluid leak, brake pad failure, hydraulic system failure, brake line rupture" ;
+  autoins:faultAssignment "Complex - may be comprehensive if mechanical failure, third-party if maintenance negligence" ;
+  autoins:insuranceImpact "Very High risk - safety-critical system failure, major liability concerns" ;
+  autoins:goodExample "Collision with garden wall due to complete brake failure - brake fluid leak from rear brake line" ;
+  autoins:badExample "Brakes failed and I crashed" ;
+  autoins:requiredDetails "1) Brake system maintenance history, 2) Warning signs before failure, 3) Mechanical inspection report, 4) Accident circumstances, 5) Third-party damage" ;
+  autoins:category autoins:SafetyCriticalFailureClaim ;
+  autoins:severity "Very High" ;
+  autoins:displayOrder "10" ;
+  autoins:safetyCritical "true"^^xsd:boolean ;
+  autoins:liabilityRisk "High" .
+
+# Electrical Fire
+autoins:ElectricalFireDamage a autoins:AccidentScenario ;
+  rdfs:label "Electrical Fire Damage" ;
+  autoins:scenarioType "Technical or Mechanical Failure" ;
+  autoins:description "Fire damage originating from vehicle electrical systems" ;
+  autoins:commonCauses "Wiring faults, aftermarket electrical installations, battery issues, alternator failure" ;
+  autoins:faultAssignment "Comprehensive claim, may be third-party if aftermarket installation fault" ;
+  autoins:insuranceImpact "High risk - electrical safety concerns, potential total loss" ;
+  autoins:goodExample "Electrical fire started in dashboard wiring, fire service report confirms electrical origin" ;
+  autoins:badExample "Electrical problem caused fire" ;
+  autoins:requiredDetails "1) Fire service report, 2) Electrical system modifications, 3) Recent electrical work, 4) Fire origin point, 5) Extent of damage" ;
+  autoins:category autoins:ElectricalFailureClaim ;
+  autoins:severity "High" ;
+  autoins:displayOrder "11" .
+
+############################################################
+## MALICIOUS DAMAGE SCENARIOS
+############################################################
+
+# Brake/Component Tampering
+autoins:ComponentTampering a autoins:AccidentScenario ;
+  rdfs:label "Brake/Component Tampering" ;
+  autoins:scenarioType "Malicious Damage (Beyond Vandalism)" ;
+  autoins:description "Deliberate tampering with safety-critical vehicle components" ;
+  autoins:commonCauses "Criminal damage, sabotage, personal disputes, terrorism" ;
+  autoins:faultAssignment "Comprehensive claim - criminal act, police involvement required" ;
+  autoins:insuranceImpact "Extreme risk - safety implications, potential personal injury claims" ;
+  autoins:goodExample "Brake lines deliberately cut while parked overnight, reported to police, crime reference number [number]" ;
+  autoins:badExample "Someone messed with my brakes" ;
+  autoins:requiredDetails "1) Police crime reference number, 2) Forensic evidence, 3) Suspected motive, 4) Safety inspection report, 5) Any threats received" ;
+  autoins:category autoins:CriminalDamageClaim ;
+  autoins:severity "Extreme" ;
+  autoins:displayOrder "12" ;
+  autoins:criminalAct "true"^^xsd:boolean ;
+  autoins:policeRequired "true"^^xsd:boolean .
+
+# Fuel Contamination
+autoins:FuelContamination a autoins:AccidentScenario ;
+  rdfs:label "Fuel System Contamination" ;
+  autoins:scenarioType "Malicious Damage (Beyond Vandalism)" ;
+  autoins:description "Deliberate contamination of fuel system with sugar, water, or other substances" ;
+  autoins:commonCauses "Malicious damage, revenge, vandalism, accidental contamination" ;
+  autoins:faultAssignment "Comprehensive claim if malicious, may be third-party if fuel station contamination" ;
+  autoins:insuranceImpact "High risk - engine damage potential, expensive repairs" ;
+  autoins:goodExample "Fuel system contamination discovered after sugar found in petrol tank, engine damage resulted" ;
+  autoins:badExample "Someone put sugar in my tank" ;
+  autoins:requiredDetails "1) Type of contamination, 2) How discovered, 3) Police report if malicious, 4) Fuel system damage assessment, 5) Repair estimates" ;
+  autoins:category autoins:MaliciousDamageClaim ;
+  autoins:severity "High" ;
+  autoins:displayOrder "13" ;
+  autoins:criminalAct "true"^^xsd:boolean .
+
+# Catalytic Converter Theft
+autoins:CatalyticConverterTheft a autoins:AccidentScenario ;
+  rdfs:label "Catalytic Converter Theft" ;
+  autoins:scenarioType "Malicious Damage (Beyond Vandalism)" ;
+  autoins:description "Theft of catalytic converter and associated exhaust system damage" ;
+  autoins:commonCauses "Metal theft, organized crime, high-value metals in catalytic converters" ;
+  autoins:faultAssignment "Comprehensive claim - theft, police involvement required" ;
+  autoins:insuranceImpact "High risk - indicates area crime levels, expensive replacement parts" ;
+  autoins:goodExample "Theft of catalytic converter while parked at home overnight, police crime reference [number]" ;
+  autoins:badExample "Something was stolen from the car" ;
+  autoins:requiredDetails "1) Police crime reference number, 2) Parts stolen, 3) Damage to exhaust system, 4) Security measures in place, 5) Replacement cost estimates" ;
+  autoins:category autoins:TheftClaim ;
+  autoins:severity "High" ;
+  autoins:displayOrder "14" ;
+  autoins:criminalAct "true"^^xsd:boolean ;
+  autoins:policeRequired "true"^^xsd:boolean .
+
+############################################################
+## LEGAL & LIABILITY SCENARIOS
+############################################################
+
+# Load Falling from Vehicle
+autoins:LoadFallingIncident a autoins:AccidentScenario ;
+  rdfs:label "Load Falling from Vehicle" ;
+  autoins:scenarioType "Legal & Liability Issues" ;
+  autoins:description "Items falling from your vehicle causing damage to third parties" ;
+  autoins:commonCauses "Unsecured loads, roof rack failures, trailer problems, inadequate securing" ;
+  autoins:faultAssignment "Third-party liability claim - driver responsibility for load security" ;
+  autoins:insuranceImpact "High risk - liability for third-party damage, potential injury claims" ;
+  autoins:goodExample "While unloading, bicycle fell off bike rack and scratched third party's car in car park" ;
+  autoins:badExample "My stuff damaged another car" ;
+  autoins:requiredDetails "1) What fell from vehicle, 2) How it was secured, 3) Third-party damage, 4) Circumstances of incident, 5) Load securing methods used" ;
+  autoins:category autoins:LiabilityClaim ;
+  autoins:severity "High" ;
+  autoins:displayOrder "15" ;
+  autoins:liabilityRisk "High" .
+
+# Runaway Vehicle
+autoins:RunawayVehicleIncident a autoins:AccidentScenario ;
+  rdfs:label "Runaway Vehicle Incident" ;
+  autoins:scenarioType "Legal & Liability Issues" ;
+  autoins:description "Vehicle rolling away due to inadequate parking brake application" ;
+  autoins:commonCauses "Handbrake failure, inadequate handbrake application, parking on slope, mechanical failure" ;
+  autoins:faultAssignment "Usually driver liability for inadequate securing, may be mechanical failure" ;
+  autoins:insuranceImpact "Medium to High risk - driver error or mechanical failure, third-party damage potential" ;
+  autoins:goodExample "Vehicle rolled down slope after handbrake failure, collided with garden fence on Hillside Road" ;
+  autoins:badExample "My car rolled away and hit something" ;
+  autoins:requiredDetails "1) Parking circumstances, 2) Handbrake condition, 3) Slope gradient, 4) Third-party damage, 5) Mechanical inspection results" ;
+  autoins:category autoins:LiabilityClaim ;
+  autoins:severity "Medium to High" ;
+  autoins:displayOrder "16" .
+
+############################################################
+## CLAIM CATEGORIES
+############################################################
+
+autoins:EnvironmentalClaim a autoins:ClaimCategory ;
+  rdfs:label "Environmental Claims" ;
+  autoins:description "Claims caused by weather, natural events, or environmental hazards" ;
+  autoins:faultAssignment "Usually no-fault comprehensive claims" ;
+  autoins:insuranceRisk "Low to Medium" ;
+  autoins:commonCharacteristics "Natural causes, often unavoidable, location-dependent risk" .
+
+autoins:MaliciousDamageClaim a autoins:ClaimCategory ;
+  rdfs:label "Malicious Damage Claims" ;
+  autoins:description "Claims involving deliberate criminal damage to vehicle" ;
+  autoins:faultAssignment "No-fault comprehensive, police involvement usually required" ;
+  autoins:insuranceRisk "Medium to High" ;
+  autoins:commonCharacteristics "Criminal acts, area crime levels relevant, police reports needed" .
+
+autoins:MechanicalFailureClaim a autoins:ClaimCategory ;
+  rdfs:label "Mechanical Failure Claims" ;
+  autoins:description "Claims caused by vehicle component or system failures" ;
+  autoins:faultAssignment "Comprehensive, may involve manufacturer warranty" ;
+  autoins:insuranceRisk "Medium to High" ;
+  autoins:commonCharacteristics "Maintenance history relevant, age and mileage factors" .
+
+autoins:LiabilityClaim a autoins:ClaimCategory ;
+  rdfs:label "Liability Claims" ;
+  autoins:description "Claims where policyholder may be liable for third-party damage" ;
+  autoins:faultAssignment "Third-party liability, driver responsibility" ;
+  autoins:insuranceRisk "High" ;
+  autoins:commonCharacteristics "Driver error or negligence, third-party damage potential" .
+
+autoins:UnknownCauseClaim a autoins:ClaimCategory ;
+  rdfs:label "Unknown Cause Claims" ;
+  autoins:description "Claims where cause of damage is unknown or mysterious" ;
+  autoins:faultAssignment "Comprehensive, requires careful investigation" ;
+  autoins:insuranceRisk "Medium" ;
+  autoins:commonCharacteristics "Potential fraud risk, requires detailed investigation" .
+
+############################################################
+## CLAIMS DESCRIPTION BEST PRACTICES
+############################################################
+
+autoins:ClaimsDescriptionGuidance a owl:Class ;
+  rdfs:label "Claims Description Best Practices" ;
+  autoins:doFactual "Be Factual: State only the facts of what happened" ;
+  autoins:doSpecific "Be Specific: Include locations, times, and precise description of damage" ;
+  autoins:doConcise "Be Concise: 'Damage from hailstorm on 30/08/2025 in Birmingham' is perfect" ;
+  autoins:dontVague "Don't Be Vague: Avoid 'mystery damage,' 'someone hit me,' or 'I don't know'" ;
+  autoins:dontAdmitFault "Don't Admit Fault Unnecessarily: Stick to facts. Let insurance company determine fault" ;
+  autoins:dontSpeculate "Don't Speculate: Don't write 'I think a lorry threw up a stone.' Write 'Windscreen cracked, likely due to stone impact from vehicle on M25'" ;
+  autoins:faultExample "Instead of 'I crashed into a wall,' say 'Vehicle collided with wall on [Street Name]'" ;
+  autoins:primaryJob "Primary job is to describe incident and damage with precise detail to give insurer clear picture of event" .
+
+############################################################
+## AI VALIDATION PROMPTS FOR "OTHER" CLAIMS & ACCIDENTS
+############################################################
+
+autoins:ClaimsAccidentsOtherValidationPrompt a owl:Class ;
+  rdfs:label "AI Validation Prompt for Other Claims and Accidents" ;
+  autoins:validationPrompt """You are an insurance claims adjuster specializing in non-standard accident scenarios. The user has selected 'Other' for accident/claim type.
+
+CRITICAL VALIDATION REQUIREMENTS:
+
+Insurers need specific details to: 1) Assign fault (liability), 2) Validate claim credibility, 3) Assess repair value and method, 4) Determine policy coverage.
+
+MUST INCLUDE:
+1. Specific description of what happened (factual, not speculative)
+2. Exact location and time of incident
+3. Precise description of damage caused
+4. Any third-party involvement or damage
+5. Whether reported to police (if criminal/malicious)
+
+COMMON "OTHER" SCENARIOS:
+✅ Weather/Environmental: "Falling tree branch during storm while parked at [address]"
+✅ Parking Incidents: "Vehicle keyed on driver's side door while parked on Main Street overnight"
+✅ Mystery Damage: "Discovered large dent on passenger door. Unknown cause. No note left."
+✅ Mechanical Failure: "Engine fire from electrical fault in wiring loom, fire service attended"
+✅ Malicious Damage: "Catalytic converter theft while parked at home, police ref [number]"
+✅ Liability Issues: "Bicycle fell off roof rack and scratched third party's car"
+
+DESCRIPTION BEST PRACTICES:
+DO:
+- Be factual (state only what happened)
+- Be specific (locations, times, precise damage description)
+- Be concise ("Hailstorm damage on 30/08/2025 in Birmingham")
+
+DON'T:
+- Be vague ("mystery damage", "someone hit me", "I don't know")
+- Admit fault unnecessarily (stick to facts, let insurer determine fault)
+- Speculate ("I think a lorry threw up a stone" → "Windscreen cracked, likely stone impact from vehicle on M25")
+
+REJECT INVALID RESPONSES:
+❌ Vague: "something happened to my car", "accident occurred", "damage found"
+❌ Non-specific: "hit something", "car got damaged", "incident happened"
+❌ Speculative: "probably hit by...", "might have been...", "could be..."
+❌ Fault-admitting: "I crashed into...", "I hit...", "my fault"
+
+VALIDATION QUESTIONS:
+1. What exactly happened? (specific incident description)
+2. Where and when did this occur? (exact location and time)
+3. What damage was caused? (precise description)
+4. Was anyone else involved? (third parties, witnesses)
+5. Was this reported to police? (if criminal/malicious damage)
+6. Are there any supporting documents? (police reports, garage reports, photos)
+
+Remember: The goal is a clear, factual description that allows the claims adjuster to understand exactly what happened and assess liability, coverage, and repair requirements.""" .
+
+############################################################
+## SHACL VALIDATION RULES
+############################################################
+
+autoins:AccidentScenarioValidationShape a sh:NodeShape ;
+  sh:targetClass autoins:AccidentScenario ;
+  rdfs:label "Accident Scenario Validation" ;
+  sh:property [
+    sh:path autoins:scenarioType ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Scenario type is required"
+  ] ;
+  sh:property [
+    sh:path autoins:description ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 30 ;
+    sh:message "Description must be detailed (minimum 30 characters)"
+  ] ;
+  sh:property [
+    sh:path autoins:goodExample ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Good example is required for user guidance"
+  ] ;
+  sh:property [
+    sh:path autoins:badExample ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Bad example is required to show what to avoid"
+  ] ;
+  sh:property [
+    sh:path autoins:requiredDetails ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Required details specification is mandatory"
+  ] .

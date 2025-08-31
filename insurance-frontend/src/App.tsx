@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Progress, Alert } from 'flowbite-react';
-import { ChevronLeft, ChevronRight, CheckCircle, AlertCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CheckCircle, AlertCircle, User, Car, FileText, Shield, Upload } from 'lucide-react';
 
-// Import new modular components
-import DriverForm from './components/forms/DriverForm';
-import VehicleForm from './components/forms/VehicleForm';
-import ClaimsForm from './components/forms/ClaimsForm';
-import DocumentUpload from './components/forms/DocumentUpload';
+// Import universal components
+import UniversalForm from './components/forms/UniversalForm';
+import GlobalAssistant from './components/forms/GlobalAssistant';
+import DocumentMatrix from './components/forms/DocumentMatrix';
+import DocumentManager from './components/documents/DocumentManager';
 import Navigation from './components/layout/Navigation';
 
 // Import services
 import { ApiService } from './services/api';
+import ocrService from './services/ocrService';
 import { validateBirthDate, validateLicenceDate, validateHistoricalDate } from './services/validation';
 
 // Import types
@@ -21,10 +22,9 @@ import {
   Vehicle, 
   Claim, 
   Accident, 
-  Policy, 
   Document,
   ValidationError 
-} from './types';
+} from './types/index';
 
 const App: React.FC = () => {
   // Main application state
@@ -79,6 +79,7 @@ const App: React.FC = () => {
   });
 
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showAssistant, setShowAssistant] = useState(true);
 
   const steps = [
     'Driver Details',
@@ -86,6 +87,7 @@ const App: React.FC = () => {
     'Claims History',
     'Policy Details',
     'Documents',
+    'Settings',
     'Review & Submit'
   ];
 
@@ -326,6 +328,7 @@ const App: React.FC = () => {
         size: files[0].size,
         uploadedAt: new Date().toISOString(),
         processed: true,
+        fieldName: selectedDocumentType || uploadType,
         extractedData: result.extractedFields,
         confidence: result.confidence,
         imagePaths: result.images
@@ -350,6 +353,47 @@ const App: React.FC = () => {
         ...prev,
         error: `Document processing failed: ${error}`
       }));
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // New document manager handlers
+  const handleFileDownload = (documentType: string) => {
+    // Find the document in the session
+    const document = appState.session.documents.find(doc => doc.fieldName === documentType);
+    if (document) {
+      // In a real implementation, this would download from the server
+      console.log(`Downloading document: ${document.name}`);
+      // For now, just show an alert
+      alert(`Download functionality for ${document.name} would be implemented here`);
+    }
+  };
+
+  const handleOCRProcessing = async (documentType: string, file: File) => {
+    try {
+      setIsProcessing(true);
+      const ocrResult = await ocrService.processDocument(documentType, file);
+      
+      // Update the session with extracted data
+      setAppState(prev => ({
+        ...prev,
+        session: {
+          ...prev.session,
+          // Map OCR results to appropriate session fields
+          ...ocrResult
+        }
+      }));
+      
+      return ocrResult;
+    } catch (error) {
+      console.error('OCR processing failed:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setAppState(prev => ({
+        ...prev,
+        error: `OCR processing failed: ${errorMessage}`
+      }));
+      throw error;
     } finally {
       setIsProcessing(false);
     }
@@ -425,16 +469,21 @@ const App: React.FC = () => {
   const renderStepContent = () => {
     switch (appState.currentStep) {
       case 0: // Driver Details
+        const driverFields = appState.ontology?.sections?.drivers?.fields || [];
         return (
           <div className="space-y-6">
             {appState.session.drivers.map((driver, index) => (
-              <DriverForm
+              <UniversalForm
                 key={driver.id}
-                driver={driver}
-                index={index}
-                updateDriver={updateDriver}
-                removeDriver={removeDriver}
+                title={`Driver ${index + 1} ${driver.classification === 'MAIN' ? '(Main Driver)' : '(Named Driver)'}`}
+                icon={<User className="w-5 h-5 mr-2 text-blue-600" />}
+                fields={driverFields}
+                data={driver}
+                onUpdate={(field, value) => updateDriver(index, field, value)}
+                onRemove={index > 0 ? () => removeDriver(index) : undefined}
+                showRemoveButton={index > 0}
                 validationErrors={appState.validationErrors}
+                formType="driver"
               />
             ))}
             <Button onClick={addDriver} color="light" className="w-full">
@@ -444,16 +493,21 @@ const App: React.FC = () => {
         );
 
       case 1: // Vehicle Details
+        const vehicleFields = appState.ontology?.sections?.vehicles?.fields || [];
         return (
           <div className="space-y-6">
             {appState.session.vehicles.map((vehicle, index) => (
-              <VehicleForm
+              <UniversalForm
                 key={vehicle.id}
-                vehicle={vehicle}
-                index={index}
-                updateVehicle={updateVehicle}
-                removeVehicle={removeVehicle}
+                title={`Vehicle ${index + 1}`}
+                icon={<Car className="w-5 h-5 mr-2 text-blue-600" />}
+                fields={vehicleFields}
+                data={vehicle}
+                onUpdate={(field, value) => updateVehicle(index, field, value)}
+                onRemove={index > 0 ? () => removeVehicle(index) : undefined}
+                showRemoveButton={index > 0}
                 validationErrors={appState.validationErrors}
+                formType="vehicle"
               />
             ))}
             <Button onClick={addVehicle} color="light" className="w-full">
@@ -463,39 +517,89 @@ const App: React.FC = () => {
         );
 
       case 2: // Claims History
+        const claimsFields = appState.ontology?.sections?.claims?.fields || [];
         return (
-          <ClaimsForm
-            claims={appState.session.claims.claims}
-            accidents={appState.session.claims.accidents}
-            updateClaim={updateClaim}
-            updateAccident={updateAccident}
-            addClaim={addClaim}
-            addAccident={addAccident}
-            removeClaim={removeClaim}
-            removeAccident={removeAccident}
-            validationErrors={appState.validationErrors}
-          />
+          <div className="space-y-6">
+            <UniversalForm
+              title="Claims History"
+              icon={<FileText className="w-5 h-5 mr-2 text-blue-600" />}
+              fields={claimsFields}
+              data={appState.session.claims}
+              onUpdate={(field, value) => {
+                setAppState(prev => ({
+                  ...prev,
+                  session: {
+                    ...prev.session,
+                    claims: { ...prev.session.claims, [field]: value }
+                  }
+                }));
+              }}
+              validationErrors={appState.validationErrors}
+              formType="claims"
+            />
+          </div>
         );
 
       case 3: // Policy Details
+        const policyFields = appState.ontology?.sections?.policy?.fields || [];
         return (
-          <Card>
-            <h3 className="text-lg font-semibold mb-4">Policy Configuration</h3>
-            <p className="text-gray-600">Policy details form will be implemented here</p>
-          </Card>
+          <div className="space-y-6">
+            <UniversalForm
+              title="Policy Details"
+              icon={<Shield className="w-5 h-5 mr-2 text-blue-600" />}
+              fields={policyFields}
+              data={appState.session.policy}
+              onUpdate={(field, value) => {
+                setAppState(prev => ({
+                  ...prev,
+                  session: {
+                    ...prev.session,
+                    policy: { ...prev.session.policy, [field]: value }
+                  }
+                }));
+              }}
+              validationErrors={appState.validationErrors}
+            />
+          </div>
         );
 
       case 4: // Documents
+        const documentFields = appState.ontology?.sections?.documents?.fields || [];
         return (
-          <DocumentUpload
-            onFileUpload={handleFileUpload}
-            isProcessing={isProcessing}
-            documents={appState.session.documents}
-            onRemoveDocument={removeDocument}
+          <DocumentManager
+            fields={documentFields}
+            onUpload={(documentType: string, file: File) => {
+              const fileList = new DataTransfer();
+              fileList.items.add(file);
+              handleFileUpload(fileList.files, documentType, documentType);
+            }}
+            onDownload={handleFileDownload}
+            onOCR={handleOCRProcessing}
           />
         );
 
-      case 5: // Review & Submit
+      case 5: // Settings
+        const settingsFields = appState.ontology?.sections?.settings?.fields || [];
+        return (
+          <div className="space-y-6">
+            <UniversalForm
+              title="Personal Details & Settings"
+              icon={<User className="w-5 h-5 mr-2 text-blue-600" />}
+              fields={settingsFields}
+              data={appState.session}
+              onUpdate={(field, value) => {
+                setAppState(prev => ({
+                  ...prev,
+                  session: { ...prev.session, [field]: value }
+                }));
+              }}
+              validationErrors={appState.validationErrors}
+              formType="settings"
+            />
+          </div>
+        );
+
+      case 6: // Review & Submit
         return (
           <Card>
             <h3 className="text-lg font-semibold mb-4">Review & Submit</h3>
@@ -523,38 +627,40 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">CLIENT-UX Insurance Application</h1>
-          <p className="text-gray-600">Complete your insurance application step by step</p>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-gray-700">
-              Step {appState.currentStep + 1} of {steps.length}
-            </span>
-            <span className="text-sm text-gray-500">
-              {Math.round(((appState.currentStep + 1) / steps.length) * 100)}% Complete
-            </span>
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Left Sidebar Navigation */}
+      <Navigation
+        currentStep={appState.currentStep}
+        setCurrentStep={setCurrentStep}
+        steps={steps}
+        canNavigate={canNavigate}
+        completedSteps={getCompletedSteps()}
+      />
+      
+      {/* Main Content Area */}
+      <div className="flex-1 ml-64">
+        <div className="container mx-auto px-8 py-8">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">CLIENT-UX Insurance Application</h1>
+            <p className="text-gray-600">Complete your insurance application step by step</p>
           </div>
-          <Progress 
-            progress={((appState.currentStep + 1) / steps.length) * 100} 
-            className="mb-4"
-          />
-        </div>
 
-        {/* Navigation */}
-        <Navigation
-          currentStep={appState.currentStep}
-          setCurrentStep={setCurrentStep}
-          steps={steps}
-          canNavigate={canNavigate}
-          completedSteps={getCompletedSteps()}
-        />
+          {/* Progress Bar */}
+          <div className="mb-8">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium text-gray-700">
+                Step {appState.currentStep + 1} of {steps.length}
+              </span>
+              <span className="text-sm text-gray-500">
+                {Math.round(((appState.currentStep + 1) / steps.length) * 100)}% Complete
+              </span>
+            </div>
+            <Progress 
+              progress={((appState.currentStep + 1) / steps.length) * 100} 
+              className="mb-4"
+            />
+          </div>
 
         {/* Error Display */}
         {appState.error && (
@@ -587,8 +693,14 @@ const App: React.FC = () => {
             Next
             <ChevronRight className="w-4 h-4 ml-2" />
           </Button>
+          </div>
         </div>
       </div>
+      <GlobalAssistant
+        isOpen={showAssistant}
+        onClose={() => setShowAssistant(false)}
+        onOpen={() => setShowAssistant(true)}
+      />
     </div>
   );
 };

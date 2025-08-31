@@ -8,13 +8,24 @@ import (
 )
 
 type OntologyField struct {
-	Property string        `json:"property"`
-	Label    string        `json:"label"`
-	Type     string        `json:"type"`
-	Required bool          `json:"required"`
-	HelpText string        `json:"helpText,omitempty"`
-	Options  []FieldOption `json:"options,omitempty"`
-	Domain   string        `json:"domain,omitempty"`
+	Property               string        `json:"property"`
+	Label                  string        `json:"label"`
+	Type                   string        `json:"type"`
+	Required               bool          `json:"required"`
+	HelpText               string        `json:"helpText,omitempty"`
+	Options                []FieldOption `json:"options,omitempty"`
+	Domain                 string        `json:"domain,omitempty"`
+	ConditionalDisplay     string        `json:"conditionalDisplay,omitempty"`
+	ConditionalRequirement string        `json:"conditionalRequirement,omitempty"`
+	IsMultiSelect          bool          `json:"isMultiSelect"`
+	FormType               string        `json:"formType"`
+	EnumerationValues      []string      `json:"enumerationValues"`
+	ArrayItemStructure     string        `json:"arrayItemStructure,omitempty"`
+	FormSection            string        `json:"formSection,omitempty"`
+	FormInfoText           string        `json:"formInfoText,omitempty"`
+	DefaultValue           string        `json:"defaultValue,omitempty"`
+	RequiresAIValidation   bool          `json:"requiresAIValidation"`
+	AIValidationPrompt     string        `json:"aiValidationPrompt,omitempty"`
 }
 
 type FieldOption struct {

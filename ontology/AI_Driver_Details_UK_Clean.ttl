@@ -1,0 +1,374 @@
+@prefix autoins: <https://autoins.example/ontology#> .
+@prefix bipro: <https://bipro.net/ontology#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf:   <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <https://schema.org/> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct:    <http://purl.org/dc/terms/> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+
+############################################################
+## UK INSURANCE DRIVER DETAILS - CLEAN & STRUCTURED
+############################################################
+
+autoins:DriverDetailsModule a owl:Ontology ;
+  rdfs:label "UK Insurance Driver Details Module" ;
+  owl:versionInfo "v3.0.0-2025-01-24" ;
+  dct:creator "CLIENT-UX" ;
+  dct:description "UK insurance compliant driver form with conditional logic and proper field types" ;
+  autoins:gdprCompliant "true"^^xsd:boolean ;
+  autoins:ukInsuranceCompliant "true"^^xsd:boolean .
+
+############################################################
+## SECTION 1: MANDATORY DRIVER INFORMATION
+############################################################
+
+autoins:driverType a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:string ;
+  rdfs:label "Type Of Driver" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("MAIN_DRIVER" "NAMED_DRIVER" "OCCASIONAL_DRIVER") ;
+  autoins:formType "select" ;
+  autoins:formHelpText "Are you the main driver or additional driver on this policy?" ;
+  autoins:displayOrder "1.0" ;
+  autoins:formSection "mandatory" ;
+  autoins:dataClassification autoins:PersonalData ;
+  autoins:consentRequired "false"^^xsd:boolean ;
+  autoins:retentionPeriod "P7Y" .
+
+autoins:relationship a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:string ;
+  rdfs:label "Relationship To Main Driver" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:conditionalDisplay "driverType!=MAIN_DRIVER" ;
+  autoins:enumerationValues ("Spouse/Partner" "Parent" "Child" "Sibling" "Friend" "Other") ;
+  autoins:formType "select" ;
+  autoins:formHelpText "Your relationship to the main driver on this policy" ;
+  autoins:displayOrder "1.1" ;
+  autoins:formSection "mandatory" .
+
+############################################################
+## SECTION 2: LICENCE INFORMATION (UK INSURANCE ESSENTIALS)
+############################################################
+
+autoins:licenceType a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:string ;
+  rdfs:label "Licence Type" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("Full_UK_Manual" "Full_UK_Automatic" "UK_Provisional" "EU_EEA_Licence" "International_Licence" "Other_Foreign") ;
+  autoins:formType "select" ;
+  autoins:defaultValue "Full_UK_Manual" ;
+  autoins:formHelpText "What type of driving licence do you hold?" ;
+  autoins:displayOrder "2.0" ;
+  autoins:formSection "licence" ;
+  autoins:dataClassification autoins:PersonalData ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:retentionPeriod "P7Y" .
+
+autoins:licenceNumber a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:string ;
+  rdfs:label "Licence Number" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formType "text" ;
+  autoins:formHelpText "Your driving licence number (found on front of photocard)" ;
+  autoins:displayOrder "2.1" ;
+  autoins:formSection "licence" ;
+  autoins:dataClassification autoins:PersonalData ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:retentionPeriod "P7Y" .
+
+autoins:licenceIssueDate a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:date ;
+  rdfs:label "Licence Issue Date" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formType "date" ;
+  autoins:formHelpText "Date your current licence was issued" ;
+  autoins:displayOrder "2.2" ;
+  autoins:formSection "licence" .
+
+autoins:licenceExpiryDate a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:date ;
+  rdfs:label "Licence Expiry Date" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formType "date" ;
+  autoins:formHelpText "Date your licence expires" ;
+  autoins:displayOrder "2.3" ;
+  autoins:formSection "licence" .
+
+autoins:yearsHeldFullLicence a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Years Held Full Licence" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formType "number" ;
+  autoins:formHelpText "How many years have you held a full driving licence?" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 70 ;
+  autoins:displayOrder "2.4" ;
+  autoins:formSection "licence" .
+
+############################################################
+## SECTION 3: CONVICTIONS & PENALTY POINTS (CONDITIONAL)
+############################################################
+
+autoins:hasConvictions a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Any Driving Convictions In Last 5 Years?" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("YES" "NO") ;
+  autoins:formType "radio" ;
+  autoins:defaultValue "NO" ;
+  autoins:triggerSection "convictions" ;
+  autoins:sectionCollapsible "true"^^xsd:boolean ;
+  autoins:sectionDefaultClosed "true"^^xsd:boolean ;
+  autoins:formHelpText "Do you have any driving convictions in the last 5 years? This includes speeding, drink driving, careless driving, etc." ;
+  autoins:displayOrder "3.0" ;
+  autoins:formSection "driving_history" ;
+  autoins:dataClassification autoins:SensitivePersonalData ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:retentionPeriod "P7Y" .
+
+autoins:convictionType a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:string ;
+  rdfs:label "Type Of Conviction" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:conditionalDisplay "hasConvictions=YES" ;
+  autoins:enumerationValues ("Speeding" "Drink_Driving" "Careless_Driving" "Dangerous_Driving" "No_Insurance" "No_Licence" "Other") ;
+  autoins:formType "select" ;
+  autoins:formHelpText "What type of driving conviction?" ;
+  autoins:displayOrder "3.1" ;
+  autoins:formSection "convictions" .
+
+autoins:convictionDate a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:date ;
+  rdfs:label "Date Of Conviction" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:conditionalDisplay "hasConvictions=YES" ;
+  autoins:formType "date" ;
+  autoins:formHelpText "When were you convicted?" ;
+  autoins:displayOrder "3.2" ;
+  autoins:formSection "convictions" .
+
+autoins:penaltyPoints a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Penalty Points Received" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:conditionalDisplay "hasConvictions=YES" ;
+  autoins:formType "number" ;
+  autoins:formHelpText "How many penalty points did you receive?" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 12 ;
+  autoins:displayOrder "3.3" ;
+  autoins:formSection "convictions" .
+
+autoins:currentPenaltyPoints a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Current Total Penalty Points" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formType "number" ;
+  autoins:formHelpText "Total penalty points currently on your licence (0-12)" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 12 ;
+  autoins:displayOrder "3.4" ;
+  autoins:formSection "driving_history" .
+
+############################################################
+## SECTION 4: MEDICAL CONDITIONS & RESTRICTIONS (CONDITIONAL)
+############################################################
+
+autoins:hasMedicalConditions a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Any Medical Conditions Affecting Driving?" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("YES" "NO") ;
+  autoins:formType "radio" ;
+  autoins:defaultValue "NO" ;
+  autoins:triggerSection "medical" ;
+  autoins:sectionCollapsible "true"^^xsd:boolean ;
+  autoins:sectionDefaultClosed "true"^^xsd:boolean ;
+  autoins:formHelpText "Do you have any medical conditions that affect your driving or that you've declared to DVLA?" ;
+  autoins:displayOrder "4.0" ;
+  autoins:formSection "medical_history" ;
+  autoins:dataClassification autoins:SensitivePersonalData ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:retentionPeriod "P7Y" .
+
+autoins:medicalConditionTypes a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:string ;
+  rdfs:label "Medical Conditions" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:isMultiSelect "true"^^xsd:boolean ;
+  autoins:conditionalDisplay "hasMedicalConditions=YES" ;
+  autoins:enumerationValues ("Diabetes" "Epilepsy" "Heart_Condition" "Vision_Problems" "Hearing_Problems" "Mobility_Issues" "Mental_Health" "Other") ;
+  autoins:formHelpText "Select all medical conditions that apply" ;
+  autoins:displayOrder "4.1" ;
+  autoins:formSection "medical" .
+
+autoins:requiresGlasses a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Must Wear Glasses/Contacts When Driving?" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("YES" "NO") ;
+  autoins:formType "radio" ;
+  autoins:defaultValue "NO" ;
+  autoins:formHelpText "Are you required to wear corrective lenses when driving? (DVLA code 01)" ;
+  autoins:displayOrder "4.2" ;
+  autoins:formSection "medical_history" .
+
+autoins:automaticOnly a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Restricted To Automatic Cars Only?" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("YES" "NO") ;
+  autoins:formType "radio" ;
+  autoins:defaultValue "NO" ;
+  autoins:formHelpText "Are you restricted to driving automatic vehicles only? (DVLA code 78)" ;
+  autoins:displayOrder "4.3" ;
+  autoins:formSection "medical_history" .
+
+############################################################
+## SECTION 5: CLAIMS & ACCIDENTS (CONDITIONAL)
+############################################################
+
+autoins:hasAccidents a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Any Accidents/Claims In Last 5 Years?" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("YES" "NO") ;
+  autoins:formType "radio" ;
+  autoins:defaultValue "NO" ;
+  autoins:triggerSection "accidents" ;
+  autoins:sectionCollapsible "true"^^xsd:boolean ;
+  autoins:sectionDefaultClosed "true"^^xsd:boolean ;
+  autoins:formHelpText "Have you had any accidents or made any insurance claims in the last 5 years?" ;
+  autoins:displayOrder "5.0" ;
+  autoins:formSection "claims_history" ;
+  autoins:dataClassification autoins:PersonalData ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:retentionPeriod "P7Y" .
+
+autoins:accidentDate a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:date ;
+  rdfs:label "Date Of Accident" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:conditionalDisplay "hasAccidents=YES" ;
+  autoins:formType "date" ;
+  autoins:formHelpText "When did the accident occur?" ;
+  autoins:displayOrder "5.1" ;
+  autoins:formSection "accidents" .
+
+autoins:accidentFault a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Were You At Fault?" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:conditionalDisplay "hasAccidents=YES" ;
+  autoins:enumerationValues ("YES" "NO") ;
+  autoins:formType "radio" ;
+  autoins:formHelpText "Were you considered at fault for the accident?" ;
+  autoins:displayOrder "5.2" ;
+  autoins:formSection "accidents" .
+
+############################################################
+## SECTION 6: NO CLAIMS BONUS
+############################################################
+
+autoins:noClaimsYears a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Years Of No Claims Bonus" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formType "number" ;
+  autoins:formHelpText "How many years of no claims bonus do you have?" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 20 ;
+  autoins:displayOrder "6.0" ;
+  autoins:formSection "no_claims" .
+
+autoins:noClaimsProtected a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Is Your No Claims Bonus Protected?" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("YES" "NO") ;
+  autoins:formType "radio" ;
+  autoins:defaultValue "NO" ;
+  autoins:formHelpText "Do you have protected no claims bonus?" ;
+  autoins:displayOrder "6.1" ;
+  autoins:formSection "no_claims" .
+
+############################################################
+## PERSONAL DETAILS (MOVED TO SETTINGS/PROFILE)
+############################################################
+
+# Personal details like name, address, DOB should be in a separate profile/settings section
+# as they're not driver-specific but user-specific
+
+############################################################
+## SHACL CONDITIONAL LOGIC SHAPES
+############################################################
+
+autoins:ConvictionConditionalShape a sh:NodeShape ;
+  sh:targetClass autoins:Driver ;
+  rdfs:label "Conviction Conditional Display" ;
+  sh:property [
+    sh:path autoins:convictionType ;
+    sh:condition [
+      sh:property [
+        sh:path autoins:hasConvictions ;
+        sh:hasValue "YES"^^xsd:boolean
+      ]
+    ] ;
+    sh:message "Conviction details required when hasConvictions is YES"
+  ] .
+
+autoins:MedicalConditionalShape a sh:NodeShape ;
+  sh:targetClass autoins:Driver ;
+  rdfs:label "Medical Conditional Display" ;
+  sh:property [
+    sh:path autoins:medicalConditionTypes ;
+    sh:condition [
+      sh:property [
+        sh:path autoins:hasMedicalConditions ;
+        sh:hasValue "YES"^^xsd:boolean
+      ]
+    ] ;
+    sh:message "Medical condition details required when hasMedicalConditions is YES"
+  ] .
+
+autoins:AccidentConditionalShape a sh:NodeShape ;
+  sh:targetClass autoins:Driver ;
+  rdfs:label "Accident Conditional Display" ;
+  sh:property [
+    sh:path autoins:accidentDate ;
+    sh:condition [
+      sh:property [
+        sh:path autoins:hasAccidents ;
+        sh:hasValue "YES"^^xsd:boolean
+      ]
+    ] ;
+    sh:message "Accident details required when hasAccidents is YES"
+  ] .
+
+############################################################
+## END OF UK DRIVER DETAILS MODULE
+############################################################

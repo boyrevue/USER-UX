@@ -464,14 +464,7 @@ autoins:deductibleAmount a owl:DatatypeProperty ;
 ## ACCIDENT PROPERTIES
 ############################################################
 
-autoins:accidentDate a owl:DatatypeProperty ;
-  rdfs:domain autoins:Accident ;
-  rdfs:range xsd:dateTime ;
-  rdfs:label "accident date" ;
-  autoins:isRequired "true"^^xsd:boolean ;
-  autoins:formHelpText "Date and time when the accident occurred" ;
-  autoins:i18nKey "claims.accident_date.label" ;
-  autoins:helpTextKey "claims.accident_date.help" .
+# accidentDate moved to AI_Driver_Details.ttl to avoid duplication
 
 autoins:accidentType a owl:DatatypeProperty ;
   rdfs:domain autoins:Accident ;
@@ -656,78 +649,10 @@ autoins:citationIssued a owl:DatatypeProperty ;
   autoins:helpTextKey "claims.citation_issued.help" .
 
 ############################################################
-## CONVICTION PROPERTIES (INTEGRATED FROM DRIVER MODULE)
+## CONVICTION PROPERTIES - MOVED TO AI_Driver_Details.ttl
 ############################################################
-
-autoins:convictionDate a owl:DatatypeProperty ;
-  rdfs:domain autoins:Conviction ;
-  rdfs:range xsd:date ;
-  rdfs:label "conviction date" ;
-  autoins:isRequired "true"^^xsd:boolean ;
-  autoins:formHelpText "Date of the driving conviction" ;
-  autoins:i18nKey "claims.conviction_date.label" ;
-  autoins:helpTextKey "claims.conviction_date.help" .
-
-autoins:convictionType a owl:DatatypeProperty ;
-  rdfs:domain autoins:Conviction ;
-  rdfs:range xsd:string ;
-  rdfs:label "conviction type" ;
-  autoins:isRequired "true"^^xsd:boolean ;
-  autoins:enumerationValues ("Speeding" "Careless Driving" "Dangerous Driving" "Drink Driving" "Drug Driving" "No Insurance" "No Licence" "Other") ;
-  autoins:formHelpText "Type of driving conviction" ;
-  autoins:i18nKey "claims.conviction_type.label" ;
-  autoins:helpTextKey "claims.conviction_type.help" .
-
-autoins:convictionPenalty a owl:DatatypeProperty ;
-  rdfs:domain autoins:Conviction ;
-  rdfs:range xsd:string ;
-  rdfs:label "conviction penalty" ;
-  autoins:isRequired "true"^^xsd:boolean ;
-  autoins:formHelpText "Penalty imposed (points, fine, disqualification)" ;
-  autoins:i18nKey "claims.conviction_penalty.label" ;
-  autoins:helpTextKey "claims.conviction_penalty.help" .
-
-autoins:convictionPoints a owl:DatatypeProperty ;
-  rdfs:domain autoins:Conviction ;
-  rdfs:range xsd:integer ;
-  rdfs:label "conviction points" ;
-  autoins:isRequired "false"^^xsd:boolean ;
-  autoins:formHelpText "Number of penalty points received" ;
-  autoins:minInclusive 0 ;
-  autoins:maxInclusive 12 ;
-  autoins:i18nKey "claims.conviction_points.label" ;
-  autoins:helpTextKey "claims.conviction_points.help" .
-
-autoins:convictionFine a owl:DatatypeProperty ;
-  rdfs:domain autoins:Conviction ;
-  rdfs:range xsd:decimal ;
-  rdfs:label "conviction fine" ;
-  autoins:isRequired "false"^^xsd:boolean ;
-  autoins:formHelpText "Fine amount imposed (£)" ;
-  autoins:minInclusive 0 ;
-  autoins:maxInclusive 10000 ;
-  autoins:i18nKey "claims.conviction_fine.label" ;
-  autoins:helpTextKey "claims.conviction_fine.help" .
-
-autoins:disqualificationPeriod a owl:DatatypeProperty ;
-  rdfs:domain autoins:Conviction ;
-  rdfs:range xsd:integer ;
-  rdfs:label "disqualification period" ;
-  autoins:isRequired "false"^^xsd:boolean ;
-  autoins:formHelpText "Disqualification period in months" ;
-  autoins:minInclusive 0 ;
-  autoins:maxInclusive 120 ;
-  autoins:i18nKey "claims.disqualification_period.label" ;
-  autoins:helpTextKey "claims.disqualification_period.help" .
-
-autoins:convictionActive a owl:DatatypeProperty ;
-  rdfs:domain autoins:Conviction ;
-  rdfs:range xsd:boolean ;
-  rdfs:label "conviction active" ;
-  autoins:isRequired "false"^^xsd:boolean ;
-  autoins:formHelpText "Is this conviction still active on your licence?" ;
-  autoins:i18nKey "claims.conviction_active.label" ;
-  autoins:helpTextKey "claims.conviction_active.help" .
+# Conviction fields have been moved to the Driver Details ontology to eliminate duplication
+# and ensure proper field types (single/multi-select) based on UK insurance requirements.
 
 ############################################################
 ## THIRD PARTY & REPAIR INFORMATION
@@ -1263,7 +1188,7 @@ autoins:FNOLCompletenessShape a sh:NodeShape ;
     autoins:i18nKey "validation.fnol.insufficient_description"
   ] .
 
-# Policy Relationship Property
+# Policy Relationship Propertyo
 autoins:relatesToPolicy a owl:ObjectProperty ;
   rdfs:domain autoins:Claim ;
   rdfs:range autoins:Policy ;

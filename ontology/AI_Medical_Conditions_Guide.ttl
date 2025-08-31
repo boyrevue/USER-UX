@@ -1,0 +1,554 @@
+@prefix autoins: <http://example.org/auto-insurance#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+############################################################
+## MEDICAL CONDITIONS AFFECTING DRIVING ONTOLOGY
+## Comprehensive guide for medical conditions and their driving impact
+## Links to main driver form for "Other" medical condition details
+############################################################
+
+# Base Classes
+autoins:MedicalCondition a owl:Class ;
+  rdfs:label "Medical Condition Affecting Driving" ;
+  rdfs:comment "Medical conditions that may impact driving ability and insurance risk" .
+
+autoins:MedicalCategory a owl:Class ;
+  rdfs:label "Medical Condition Category" ;
+  rdfs:comment "Categories of medical conditions for insurance assessment" .
+
+############################################################
+## STANDARD MEDICAL CONDITIONS
+############################################################
+
+# Diabetes
+autoins:DiabetesCondition a autoins:MedicalCondition ;
+  rdfs:label "Diabetes" ;
+  autoins:conditionName "Diabetes Mellitus" ;
+  autoins:drivingImpact "Can cause hypoglycaemia (low blood sugar) leading to confusion, dizziness, or loss of consciousness while driving" ;
+  autoins:dvlaRequirement "Must notify DVLA if treated with insulin or certain medications. Regular medical reviews required." ;
+  autoins:insuranceRisk "Medium to High" ;
+  autoins:insuranceImpact "May increase premiums due to hypoglycaemia risk. Specialist diabetic driver insurance available." ;
+  autoins:commonMedications "Insulin, Metformin, Gliclazide, Glimepiride" ;
+  autoins:drivingRestrictions "May have licence restrictions for Group 2 vehicles (lorries/buses). Regular medical checks required." ;
+  autoins:emergencyRisk "High - hypoglycaemic episodes can cause sudden incapacitation" ;
+  autoins:managementRequired "Blood glucose monitoring, regular meals, medication compliance" ;
+  autoins:category autoins:MetabolicCondition ;
+  autoins:prevalence "Common" ;
+  autoins:displayOrder "1" .
+
+# Epilepsy
+autoins:EpilepsyCondition a autoins:MedicalCondition ;
+  rdfs:label "Epilepsy" ;
+  autoins:conditionName "Epilepsy and Seizure Disorders" ;
+  autoins:drivingImpact "Seizures can cause complete loss of control while driving, posing extreme danger to driver and others" ;
+  autoins:dvlaRequirement "Must notify DVLA immediately. Cannot drive until seizure-free for specified period (usually 12 months)." ;
+  autoins:insuranceRisk "Very High" ;
+  autoins:insuranceImpact "Significantly increases premiums. May require specialist epilepsy insurance. Some insurers may decline cover." ;
+  autoins:commonMedications "Carbamazepine, Lamotrigine, Levetiracetam, Phenytoin, Sodium Valproate" ;
+  autoins:drivingRestrictions "Strict seizure-free periods required. Group 2 licence (lorries/buses) requires 10 years seizure-free off medication." ;
+  autoins:emergencyRisk "Extreme - seizures cause complete loss of vehicle control" ;
+  autoins:managementRequired "Medication compliance, regular neurologist reviews, seizure diary" ;
+  autoins:category autoins:NeurologicalCondition ;
+  autoins:prevalence "Uncommon" ;
+  autoins:displayOrder "2" ;
+  autoins:criticalCondition "true"^^xsd:boolean .
+
+# Heart Conditions
+autoins:HeartCondition a autoins:MedicalCondition ;
+  rdfs:label "Heart Condition" ;
+  autoins:conditionName "Cardiovascular Conditions" ;
+  autoins:drivingImpact "Can cause chest pain, breathlessness, dizziness, or sudden cardiac events while driving" ;
+  autoins:dvlaRequirement "Must notify DVLA for significant heart conditions, pacemakers, or after cardiac procedures." ;
+  autoins:insuranceRisk "Medium to High" ;
+  autoins:insuranceImpact "May increase premiums depending on severity. Recent heart attacks or procedures significantly impact risk assessment." ;
+  autoins:commonMedications "Beta-blockers, ACE inhibitors, Statins, Aspirin, Warfarin" ;
+  autoins:drivingRestrictions "May have restrictions after heart attacks, surgery, or with certain devices. Regular medical reviews required." ;
+  autoins:emergencyRisk "High - sudden cardiac events can cause incapacitation" ;
+  autoins:managementRequired "Regular cardiology reviews, medication compliance, lifestyle modifications" ;
+  autoins:category autoins:CardiovascularCondition ;
+  autoins:prevalence "Common" ;
+  autoins:displayOrder "3" .
+
+# Vision Problems
+autoins:VisionProblems a autoins:MedicalCondition ;
+  rdfs:label "Vision Problems" ;
+  autoins:conditionName "Visual Impairments and Eye Conditions" ;
+  autoins:drivingImpact "Reduced visual acuity, field defects, or night blindness can significantly impair driving safety" ;
+  autoins:dvlaRequirement "Must meet minimum eyesight standards. Notify DVLA of significant vision changes or eye conditions." ;
+  autoins:insuranceRisk "Medium" ;
+  autoins:insuranceImpact "May increase premiums. Corrective lenses requirement usually neutral or may reduce premiums." ;
+  autoins:commonMedications "Eye drops for glaucoma, treatments for macular degeneration" ;
+  autoins:drivingRestrictions "Code 01 (corrective lenses) most common. May have daylight-only restrictions for some conditions." ;
+  autoins:emergencyRisk "Medium - sudden vision loss or impairment while driving" ;
+  autoins:managementRequired "Regular eye tests, corrective lenses compliance, specialist ophthalmology care" ;
+  autoins:category autoins:SensoryCondition ;
+  autoins:prevalence "Very Common" ;
+  autoins:displayOrder "4" .
+
+# Hearing Problems
+autoins:HearingProblems a autoins:MedicalCondition ;
+  rdfs:label "Hearing Problems" ;
+  autoins:conditionName "Hearing Loss and Auditory Conditions" ;
+  autoins:drivingImpact "May affect ability to hear emergency sirens, horns, or other traffic sounds" ;
+  autoins:dvlaRequirement "Generally no requirement to notify DVLA unless severe hearing loss affects safety." ;
+  autoins:insuranceRisk "Low to Medium" ;
+  autoins:insuranceImpact "Usually minimal impact on premiums. May require hearing aid compliance." ;
+  autoins:commonMedications "Hearing aids, cochlear implants" ;
+  autoins:drivingRestrictions "Code 02 (hearing aid required) if significant impairment affects safety" ;
+  autoins:emergencyRisk "Low - mainly affects awareness of audio warnings" ;
+  autoins:managementRequired "Hearing aid compliance, regular audiologist reviews" ;
+  autoins:category autoins:SensoryCondition ;
+  autoins:prevalence "Common" ;
+  autoins:displayOrder "5" .
+
+# Mobility Issues
+autoins:MobilityIssues a autoins:MedicalCondition ;
+  rdfs:label "Mobility Issues" ;
+  autoins:conditionName "Physical Disabilities and Mobility Impairments" ;
+  autoins:drivingImpact "May affect ability to operate vehicle controls, perform emergency manoeuvres, or exit vehicle quickly" ;
+  autoins:dvlaRequirement "Must notify DVLA of conditions affecting limb function or mobility that impact driving safety." ;
+  autoins:insuranceRisk "Medium" ;
+  autoins:insuranceImpact "May require specialist insurance. Vehicle adaptations may increase or decrease premiums depending on safety enhancement." ;
+  autoins:commonMedications "Pain medications, muscle relaxants, physiotherapy" ;
+  autoins:drivingRestrictions "Various codes for modified controls (10-45). May require vehicle adaptations." ;
+  autoins:emergencyRisk "Medium - may affect emergency response or vehicle exit" ;
+  autoins:managementRequired "Regular medical reviews, vehicle adaptation maintenance, physiotherapy" ;
+  autoins:category autoins:PhysicalCondition ;
+  autoins:prevalence "Common" ;
+  autoins:displayOrder "6" .
+
+# Mental Health
+autoins:MentalHealthCondition a autoins:MedicalCondition ;
+  rdfs:label "Mental Health" ;
+  autoins:conditionName "Mental Health Conditions" ;
+  autoins:drivingImpact "Can affect concentration, decision-making, reaction times, and risk assessment while driving" ;
+  autoins:dvlaRequirement "Must notify DVLA of severe mental health conditions, psychosis, or conditions affecting insight and judgement." ;
+  autoins:insuranceRisk "Variable" ;
+  autoins:insuranceImpact "Depends on condition severity and medication effects. Well-managed conditions may have minimal impact." ;
+  autoins:commonMedications "Antidepressants, Antipsychotics, Mood stabilizers, Anxiolytics" ;
+  autoins:drivingRestrictions "May have restrictions during acute episodes or medication changes. Regular medical reviews required." ;
+  autoins:emergencyRisk "Variable - depends on condition and current stability" ;
+  autoins:managementRequired "Regular psychiatric/psychological reviews, medication compliance, crisis management plan" ;
+  autoins:category autoins:PsychiatricCondition ;
+  autoins:prevalence "Common" ;
+  autoins:displayOrder "7" .
+
+############################################################
+## MEDICAL CONDITION CATEGORIES
+############################################################
+
+autoins:MetabolicCondition a autoins:MedicalCategory ;
+  rdfs:label "Metabolic Conditions" ;
+  autoins:description "Conditions affecting body metabolism and blood chemistry" ;
+  autoins:commonExamples "Diabetes, Thyroid disorders, Adrenal conditions" ;
+  autoins:primaryRisk "Sudden blood sugar/hormone changes causing incapacitation" ;
+  autoins:insuranceConsideration "Requires careful medication management and monitoring" .
+
+autoins:NeurologicalCondition a autoins:MedicalCategory ;
+  rdfs:label "Neurological Conditions" ;
+  autoins:description "Conditions affecting the nervous system and brain function" ;
+  autoins:commonExamples "Epilepsy, Multiple Sclerosis, Parkinson's Disease, Stroke" ;
+  autoins:primaryRisk "Sudden loss of consciousness or motor control" ;
+  autoins:insuranceConsideration "Often requires strict medical monitoring and may significantly impact premiums" ;
+  autoins:criticalCategory "true"^^xsd:boolean .
+
+autoins:CardiovascularCondition a autoins:MedicalCategory ;
+  rdfs:label "Cardiovascular Conditions" ;
+  autoins:description "Conditions affecting the heart and blood vessels" ;
+  autoins:commonExamples "Heart disease, Arrhythmias, Heart failure, Pacemakers" ;
+  autoins:primaryRisk "Sudden cardiac events causing incapacitation" ;
+  autoins:insuranceConsideration "Risk varies greatly depending on condition severity and treatment" .
+
+autoins:SensoryCondition a autoins:MedicalCategory ;
+  rdfs:label "Sensory Conditions" ;
+  autoins:description "Conditions affecting vision, hearing, or other senses" ;
+  autoins:commonExamples "Vision loss, Hearing loss, Balance disorders" ;
+  autoins:primaryRisk "Reduced awareness of driving environment and hazards" ;
+  autoins:insuranceConsideration "Often manageable with aids and adaptations" .
+
+autoins:PhysicalCondition a autoins:MedicalCategory ;
+  rdfs:label "Physical Conditions" ;
+  autoins:description "Conditions affecting physical mobility and motor function" ;
+  autoins:commonExamples "Amputations, Arthritis, Muscular dystrophy, Spinal injuries" ;
+  autoins:primaryRisk "Reduced ability to operate vehicle controls effectively" ;
+  autoins:insuranceConsideration "Often well-managed with vehicle adaptations" .
+
+autoins:PsychiatricCondition a autoins:MedicalCategory ;
+  rdfs:label "Psychiatric Conditions" ;
+  autoins:description "Mental health conditions affecting cognition and behaviour" ;
+  autoins:commonExamples "Depression, Anxiety, Bipolar disorder, Schizophrenia" ;
+  autoins:primaryRisk "Impaired judgement, concentration, or decision-making" ;
+  autoins:insuranceConsideration "Highly variable risk depending on condition stability and treatment" .
+
+############################################################
+## COMMON "OTHER" MEDICAL CONDITIONS
+############################################################
+
+# Narcolepsy
+autoins:NarcolepsyCondition a autoins:MedicalCondition ;
+  rdfs:label "Narcolepsy" ;
+  autoins:conditionName "Narcolepsy and Sleep Disorders" ;
+  autoins:drivingImpact "Sudden, uncontrollable sleep episodes while driving pose extreme danger" ;
+  autoins:dvlaRequirement "Must notify DVLA. Cannot drive until condition is controlled with medication and medical approval obtained." ;
+  autoins:insuranceRisk "Very High" ;
+  autoins:insuranceImpact "Significantly increases premiums. May require specialist insurance or be declined by some insurers." ;
+  autoins:commonMedications "Modafinil, Methylphenidate, Sodium Oxybate" ;
+  autoins:drivingRestrictions "May have time-of-day restrictions or require regular medical reviews" ;
+  autoins:emergencyRisk "Extreme - sudden sleep episodes cause complete loss of control" ;
+  autoins:managementRequired "Medication compliance, sleep hygiene, regular sleep specialist reviews" ;
+  autoins:category autoins:NeurologicalCondition ;
+  autoins:prevalence "Rare" ;
+  autoins:criticalCondition "true"^^xsd:boolean .
+
+# Parkinson's Disease
+autoins:ParkinsonsCondition a autoins:MedicalCondition ;
+  rdfs:label "Parkinson's Disease" ;
+  autoins:conditionName "Parkinson's Disease and Movement Disorders" ;
+  autoins:drivingImpact "Progressive condition affecting movement, coordination, and reaction times" ;
+  autoins:dvlaRequirement "Must notify DVLA. Regular medical assessments required as condition progresses." ;
+  autoins:insuranceRisk "High" ;
+  autoins:insuranceImpact "Increases premiums due to progressive nature. May require annual medical reviews for insurance." ;
+  autoins:commonMedications "Levodopa, Dopamine agonists, MAO-B inhibitors" ;
+  autoins:drivingRestrictions "May require modified controls or have licence restrictions as condition progresses" ;
+  autoins:emergencyRisk "Medium to High - medication timing affects symptoms significantly" ;
+  autoins:managementRequired "Regular neurologist reviews, medication timing, physiotherapy" ;
+  autoins:category autoins:NeurologicalCondition ;
+  autoins:prevalence "Uncommon" ;
+  autoins:progressiveCondition "true"^^xsd:boolean .
+
+# Multiple Sclerosis
+autoins:MultipleSclerosisCondition a autoins:MedicalCondition ;
+  rdfs:label "Multiple Sclerosis" ;
+  autoins:conditionName "Multiple Sclerosis (MS)" ;
+  autoins:drivingImpact "Unpredictable relapses can affect vision, coordination, fatigue, and cognitive function" ;
+  autoins:dvlaRequirement "Must notify DVLA. Regular medical reviews required, especially after relapses." ;
+  autoins:insuranceRisk "High" ;
+  autoins:insuranceImpact "Significantly increases premiums due to unpredictable nature. Specialist MS insurance available." ;
+  autoins:commonMedications "Disease-modifying therapies, Steroids for relapses, Symptom management drugs" ;
+  autoins:drivingRestrictions "May require vehicle adaptations or have restrictions during relapses" ;
+  autoins:emergencyRisk "Medium - sudden symptom changes can affect driving ability" ;
+  autoins:managementRequired "Regular neurologist reviews, relapse management, fatigue management" ;
+  autoins:category autoins:NeurologicalCondition ;
+  autoins:prevalence "Uncommon" ;
+  autoins:unpredictableCondition "true"^^xsd:boolean .
+
+# Stroke/TIA
+autoins:StrokeCondition a autoins:MedicalCondition ;
+  rdfs:label "Stroke/TIA" ;
+  autoins:conditionName "Stroke and Transient Ischaemic Attack (TIA)" ;
+  autoins:drivingImpact "Can cause sudden weakness, vision problems, speech difficulties, or confusion" ;
+  autoins:dvlaRequirement "Must notify DVLA. Cannot drive for minimum period after stroke/TIA (usually 1 month minimum)." ;
+  autoins:insuranceRisk "High" ;
+  autoins:insuranceImpact "Significantly increases premiums. Recent stroke/TIA may result in declined cover initially." ;
+  autoins:commonMedications "Antiplatelet drugs, Anticoagulants, Blood pressure medications, Statins" ;
+  autoins:drivingRestrictions "Driving ban period after event. May require medical clearance and regular reviews." ;
+  autoins:emergencyRisk "High - risk of recurrent stroke while driving" ;
+  autoins:managementRequired "Regular medical monitoring, medication compliance, risk factor management" ;
+  autoins:category autoins:NeurologicalCondition ;
+  autoins:prevalence "Common" ;
+  autoins:acuteCondition "true"^^xsd:boolean .
+
+############################################################
+## MEDICATION EFFECTS ON DRIVING
+############################################################
+
+autoins:MedicationEffect a owl:Class ;
+  rdfs:label "Medication Effects on Driving" ;
+  rdfs:comment "How medications can affect driving ability" .
+
+autoins:SedatingMedication a autoins:MedicationEffect ;
+  rdfs:label "Sedating Medications" ;
+  autoins:drivingImpact "Cause drowsiness, reduced alertness, and slower reaction times" ;
+  autoins:commonMedications "Benzodiazepines, Opioid painkillers, Some antihistamines, Sleep medications" ;
+  autoins:insuranceRisk "High" ;
+  autoins:legalWarning "Driving under influence of sedating medication can result in drug driving charges" ;
+  autoins:managementAdvice "Avoid driving when starting new sedating medications or increasing doses" .
+
+autoins:CognitionAffectingMedication a autoins:MedicationEffect ;
+  rdfs:label "Cognition-Affecting Medications" ;
+  autoins:drivingImpact "Affect concentration, memory, and decision-making abilities" ;
+  autoins:commonMedications "Antipsychotics, Some antidepressants, Anti-epileptic drugs, Muscle relaxants" ;
+  autoins:insuranceRisk "Medium to High" ;
+  autoins:legalWarning "Impaired driving due to medication effects can result in prosecution" ;
+  autoins:managementAdvice "Regular medical review of medication effects on driving ability" .
+
+############################################################
+## DVLA NOTIFICATION REQUIREMENTS
+############################################################
+
+autoins:DVLANotificationRequirement a owl:Class ;
+  rdfs:label "DVLA Notification Requirements" ;
+  autoins:mandatoryNotification "Epilepsy, Diabetes (insulin-treated), Heart conditions, Stroke/TIA, Severe mental health conditions" ;
+  autoins:optionalNotification "Mild conditions that don't affect driving safety" ;
+  autoins:timeframe "Must notify DVLA immediately upon diagnosis or significant change in condition" ;
+  autoins:consequences "Failure to notify can result in £1000 fine and prosecution if accident occurs" ;
+  autoins:medicalReviews "DVLA may require regular medical reports from treating doctors" ;
+  autoins:licenceActions "DVLA may revoke, restrict, or require regular renewal of licence" .
+
+############################################################
+## INSURANCE GUIDANCE FOR MEDICAL CONDITIONS
+############################################################
+
+autoins:MedicalInsuranceGuidance a owl:Class ;
+  rdfs:label "Medical Condition Insurance Guidance" ;
+  autoins:declarationRequirement "All medical conditions affecting driving must be declared to insurance company" ;
+  autoins:consequencesOfNonDeclaration "Policy may be voided, claims rejected, and prosecution for fraud possible" ;
+  autoins:specialistInsurers "Some insurers specialize in high-risk medical conditions" ;
+  autoins:riskAssessment "Insurers assess: condition stability, medication compliance, medical monitoring, driving restrictions" ;
+  autoins:premiumFactors "Condition type, severity, treatment compliance, time since diagnosis, stability" ;
+  autoins:medicalReports "Insurers may require medical reports from treating doctors" .
+
+############################################################
+## COMPREHENSIVE MEDICAL DECLARATION GUIDANCE
+############################################################
+
+autoins:MedicalDeclarationGuidance a owl:Class ;
+  rdfs:label "Medical Condition Declaration Guidance" ;
+  autoins:whyInsurerAsk "An insurer's primary goal is to accurately assess risk. A medical condition can affect your ability to drive safely, which in turn affects the likelihood of an accident." ;
+  autoins:legalRequirement "It is a legal offence to drive with a medical condition that you have not declared to the DVLA that could affect your driving." ;
+  autoins:policyValidity "A failure to disclose a notifiable condition makes your policy void." ;
+  autoins:riskPricing "Depending on the condition and its management, the risk may be higher, which can affect the premium." ;
+  autoins:declarationRule "You must declare if: 1) You have a condition officially declared to the DVLA, 2) You have a condition that affects your driving, even if you haven't told the DVLA yet (you are legally required to do so)." ;
+  autoins:keyQuestion "Could this happen without warning while I'm driving? The DVLA and insurer are primarily concerned with conditions that could lead to sudden loss of control." .
+
+############################################################
+## ENHANCED MEDICAL CONDITIONS WITH DETAILED GUIDANCE
+############################################################
+
+# Enhanced Diabetes with comprehensive guidance
+autoins:DiabetesCondition a autoins:MedicalCondition ;
+  rdfs:label "Diabetes" ;
+  autoins:conditionName "Diabetes Mellitus" ;
+  autoins:declarationRequirement "Declare if: You require insulin (mandatory to tell DVLA) or if your GP has advised that your diabetes could cause hypoglycaemic episodes that affect your ability to drive safely." ;
+  autoins:drivingImpact "Can cause hypoglycaemia (low blood sugar) leading to confusion, dizziness, or loss of consciousness while driving" ;
+  autoins:dvlaRequirement "Must notify DVLA if treated with insulin or certain medications. Regular medical reviews required." ;
+  autoins:licenceImpact "DVLA will typically issue a licence for 1, 2 or 3 years that must be renewed. You must demonstrate good management of the condition." ;
+  autoins:insuranceImpact "Insurers will need to know your licence is valid. Failure to declare insulin use invalidates your licence and insurance." ;
+  autoins:managementRequired "Blood glucose monitoring, regular meals, medication compliance, demonstrate good condition management" ;
+  autoins:legalConsequence "Failure to declare insulin use invalidates your licence and insurance" ;
+  autoins:category autoins:MetabolicCondition ;
+  autoins:severity "Medium to High" ;
+  autoins:mandatoryDeclaration "true"^^xsd:boolean .
+
+# Enhanced Epilepsy with comprehensive guidance  
+autoins:EpilepsyCondition a autoins:MedicalCondition ;
+  rdfs:label "Epilepsy" ;
+  autoins:conditionName "Epilepsy and Seizure Disorders" ;
+  autoins:declarationRequirement "Declare if: You have had any epileptic seizures, blackouts, or fits. You must by law inform the DVLA." ;
+  autoins:drivingImpact "Seizures can cause complete loss of control while driving, posing extreme danger to driver and others" ;
+  autoins:dvlaRequirement "Must notify DVLA immediately. Cannot drive until you meet strict medical guidelines (e.g., seizure-free for 12 months)." ;
+  autoins:licenceImpact "Driving is prohibited for a mandatory period. Your licence will be revoked until a consultant confirms you meet the medical standards." ;
+  autoins:insuranceImpact "Insurance is impossible without a valid licence. Significantly increases premiums once reinstated." ;
+  autoins:legalConsequence "Driving while licence revoked is illegal and can result in prosecution" ;
+  autoins:category autoins:NeurologicalCondition ;
+  autoins:severity "Extreme" ;
+  autoins:mandatoryDeclaration "true"^^xsd:boolean ;
+  autoins:criticalCondition "true"^^xsd:boolean .
+
+# Enhanced Heart Condition with comprehensive guidance
+autoins:HeartCondition a autoins:MedicalCondition ;
+  rdfs:label "Heart Condition" ;
+  autoins:conditionName "Cardiovascular Conditions" ;
+  autoins:declarationRequirement "Declare if: You have a condition that could cause sudden episode of disablement at the wheel (e.g., arrhythmia, angina, pacemaker, defibrillator fitted). This includes after a heart attack." ;
+  autoins:drivingImpact "Can cause chest pain, breathlessness, dizziness, or sudden cardiac events while driving" ;
+  autoins:dvlaRequirement "DVLA may require a period off driving after serious event or surgery. May need to pass medical assessment to get licence back." ;
+  autoins:licenceImpact "May have restrictions after heart attacks, surgery, or with certain devices. Regular medical reviews required." ;
+  autoins:insuranceImpact "Insurers need to know your driving has been medically approved. Recent events significantly impact risk assessment." ;
+  autoins:category autoins:CardiovascularCondition ;
+  autoins:severity "Medium to High" ;
+  autoins:mandatoryDeclaration "true"^^xsd:boolean .
+
+# Enhanced Vision Problems with comprehensive guidance
+autoins:VisionProblems a autoins:MedicalCondition ;
+  rdfs:label "Vision Problems" ;
+  autoins:conditionName "Visual Impairments and Eye Conditions" ;
+  autoins:declarationRequirement "Declare if: Your eyesight does not meet driving standard (read number plate from 20 metres) with glasses/contacts if needed. Includes cataracts, glaucoma, macular degeneration." ;
+  autoins:drivingImpact "Reduced visual acuity, field defects, or night blindness can significantly impair driving safety" ;
+  autoins:dvlaRequirement "Must meet minimum eyesight standards. Notify DVLA of significant vision changes or eye conditions." ;
+  autoins:licenceImpact "Will have restriction code 01 (must wear corrective lenses). Serious conditions may require regular field of vision tests." ;
+  autoins:insuranceImpact "Code 01 usually neutral impact. Serious conditions may increase premiums." ;
+  autoins:category autoins:SensoryCondition ;
+  autoins:severity "Low to Medium" ;
+  autoins:commonRestriction "Code 01 - Must wear corrective lenses" .
+
+# Enhanced Hearing Problems with comprehensive guidance
+autoins:HearingProblems a autoins:MedicalCondition ;
+  rdfs:label "Hearing Problems" ;
+  autoins:conditionName "Hearing Loss and Auditory Conditions" ;
+  autoins:declarationRequirement "Declare if: You are profoundly deaf and rely on lip-reading or sign language, or have condition affecting balance and spatial awareness (e.g., Ménière's disease)." ;
+  autoins:drivingImpact "May affect ability to hear emergency sirens, horns, or other traffic sounds. Balance issues can affect vehicle control." ;
+  autoins:dvlaRequirement "For most deaf drivers, no legal requirement unless condition causes dizziness. Ménière's disease must be declared." ;
+  autoins:licenceImpact "May have code 02 (must use hearing aid) if significant impairment affects safety." ;
+  autoins:insuranceImpact "Well-managed deafness seen as very low risk. Balance-related conditions may increase premiums." ;
+  autoins:category autoins:SensoryCondition ;
+  autoins:severity "Low" ;
+  autoins:commonRestriction "Code 02 - Must use hearing aid" .
+
+# Enhanced Mobility Issues with comprehensive guidance
+autoins:MobilityIssues a autoins:MedicalCondition ;
+  rdfs:label "Mobility Issues" ;
+  autoins:conditionName "Physical Disabilities and Mobility Impairments" ;
+  autoins:declarationRequirement "Declare if: Your condition affects your ability to operate vehicle controls safely. Includes arthritis, amputations, paralysis, chronic pain." ;
+  autoins:drivingImpact "May affect ability to operate vehicle controls, perform emergency manoeuvres, or exit vehicle quickly" ;
+  autoins:dvlaRequirement "DVLA must be informed. Assessment required to determine suitable vehicle adaptations." ;
+  autoins:licenceImpact "Will likely have restriction on licence (codes 10-45) stating you must drive vehicle with specific adaptations (automatic transmission, hand controls)." ;
+  autoins:insuranceImpact "May require specialist insurance. Vehicle adaptations may increase or decrease premiums depending on safety enhancement." ;
+  autoins:category autoins:PhysicalCondition ;
+  autoins:severity "Medium" ;
+  autoins:adaptationsRequired "true"^^xsd:boolean .
+
+# Enhanced Mental Health with comprehensive guidance
+autoins:MentalHealthCondition a autoins:MedicalCondition ;
+  rdfs:label "Mental Health" ;
+  autoins:conditionName "Mental Health Conditions" ;
+  autoins:declarationRequirement "Declare if: Your condition causes severe episodes of confusion, drowsiness, psychosis, or affects judgment, insight, or behaviour making driving unsafe. Includes severe depression, bipolar disorder, schizophrenia." ;
+  autoins:drivingImpact "Can affect concentration, decision-making, reaction times, and risk assessment while driving" ;
+  autoins:dvlaRequirement "Many common conditions (mild anxiety/depression) don't need declaring if they don't affect driving. Must tell DVLA if doctor says it could, or if medication side-effects impair you." ;
+  autoins:licenceImpact "May have restrictions during acute episodes or medication changes. Regular medical reviews required for severe conditions." ;
+  autoins:insuranceImpact "Well-managed conditions may have minimal impact. Severe or unstable conditions may significantly affect premiums." ;
+  autoins:medicationWarning "Must declare if medication side-effects (e.g., drowsiness) impair driving ability" ;
+  autoins:category autoins:PsychiatricCondition ;
+  autoins:severity "Variable" .
+
+############################################################
+## ADDITIONAL "OTHER" CONDITIONS WITH DETAILED GUIDANCE
+############################################################
+
+# Sleep Apnea
+autoins:SleepApneaCondition a autoins:MedicalCondition ;
+  rdfs:label "Sleep Apnea" ;
+  autoins:conditionName "Sleep Apnea and Sleep Disorders" ;
+  autoins:declarationRequirement "Declare if: You have untreated sleep apnea that causes excessive daytime sleepiness affecting your driving." ;
+  autoins:drivingImpact "Untreated sleep apnea causes excessive daytime sleepiness, increasing risk of falling asleep at the wheel" ;
+  autoins:dvlaRequirement "Must notify DVLA if condition causes excessive sleepiness that could affect driving safety." ;
+  autoins:licenceImpact "May require treatment compliance (CPAP machine) and regular medical reviews." ;
+  autoins:insuranceImpact "Untreated condition significantly increases risk. Well-managed with CPAP usually low impact." ;
+  autoins:treatmentRequired "CPAP machine compliance, sleep study results, specialist monitoring" ;
+  autoins:category autoins:SleepDisorder ;
+  autoins:severity "Medium to High" .
+
+# Stroke/TIA
+autoins:StrokeCondition a autoins:MedicalCondition ;
+  rdfs:label "Stroke/TIA" ;
+  autoins:conditionName "Stroke and Transient Ischaemic Attack (TIA)" ;
+  autoins:declarationRequirement "Declare if: You have had a stroke or TIA (mini-stroke). This is mandatory to report to DVLA." ;
+  autoins:drivingImpact "Can cause sudden weakness, vision problems, speech difficulties, or confusion affecting driving ability" ;
+  autoins:dvlaRequirement "Must notify DVLA immediately. Cannot drive for minimum period after stroke/TIA (usually 1 month minimum)." ;
+  autoins:licenceImpact "Driving ban period after event. May require medical clearance and regular reviews before licence restoration." ;
+  autoins:insuranceImpact "Significantly increases premiums. Recent stroke/TIA may result in declined cover initially." ;
+  autoins:recoveryAssessment "Medical assessment required to determine residual effects and fitness to drive" ;
+  autoins:category autoins:NeurologicalCondition ;
+  autoins:severity "High" ;
+  autoins:mandatoryDeclaration "true"^^xsd:boolean ;
+  autoins:acuteCondition "true"^^xsd:boolean .
+
+# Cancer and Treatment Effects
+autoins:CancerCondition a autoins:MedicalCondition ;
+  rdfs:label "Cancer and Treatment Effects" ;
+  autoins:conditionName "Cancer and Cancer Treatment Side Effects" ;
+  autoins:declarationRequirement "Declare if: Cancer or treatment causes disability, drowsiness, confusion, or any symptoms that could affect driving safety." ;
+  autoins:drivingImpact "Cancer treatments (chemotherapy, radiotherapy) can cause fatigue, nausea, confusion, or peripheral neuropathy affecting driving" ;
+  autoins:dvlaRequirement "Must notify DVLA if cancer or treatment significantly affects your ability to drive safely." ;
+  autoins:licenceImpact "May require medical reviews during treatment. Short-term restrictions may apply during intensive treatment periods." ;
+  autoins:insuranceImpact "Active treatment may increase premiums. Successful treatment with good prognosis usually minimal long-term impact." ;
+  autoins:treatmentEffects "Chemotherapy brain fog, fatigue, neuropathy, nausea, visual changes" ;
+  autoins:category autoins:TreatmentRelatedCondition ;
+  autoins:severity "Variable" .
+
+# Substance Misuse Dependencies
+autoins:SubstanceMisuseCondition a autoins:MedicalCondition ;
+  rdfs:label "Substance Misuse Dependencies" ;
+  autoins:conditionName "Alcohol or Drug Dependencies" ;
+  autoins:declarationRequirement "Declare if: You have or have had alcohol or drug dependency that could affect your driving or has resulted in treatment or medical intervention." ;
+  autoins:drivingImpact "Substance misuse can impair judgment, reaction times, and decision-making. Withdrawal symptoms can also affect driving ability." ;
+  autoins:dvlaRequirement "Must notify DVLA of alcohol or drug problems. May require medical assessment and proof of sustained recovery." ;
+  autoins:licenceImpact "May result in licence revocation. Reinstatement requires medical evidence of sustained recovery and may require alcohol interlock device." ;
+  autoins:insuranceImpact "Extremely high risk. May be uninsurable with standard insurers. Specialist high-risk insurance required." ;
+  autoins:recoveryRequirement "Medical evidence of sustained recovery, regular monitoring, possible alcohol interlock requirement" ;
+  autoins:category autoins:SubstanceMisuseCondition ;
+  autoins:severity "Extreme" ;
+  autoins:mandatoryDeclaration "true"^^xsd:boolean ;
+  autoins:highRiskCondition "true"^^xsd:boolean .
+
+############################################################
+## AI VALIDATION PROMPTS FOR "OTHER" MEDICAL CONDITIONS
+############################################################
+
+autoins:MedicalOtherValidationPrompt a owl:Class ;
+  rdfs:label "AI Validation Prompt for Other Medical Conditions" ;
+  autoins:validationPrompt """You are an insurance underwriter specializing in medical conditions that affect driving. The user has selected 'Other' for medical conditions.
+
+CRITICAL VALIDATION REQUIREMENTS based on comprehensive medical guidance:
+
+The key question is: "Could this condition cause a sudden loss of control while driving?"
+
+MUST INCLUDE:
+1. Specific medical condition name or diagnosis
+2. Whether declared to DVLA (legally required if affects driving)
+3. How condition affects driving ability
+4. Current treatment/medication status
+5. Any licence restrictions or medical reviews required
+
+PROPER FORMAT EXAMPLES:
+✅ "Sleep Apnea - declared to DVLA. My licence is valid until [date] / has restriction code [code]."
+✅ "Parkinson's Disease - I have discussed with my doctor who confirms it does not currently affect my ability to drive."
+✅ "Stroke in 2020 - declared to DVLA, had 6-month driving ban, now cleared with annual medical reviews required."
+
+CONDITIONS REQUIRING MANDATORY DVLA DECLARATION:
+- Epilepsy, seizures, blackouts, fits
+- Insulin-treated diabetes
+- Heart conditions causing sudden disablement
+- Stroke or TIA
+- Severe mental health episodes
+- Sleep disorders causing excessive sleepiness
+- Substance misuse dependencies
+
+REJECT INVALID RESPONSES:
+❌ Vague: 'health condition', 'medical problems', 'ongoing treatment'
+❌ Non-specific: 'chronic illness', 'doctor's advice', 'medical history'  
+❌ Evasive: 'personal health matters', 'prefer not to say'
+❌ Nonsensical: 'fish and chips', 'nothing serious'
+
+VALIDATION QUESTIONS:
+1. What is the specific medical condition or diagnosis?
+2. Have you declared this to DVLA? (Legal requirement if affects driving)
+3. How does this condition affect your driving ability?
+4. What medications/treatments are you receiving?
+5. Do you have any licence restrictions or require regular medical reviews?
+6. Could this condition cause sudden loss of control while driving?
+
+LEGAL WARNING: "It is a legal offence to drive with a medical condition that you have not declared to the DVLA that could affect your driving. Failure to disclose makes your insurance policy void."
+
+Remember: When in doubt, declare it. Better to have too much information than face policy voidance for non-disclosure.""" .
+
+############################################################
+## SHACL VALIDATION RULES
+############################################################
+
+autoins:MedicalConditionValidationShape a sh:NodeShape ;
+  sh:targetClass autoins:MedicalCondition ;
+  rdfs:label "Medical Condition Validation" ;
+  sh:property [
+    sh:path autoins:conditionName ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Medical condition name is required"
+  ] ;
+  sh:property [
+    sh:path autoins:drivingImpact ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 30 ;
+    sh:message "Driving impact description must be detailed (minimum 30 characters)"
+  ] ;
+  sh:property [
+    sh:path autoins:insuranceRisk ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:in ("Low" "Medium" "High" "Very High" "Variable") ;
+    sh:message "Insurance risk must be specified as Low, Medium, High, Very High, or Variable"
+  ] .

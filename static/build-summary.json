@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-08-31T12:20:00.004Z",
+  "build_dir": "/Users/vincentpower/DEV/client-ux/insurance-frontend/build",
+  "static_files": {
+    "css": [
+      "/static/css/main.d0cfb04f.css"
+    ],
+    "js": [
+      "/static/js/453.c39bf2ef.chunk.js",
+      "/static/js/main.bb94f9a4.js"
+    ]
+  },
+  "status": "ready"
+}

@@ -1,0 +1,444 @@
+@prefix autoins: <http://example.org/auto-insurance#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+############################################################
+## LICENCE REVOCATION REASONS ONTOLOGY
+## Comprehensive guide for DVLA licence revocation reasons and their implications
+## Links to main driver form for "Other" revocation details
+############################################################
+
+# Base Classes
+autoins:RevocationReason a owl:Class ;
+  rdfs:label "DVLA Licence Revocation Reason" ;
+  rdfs:comment "Official reasons why DVLA may revoke a driving licence" .
+
+autoins:RevocationCategory a owl:Class ;
+  rdfs:label "Revocation Category" ;
+  rdfs:comment "Categories of licence revocation for insurance assessment" .
+
+############################################################
+## STANDARD DVLA REVOCATION REASONS
+############################################################
+
+# Medical Condition Revocations
+autoins:MedicalConditionRevocation a autoins:RevocationReason ;
+  rdfs:label "Medical Condition" ;
+  autoins:revocationReason "Medical Condition" ;
+  autoins:officialDescription "Licence revoked due to medical condition affecting driving safety" ;
+  autoins:commonCauses "Epilepsy, severe diabetes complications, progressive neurological conditions, significant vision loss, severe mental health episodes" ;
+  autoins:dvlaProcess "Medical review by DVLA medical advisers. May require specialist medical reports." ;
+  autoins:insuranceImpact "Very High risk - medical revocation indicates serious safety concerns" ;
+  autoins:reinstatementProcess "Requires medical clearance and may involve restricted licence or regular medical reviews" ;
+  autoins:timeframe "Immediate effect when medical safety threshold breached" ;
+  autoins:appealProcess "Can appeal to Magistrates Court within 6 months" ;
+  autoins:category autoins:MedicalRevocation ;
+  autoins:severity "High" ;
+  autoins:prevalence "Common" ;
+  autoins:displayOrder "1" .
+
+# New Driver Points Revocation
+autoins:NewDriver6PlusPoints a autoins:RevocationReason ;
+  rdfs:label "New Driver 6+ Points" ;
+  autoins:revocationReason "New Driver 6 Plus Points" ;
+  autoins:officialDescription "New driver licence revoked for accumulating 6+ penalty points within 2 years of passing test" ;
+  autoins:commonCauses "Multiple speeding offences, mobile phone use, careless driving within first 2 years" ;
+  autoins:dvlaProcess "Automatic revocation when 6+ points accumulated within 2 years of passing test" ;
+  autoins:insuranceImpact "Very High risk - indicates poor driving behaviour in critical learning period" ;
+  autoins:reinstatementProcess "Must retake theory and practical driving tests. Cannot apply for provisional licence for minimum period." ;
+  autoins:timeframe "Immediate upon reaching 6 points threshold" ;
+  autoins:appealProcess "Limited appeal options - mainly for procedural errors" ;
+  autoins:category autoins:PointsRevocation ;
+  autoins:severity "High" ;
+  autoins:prevalence "Uncommon" ;
+  autoins:displayOrder "2" ;
+  autoins:newDriverSpecific "true"^^xsd:boolean .
+
+# Totting Up 12+ Points
+autoins:TottingUp12PlusPoints a autoins:RevocationReason ;
+  rdfs:label "Totting Up 12+ Points" ;
+  autoins:revocationReason "Totting Up 12 Plus Points" ;
+  autoins:officialDescription "Licence revoked for accumulating 12+ penalty points (totting up disqualification)" ;
+  autoins:commonCauses "Multiple traffic offences over time, failure to attend speed awareness courses, repeat offending" ;
+  autoins:dvlaProcess "Court-imposed disqualification followed by DVLA licence revocation" ;
+  autoins:insuranceImpact "Very High risk - indicates pattern of poor driving behaviour" ;
+  autoins:reinstatementProcess "May need to retake driving test depending on disqualification length. Extended test may be required." ;
+  autoins:timeframe "Following court disqualification period" ;
+  autoins:appealProcess "Can appeal court disqualification decision" ;
+  autoins:category autoins:PointsRevocation ;
+  autoins:severity "High" ;
+  autoins:prevalence "Common" ;
+  autoins:displayOrder "3" .
+
+# Serious Driving Offence
+autoins:SeriousDrivingOffence a autoins:RevocationReason ;
+  rdfs:label "Serious Driving Offence" ;
+  autoins:revocationReason "Serious Driving Offence" ;
+  autoins:officialDescription "Licence revoked following conviction for serious driving offence" ;
+  autoins:commonCauses "Dangerous driving, drink driving, drug driving, causing death by dangerous driving, hit and run" ;
+  autoins:dvlaProcess "Automatic revocation following court conviction and disqualification" ;
+  autoins:insuranceImpact "Extreme risk - may be uninsurable with standard insurers" ;
+  autoins:reinstatementProcess "Must retake extended driving test. May require medical assessment for alcohol/drug offences." ;
+  autoins:timeframe "Immediate following court disqualification" ;
+  autoins:appealProcess "Can appeal court conviction and sentence" ;
+  autoins:category autoins:CriminalRevocation ;
+  autoins:severity "Extreme" ;
+  autoins:prevalence "Uncommon" ;
+  autoins:displayOrder "4" ;
+  autoins:criminalOffence "true"^^xsd:boolean .
+
+# Fraud/False Information
+autoins:FraudFalseInformation a autoins:RevocationReason ;
+  rdfs:label "Fraud/False Information" ;
+  autoins:revocationReason "Fraud False Information" ;
+  autoins:officialDescription "Licence revoked for providing false information or fraudulent documents" ;
+  autoins:commonCauses "False identity documents, fraudulent test certificates, lying about medical conditions, using someone else's identity" ;
+  autoins:dvlaProcess "Investigation by DVLA fraud team. May involve police prosecution." ;
+  autoins:insuranceImpact "Extreme risk - fraud indicates dishonesty, may be declined by insurers" ;
+  autoins:reinstatementProcess "Must prove identity and eligibility. May need to retake all tests. Criminal record check required." ;
+  autoins:timeframe "Immediate upon discovery of fraud" ;
+  autoins:appealProcess "Can appeal if evidence of fraud is disputed" ;
+  autoins:category autoins:FraudRevocation ;
+  autoins:severity "Extreme" ;
+  autoins:prevalence "Rare" ;
+  autoins:displayOrder "5" ;
+  autoins:fraudulent "true"^^xsd:boolean .
+
+# Failed Medical Test
+autoins:FailedMedicalTest a autoins:RevocationReason ;
+  rdfs:label "Failed Medical Test" ;
+  autoins:revocationReason "Failed Medical Test" ;
+  autoins:officialDescription "Licence revoked for failing required medical assessment" ;
+  autoins:commonCauses "Failed eyesight test, failed medical examination for Group 2 licence, failed cognitive assessment" ;
+  autoins:dvlaProcess "Medical assessment by DVLA-approved doctors. Revocation if minimum standards not met." ;
+  autoins:insuranceImpact "High risk - indicates medical condition affecting driving safety" ;
+  autoins:reinstatementProcess "Must pass required medical tests. May need treatment or corrective measures first." ;
+  autoins:timeframe "Following failed medical assessment" ;
+  autoins:appealProcess "Can request re-test or independent medical assessment" ;
+  autoins:category autoins:MedicalRevocation ;
+  autoins:severity "Medium to High" ;
+  autoins:prevalence "Uncommon" ;
+  autoins:displayOrder "6" .
+
+# Failed Eyesight Test
+autoins:FailedEyesightTest a autoins:RevocationReason ;
+  rdfs:label "Failed Eyesight Test" ;
+  autoins:revocationReason "Failed Eyesight Test" ;
+  autoins:officialDescription "Licence revoked for failing to meet minimum eyesight standards" ;
+  autoins:commonCauses "Deteriorating vision, failure to wear prescribed glasses, eye disease progression" ;
+  autoins:dvlaProcess "Eyesight test by optician or at DVLA. Revocation if 20/40 vision not achieved with correction." ;
+  autoins:insuranceImpact "Medium to High risk - vision is critical for safe driving" ;
+  autoins:reinstatementProcess "Must pass eyesight test with appropriate correction. May require specialist eye examination." ;
+  autoins:timeframe "Immediate if safety threshold not met" ;
+  autoins:appealProcess "Can request re-test with corrective lenses" ;
+  autoins:category autoins:MedicalRevocation ;
+  autoins:severity "Medium" ;
+  autoins:prevalence "Common" ;
+  autoins:displayOrder "7" .
+
+# Court Order
+autoins:CourtOrder a autoins:RevocationReason ;
+  rdfs:label "Court Order" ;
+  autoins:revocationReason "Court Order" ;
+  autoins:officialDescription "Licence revoked by specific court order" ;
+  autoins:commonCauses "Disqualification orders, restraining orders affecting driving, criminal behaviour orders" ;
+  autoins:dvlaProcess "DVLA implements court-ordered revocation. No discretion to override court decision." ;
+  autoins:insuranceImpact "Very High risk - court involvement indicates serious legal issues" ;
+  autoins:reinstatementProcess "Must comply with court order terms. May require legal clearance and retesting." ;
+  autoins:timeframe "As specified in court order" ;
+  autoins:appealProcess "Must appeal court decision, not DVLA action" ;
+  autoins:category autoins:LegalRevocation ;
+  autoins:severity "High to Extreme" ;
+  autoins:prevalence "Uncommon" ;
+  autoins:displayOrder "8" ;
+  autoins:courtOrdered "true"^^xsd:boolean .
+
+# Administrative Error
+autoins:AdministrativeError a autoins:RevocationReason ;
+  rdfs:label "Administrative Error" ;
+  autoins:revocationReason "Administrative Error" ;
+  autoins:officialDescription "Licence revoked due to DVLA administrative error or system mistake" ;
+  autoins:commonCauses "Database errors, incorrect processing, mistaken identity, system glitches" ;
+  autoins:dvlaProcess "Error correction process. Investigation by DVLA customer services." ;
+  autoins:insuranceImpact "No risk - administrative error, should not affect insurance" ;
+  autoins:reinstatementProcess "Correction of error and immediate reinstatement. No retesting required." ;
+  autoins:timeframe "Immediate correction once error identified" ;
+  autoins:appealProcess "Complaint to DVLA customer services and ombudsman if necessary" ;
+  autoins:category autoins:AdministrativeRevocation ;
+  autoins:severity "None" ;
+  autoins:prevalence "Rare" ;
+  autoins:displayOrder "9" ;
+  autoins:errorRevocation "true"^^xsd:boolean .
+
+############################################################
+## REVOCATION CATEGORIES
+############################################################
+
+autoins:MedicalRevocation a autoins:RevocationCategory ;
+  rdfs:label "Medical-Related Revocations" ;
+  autoins:description "Revocations due to medical conditions or failed medical assessments" ;
+  autoins:insuranceRisk "High" ;
+  autoins:commonCharacteristics "Safety-focused, may be temporary, requires medical clearance" ;
+  autoins:reinstatementLikelihood "Medium - depends on medical improvement" .
+
+autoins:PointsRevocation a autoins:RevocationCategory ;
+  rdfs:label "Points-Related Revocations" ;
+  autoins:description "Revocations due to accumulating penalty points" ;
+  autoins:insuranceRisk "Very High" ;
+  autoins:commonCharacteristics "Behaviour-based, indicates poor driving habits" ;
+  autoins:reinstatementLikelihood "High - but requires behaviour change" .
+
+autoins:CriminalRevocation a autoins:RevocationCategory ;
+  rdfs:label "Criminal Offence Revocations" ;
+  autoins:description "Revocations following serious criminal driving offences" ;
+  autoins:insuranceRisk "Extreme" ;
+  autoins:commonCharacteristics "Court-imposed, serious safety implications" ;
+  autoins:reinstatementLikelihood "Medium - requires extended testing and time" .
+
+autoins:FraudRevocation a autoins:RevocationCategory ;
+  rdfs:label "Fraud-Related Revocations" ;
+  autoins:description "Revocations due to fraudulent information or documents" ;
+  autoins:insuranceRisk "Extreme" ;
+  autoins:commonCharacteristics "Dishonesty-based, trust implications" ;
+  autoins:reinstatementLikelihood "Low - requires proof of honesty and eligibility" .
+
+autoins:LegalRevocation a autoins:RevocationCategory ;
+  rdfs:label "Legal Order Revocations" ;
+  autoins:description "Revocations imposed by court orders or legal processes" ;
+  autoins:insuranceRisk "Very High" ;
+  autoins:commonCharacteristics "Court-mandated, legal compliance required" ;
+  autoins:reinstatementLikelihood "Medium - depends on legal resolution" .
+
+autoins:AdministrativeRevocation a autoins:RevocationCategory ;
+  rdfs:label "Administrative Error Revocations" ;
+  autoins:description "Revocations due to DVLA administrative errors" ;
+  autoins:insuranceRisk "None" ;
+  autoins:commonCharacteristics "Error-based, no fault of driver" ;
+  autoins:reinstatementLikelihood "Very High - immediate correction" .
+
+############################################################
+## INSURANCE IMPLICATIONS OF REVOCATION
+############################################################
+
+autoins:RevocationInsuranceImpact a owl:Class ;
+  rdfs:label "Insurance Impact of Licence Revocation" ;
+  autoins:immediateEffect "Current insurance policy may be voided immediately upon revocation" ;
+  autoins:futureInsurance "Significant difficulty obtaining insurance, very high premiums, specialist insurers required" ;
+  autoins:declarationRequirement "Must declare revocation to all future insurers - failure to declare is fraud" ;
+  autoins:timeImpact "Revocation remains on driving record and affects insurance for many years" ;
+  autoins:reinstatementImpact "Even after reinstatement, revocation history significantly affects premiums" ;
+  autoins:specialistInsurers "May need to use high-risk specialist insurers" ;
+  autoins:legalConsequences "Driving while revoked is illegal and can result in prosecution" .
+
+############################################################
+## REINSTATEMENT PROCESS GUIDANCE
+############################################################
+
+autoins:RevocationReinstatement a owl:Class ;
+  rdfs:label "Licence Reinstatement After Revocation" ;
+  autoins:generalProcess "Must apply for new provisional licence and may need to retake tests" ;
+  autoins:medicalRevocation "Requires medical clearance and may involve ongoing medical monitoring" ;
+  autoins:pointsRevocation "May require retaking theory and/or practical tests, possibly extended test" ;
+  autoins:criminalRevocation "Requires extended driving test and may need medical/psychological assessment" ;
+  autoins:fraudRevocation "Requires proof of identity, eligibility, and may need all tests retaken" ;
+  autoins:timeframes "Varies from immediate (administrative errors) to several years (serious offences)" ;
+  autoins:costs "Significant costs for retesting, medical assessments, and higher insurance premiums" .
+
+############################################################
+## ADDITIONAL "OTHER" REVOCATION REASONS (CRITICAL FOR INSURANCE)
+############################################################
+
+# Drink/Drug Driving Specific Revocation
+autoins:DrinkDrugDrivingRevocation a autoins:RevocationReason ;
+  rdfs:label "Drink/Drug Driving Revocation" ;
+  autoins:revocationReason "Drink Drug Driving" ;
+  autoins:officialDescription "Licence revoked following conviction for drink-driving or drug-driving offence" ;
+  autoins:commonCauses "DR10 (drink driving), DR20 (driving under influence of drugs), DR30 (driving with excess alcohol), DR80 (driving when unfit through drugs)" ;
+  autoins:dvlaProcess "Automatic revocation following court disqualification. May require medical assessment before reinstatement." ;
+  autoins:insuranceImpact "Extreme risk - massive red flag for insurers, may be declined or face very high premiums" ;
+  autoins:reinstatementProcess "Must complete disqualification period, pass medical assessment, may need extended retest" ;
+  autoins:timeframe "Immediate following court conviction" ;
+  autoins:appealProcess "Can appeal court conviction within 21 days" ;
+  autoins:category autoins:CriminalRevocation ;
+  autoins:severity "Extreme" ;
+  autoins:prevalence "Common" ;
+  autoins:displayOrder "10" ;
+  autoins:offenceCodes "DR10, DR20, DR30, DR40, DR50, DR60, DR70, DR80" ;
+  autoins:criminalOffence "true"^^xsd:boolean ;
+  autoins:requiresMedical "true"^^xsd:boolean ;
+  autoins:howToSpecify "Licence revoked following a conviction for drink-driving (DR10). Disqualified for [X] months. Completed medical assessment and regained licence." .
+
+# Driving Without Insurance Revocation
+autoins:NoInsuranceRevocation a autoins:RevocationReason ;
+  rdfs:label "Driving Without Insurance" ;
+  autoins:revocationReason "Driving Without Insurance" ;
+  autoins:officialDescription "Licence revoked as part of conviction for driving without valid insurance" ;
+  autoins:commonCauses "IN10 (using vehicle uninsured against third party risks), failure to maintain continuous insurance" ;
+  autoins:dvlaProcess "Revocation accompanies court disqualification for serious insurance offences" ;
+  autoins:insuranceImpact "Extreme risk - shows disregard for legal requirements, extremely high premiums or decline" ;
+  autoins:reinstatementProcess "Must complete disqualification, provide proof of insurance understanding, may need retest" ;
+  autoins:timeframe "Following court disqualification period" ;
+  autoins:appealProcess "Can appeal court conviction" ;
+  autoins:category autoins:CriminalRevocation ;
+  autoins:severity "Extreme" ;
+  autoins:prevalence "Uncommon" ;
+  autoins:displayOrder "11" ;
+  autoins:offenceCodes "IN10" ;
+  autoins:criminalOffence "true"^^xsd:boolean ;
+  autoins:howToSpecify "Licence revoked as part of a conviction for driving with no insurance (IN10). Shows complete disregard for legal requirements." .
+
+# Failure to Surrender Licence
+autoins:FailureToSurrenderLicence a autoins:RevocationReason ;
+  rdfs:label "Failure to Surrender Licence" ;
+  autoins:revocationReason "Failure To Surrender Licence" ;
+  autoins:officialDescription "Licence revoked for failing to surrender licence to DVLA when required" ;
+  autoins:commonCauses "Failure to send licence for endorsement, non-compliance with DVLA requests, avoiding penalty points" ;
+  autoins:dvlaProcess "Revocation for non-compliance with legal requirements to surrender licence" ;
+  autoins:insuranceImpact "High risk - indicates non-compliance with legal processes" ;
+  autoins:reinstatementProcess "Must demonstrate compliance, may face additional penalties, possible retest" ;
+  autoins:timeframe "Following formal notice period" ;
+  autoins:appealProcess "Can appeal if valid reason for non-surrender" ;
+  autoins:category autoins:LegalRevocation ;
+  autoins:severity "High" ;
+  autoins:prevalence "Rare" ;
+  autoins:displayOrder "12" ;
+  autoins:howToSpecify "Licence revoked for failing to surrender licence to DVLA for endorsement. Shows non-compliance with legal requirements." .
+
+# Foreign Licence Revocation Impact
+autoins:ForeignLicenceRevocation a autoins:RevocationReason ;
+  rdfs:label "Foreign Licence Revocation Impact" ;
+  autoins:revocationReason "Foreign Licence Revocation" ;
+  autoins:officialDescription "UK licence revoked following revocation of original foreign licence" ;
+  autoins:commonCauses "Original issuing country revoked licence, exchange licence no longer valid, fraud in original application" ;
+  autoins:dvlaProcess "DVLA revokes UK licence when informed of foreign licence revocation" ;
+  autoins:insuranceImpact "Very High risk - depends on reason for original revocation" ;
+  autoins:reinstatementProcess "Must resolve issues with original country, may need to take UK tests from scratch" ;
+  autoins:timeframe "When DVLA becomes aware of foreign revocation" ;
+  autoins:appealProcess "Must resolve with original issuing authority first" ;
+  autoins:category autoins:LegalRevocation ;
+  autoins:severity "High" ;
+  autoins:prevalence "Rare" ;
+  autoins:displayOrder "13" ;
+  autoins:howToSpecify "UK licence revoked after [Country] revoked my original licence for [specific reason]. Had to retake UK tests." .
+
+# Age-Related Revocation
+autoins:AgeRelatedRevocation a autoins:RevocationReason ;
+  rdfs:label "Age-Related Medical Revocation" ;
+  autoins:revocationReason "Age Related Medical" ;
+  autoins:officialDescription "Licence revoked due to age-related decline in driving faculties" ;
+  autoins:commonCauses "Dementia, severe cognitive decline, multiple age-related conditions affecting safety" ;
+  autoins:dvlaProcess "Medical assessment determines driver no longer meets safety standards" ;
+  autoins:insuranceImpact "High risk - medical condition affecting driving ability" ;
+  autoins:reinstatementProcess "Unlikely - typically permanent revocation for safety reasons" ;
+  autoins:timeframe "Following medical assessment" ;
+  autoins:appealProcess "Can request independent medical assessment" ;
+  autoins:category autoins:MedicalRevocation ;
+  autoins:severity "High" ;
+  autoins:prevalence "Uncommon" ;
+  autoins:displayOrder "14" ;
+  autoins:howToSpecify "Licence revoked due to age-related medical decline. DVLA medical assessment determined unfit to drive." .
+
+# DVLA Investigation Revocation
+autoins:DVLAInvestigationRevocation a autoins:RevocationReason ;
+  rdfs:label "DVLA Investigation Revocation" ;
+  autoins:revocationReason "DVLA Investigation" ;
+  autoins:officialDescription "Licence revoked following DVLA investigation into compliance issues" ;
+  autoins:commonCauses "Persistent failure to notify medical conditions, non-compliance with licence conditions, investigation findings" ;
+  autoins:dvlaProcess "Formal investigation by DVLA compliance team, revocation based on findings" ;
+  autoins:insuranceImpact "Very High risk - indicates serious compliance issues" ;
+  autoins:reinstatementProcess "Must address all compliance issues, may need medical clearance and retesting" ;
+  autoins:timeframe "Following investigation conclusion" ;
+  autoins:appealProcess "Can appeal investigation findings and decision" ;
+  autoins:category autoins:LegalRevocation ;
+  autoins:severity "High" ;
+  autoins:prevalence "Rare" ;
+  autoins:displayOrder "15" ;
+  autoins:howToSpecify "Licence revoked following DVLA investigation into [specific compliance issue]. Had to address all issues before reinstatement." .
+
+############################################################
+## ENHANCED AI VALIDATION PROMPTS FOR "OTHER" REVOCATION REASONS
+############################################################
+
+autoins:RevocationOtherValidationPrompt a owl:Class ;
+  rdfs:label "AI Validation Prompt for Other Revocation Reasons" ;
+  autoins:validationPrompt """You are an insurance underwriter specializing in DVLA licence revocations. The user has selected 'Other' for licence revocation reason.
+
+⚠️ CRITICAL: Licence revocation is EXTREMELY SERIOUS for insurance. It indicates major safety or legal concerns and significantly impacts risk assessment and premiums.
+
+VALIDATION REQUIREMENTS - ALL MUST BE PRESENT:
+1. ✅ Specific DVLA reason for revocation (not vague terms)
+2. ✅ Approximate date of revocation (year minimum)
+3. ✅ Current licence status (revoked/reinstated/restricted)
+4. ✅ Circumstances leading to revocation
+5. ✅ Official offence codes if applicable (DR10, IN10, etc.)
+6. ✅ Reinstatement process undertaken (if applicable)
+
+ACCEPTABLE "OTHER" REVOCATION EXAMPLES:
+✅ "Licence revoked in 2019 for drink-driving conviction (DR10). Disqualified for 24 months. Completed medical assessment and regained licence in 2021."
+✅ "Revoked 2020 under New Driver Act for accumulating 6 points (two SP30 speeding offences). Re-passed theory and practical tests in 2021."
+✅ "Licence revoked 2018 for driving without insurance (IN10). Completed 12-month disqualification and extended retest."
+✅ "Medical revocation 2019 due to epilepsy diagnosis. Licence reinstated 2021 after 2 years seizure-free with DVLA medical clearance."
+✅ "Fraud revocation 2017 for using false documents. Had to prove identity and retake all tests. Reinstated 2020."
+✅ "Revoked following DVLA investigation into failure to declare medical condition. Addressed compliance issues and reinstated 2022."
+
+REJECT THESE INVALID RESPONSES:
+❌ Vague: "DVLA took my licence", "medical reasons", "legal issues", "personal problems"
+❌ Non-specific: "had problems with DVLA", "licence issues", "complications", "administrative reasons"
+❌ Evasive: "don't want to say", "private matter", "prefer not to discuss"
+❌ Nonsensical: "fish and chips", "random decision", "no reason given"
+❌ Incomplete: Missing dates, current status, or specific circumstances
+
+MANDATORY FOLLOW-UP QUESTIONS FOR INSUFFICIENT RESPONSES:
+1. What was the EXACT reason DVLA gave for revoking your licence?
+2. What year did the revocation occur?
+3. What specific circumstances led to this revocation?
+4. What is your current licence status (revoked/reinstated/restricted)?
+5. If reinstated, what process did you complete (medical clearance/retest/extended test)?
+6. Do you know the official offence code (e.g., DR10, IN10, SP30)?
+
+INSURANCE RISK ASSESSMENT:
+- Drink/Drug Driving: EXTREME RISK - may be declined
+- No Insurance: EXTREME RISK - shows legal disregard  
+- Medical: HIGH RISK - safety concerns
+- Points/Totting Up: VERY HIGH RISK - poor driving behaviour
+- Fraud: EXTREME RISK - dishonesty implications
+- New Driver Points: VERY HIGH RISK - poor early behaviour
+
+Remember: Insurers WILL discover undisclosed revocations through DVLA database checks. Non-disclosure is fraud and voids policies.""" .
+
+############################################################
+## SHACL VALIDATION RULES
+############################################################
+
+autoins:RevocationReasonValidationShape a sh:NodeShape ;
+  sh:targetClass autoins:RevocationReason ;
+  rdfs:label "Revocation Reason Validation" ;
+  sh:property [
+    sh:path autoins:revocationReason ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Revocation reason is required"
+  ] ;
+  sh:property [
+    sh:path autoins:officialDescription ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 30 ;
+    sh:message "Official description must be detailed (minimum 30 characters)"
+  ] ;
+  sh:property [
+    sh:path autoins:insuranceImpact ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Insurance impact assessment is required"
+  ] ;
+  sh:property [
+    sh:path autoins:severity ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:in ("None" "Low" "Medium" "High" "Extreme") ;
+    sh:message "Severity must be specified as None, Low, Medium, High, or Extreme"
+  ] .

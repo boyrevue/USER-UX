@@ -29,10 +29,20 @@ type Field struct {
 	HelpText               string   `json:"helpText,omitempty"`
 	Options                []Option `json:"options,omitempty"`
 	ConditionalRequirement string   `json:"conditionalRequirement,omitempty"`
+	ConditionalDisplay     string   `json:"conditionalDisplay,omitempty"`
 	Min                    int      `json:"min,omitempty"`
 	Max                    int      `json:"max,omitempty"`
 	Multiple               bool     `json:"multiple,omitempty"`
 	TriggerSubform         string   `json:"triggerSubform,omitempty"`
+	IsMultiSelect          bool     `json:"isMultiSelect"`
+	FormType               string   `json:"formType"`
+	EnumerationValues      []string `json:"enumerationValues"`
+	ArrayItemStructure     string   `json:"arrayItemStructure,omitempty"`
+	FormSection            string   `json:"formSection,omitempty"`
+	FormInfoText           string   `json:"formInfoText,omitempty"`
+	DefaultValue           string   `json:"defaultValue"`
+	RequiresAIValidation   bool     `json:"requiresAIValidation"`
+	AIValidationPrompt     string   `json:"aiValidationPrompt,omitempty"`
 }
 
 type Option struct {

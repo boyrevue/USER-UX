@@ -1,73 +1,73 @@
 #!/bin/bash
 
-echo "🚀 Building and deploying Money Supermarket Infiltration System..."
+echo "🔧 CLIENT-UX Build and Deploy Script"
+echo "======================================"
 
-# Kill any running server
-pkill -f insurance-quote-app 2>/dev/null || true
-
-# Build frontend with correct settings
-cd insurance-frontend
+# Build the React frontend
 echo "📦 Building React frontend..."
+cd insurance-frontend
 npm run build
-
-# Clean and copy static files properly
+if [ $? -ne 0 ]; then
+    echo "❌ Frontend build failed!"
+    exit 1
+fi
 cd ..
+
+# Clean the static directory completely
 echo "🧹 Cleaning static directory..."
 rm -rf static/*
 
+# Copy files with correct structure to prevent static/static/ nesting
 echo "📁 Copying build files with correct structure..."
+
 # Copy root files (index.html, manifest.json, etc.)
 cp insurance-frontend/build/*.* static/ 2>/dev/null || true
 
-# Copy static assets with proper structure (this is the key fix)
-if [ -d "insurance-frontend/build/static" ]; then
-    echo "🔧 Copying static assets to correct locations..."
-    # Copy CSS files
-    if [ -d "insurance-frontend/build/static/css" ]; then
-        mkdir -p static/css
-        cp -r insurance-frontend/build/static/css/* static/css/
-    fi
-    # Copy JS files
-    if [ -d "insurance-frontend/build/static/js" ]; then
-        mkdir -p static/js
-        cp -r insurance-frontend/build/static/js/* static/js/
-    fi
-    # Copy any other static assets
-    if [ -d "insurance-frontend/build/static/media" ]; then
-        mkdir -p static/media
-        cp -r insurance-frontend/build/static/media/* static/media/
-    fi
-else
-    echo "⚠️  No static directory found in build, copying all files..."
-    cp -r insurance-frontend/build/* static/
+# Copy CSS files directly to static/css (not static/static/css)
+if [ -d "insurance-frontend/build/static/css" ]; then
+    echo "🎨 Copying CSS files..."
+    mkdir -p static/css
+    cp -r insurance-frontend/build/static/css/* static/css/
 fi
 
-echo "✅ Static files organized correctly"
-
-# Build Go backend
-echo "🔨 Building Go backend..."
-go build -o insurance-quote-app .
-
-# Start server
-echo "🚀 Starting Money Supermarket Infiltration System..."
-./insurance-quote-app &
-
-sleep 3
-
-# Test the deployment
-echo "🧪 Testing deployment..."
-if curl -s http://localhost:3000/static/css/main.*.css | head -1 | grep -q "<!doctype"; then
-    echo "❌ CSS file not found or returning HTML"
-else
-    echo "✅ CSS file serving correctly"
+# Copy JS files directly to static/js (not static/static/js)
+if [ -d "insurance-frontend/build/static/js" ]; then
+    echo "📜 Copying JS files..."
+    mkdir -p static/js
+    cp -r insurance-frontend/build/static/js/* static/js/
 fi
 
-if curl -s http://localhost:3000/static/js/main.*.js | head -1 | grep -q "<!doctype"; then
-    echo "❌ JS file not found or returning HTML"
-else
-    echo "✅ JS file serving correctly"
+# Copy any other static assets
+if [ -d "insurance-frontend/build/static/media" ]; then
+    echo "🖼️  Copying media files..."
+    mkdir -p static/media
+    cp -r insurance-frontend/build/static/media/* static/media/
 fi
 
-echo "🎯 Money Supermarket Infiltration System deployed!"
-echo "🌐 Access at: http://localhost:3000"
-echo "🥷 Navigate to: Navigate & Fill → Auto Fill → Money Supermarket Infiltration"
+echo "✅ Static files organized correctly:"
+echo "   📁 static/css/ - CSS files"
+echo "   📁 static/js/  - JavaScript files"
+echo "   📄 static/index.html - Main HTML file"
+
+# Verify no nested static directory exists
+if [ -d "static/static" ]; then
+    echo "❌ ERROR: Nested static/static/ directory detected!"
+    echo "🔧 Removing nested directory..."
+    rm -rf static/static
+fi
+
+# Build the Go backend
+echo "🏗️  Building Go backend..."
+go build -o client-ux .
+if [ $? -ne 0 ]; then
+    echo "❌ Backend build failed!"
+    exit 1
+fi
+
+# Set execute permissions on the binary (PERMANENT FIX)
+echo "🔐 Setting execute permissions..."
+chmod +x client-ux
+
+echo "🎉 Build completed successfully!"
+echo "🚀 Ready to run: ./client-ux"
+echo "🌐 Will serve on: http://localhost:3000"

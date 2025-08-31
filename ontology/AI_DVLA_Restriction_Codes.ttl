@@ -1,0 +1,437 @@
+@prefix autoins: <http://example.org/auto-insurance#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+############################################################
+## DVLA RESTRICTION CODES ONTOLOGY
+## Comprehensive guide for licence restrictions and their meanings
+## Links to main driver form for "Other" restriction details
+############################################################
+
+# Base Classes
+autoins:DVLARestrictionCode a owl:Class ;
+  rdfs:label "DVLA Restriction Code" ;
+  rdfs:comment "Official DVLA codes that restrict driving privileges" .
+
+autoins:RestrictionCategory a owl:Class ;
+  rdfs:label "Restriction Category" ;
+  rdfs:comment "Categories of driving restrictions" .
+
+############################################################
+## STANDARD DVLA RESTRICTION CODES
+############################################################
+
+# Vision and Sensory Restrictions
+autoins:Code01 a autoins:DVLARestrictionCode ;
+  rdfs:label "Code 01 - Must Wear Corrective Lenses" ;
+  autoins:restrictionCode "01" ;
+  autoins:officialDescription "Must wear corrective lenses" ;
+  autoins:practicalMeaning "You must wear glasses or contact lenses every time you drive" ;
+  autoins:insuranceImpact "Low risk - common restriction, may reduce premiums as shows responsible driving" ;
+  autoins:legalRequirement "Mandatory - driving without corrective lenses is illegal and invalidates insurance" ;
+  autoins:category autoins:VisionRestriction ;
+  autoins:commonality "Very Common" ;
+  autoins:displayOrder "1" .
+
+autoins:Code02 a autoins:DVLARestrictionCode ;
+  rdfs:label "Code 02 - Hearing Aid Required" ;
+  autoins:restrictionCode "02" ;
+  autoins:officialDescription "Hearing aid or communication aid" ;
+  autoins:practicalMeaning "You must use your hearing aid or another specified device to drive" ;
+  autoins:insuranceImpact "Low risk - shows medical compliance and responsible driving" ;
+  autoins:legalRequirement "Mandatory - must use specified hearing aid while driving" ;
+  autoins:category autoins:SensoryRestriction ;
+  autoins:commonality "Uncommon" ;
+  autoins:displayOrder "2" .
+
+# Vehicle Modification Restrictions
+autoins:Code10 a autoins:DVLARestrictionCode ;
+  rdfs:label "Code 10 - Modified Transmission" ;
+  autoins:restrictionCode "10" ;
+  autoins:officialDescription "Modified transmission" ;
+  autoins:practicalMeaning "You may only drive a vehicle with a modified gearbox (e.g., steering wheel-mounted paddle shift system)" ;
+  autoins:insuranceImpact "Medium risk - requires specialist vehicle, may increase premiums" ;
+  autoins:legalRequirement "Mandatory - can only drive vehicles with specified transmission modifications" ;
+  autoins:category autoins:VehicleModificationRestriction ;
+  autoins:commonality "Rare" ;
+  autoins:displayOrder "10" .
+
+autoins:Code15 a autoins:DVLARestrictionCode ;
+  rdfs:label "Code 15 - Modified Clutch" ;
+  autoins:restrictionCode "15" ;
+  autoins:officialDescription "Modified clutch" ;
+  autoins:practicalMeaning "You may only drive a vehicle with a modified clutch mechanism" ;
+  autoins:insuranceImpact "Medium risk - requires specialist vehicle modifications" ;
+  autoins:legalRequirement "Mandatory - can only drive vehicles with specified clutch modifications" ;
+  autoins:category autoins:VehicleModificationRestriction ;
+  autoins:commonality "Rare" ;
+  autoins:displayOrder "15" .
+
+autoins:Code20 a autoins:DVLARestrictionCode ;
+  rdfs:label "Code 20 - Modified Braking Systems" ;
+  autoins:restrictionCode "20" ;
+  autoins:officialDescription "Modified braking systems" ;
+  autoins:practicalMeaning "You may only drive a vehicle with modified brakes (e.g., hand-controlled brake system)" ;
+  autoins:insuranceImpact "Medium risk - requires specialist braking systems" ;
+  autoins:legalRequirement "Mandatory - can only drive vehicles with specified brake modifications" ;
+  autoins:category autoins:VehicleModificationRestriction ;
+  autoins:commonality "Rare" ;
+  autoins:displayOrder "20" .
+
+autoins:Code25 a autoins:DVLARestrictionCode ;
+  rdfs:label "Code 25 - Modified Accelerator Systems" ;
+  autoins:restrictionCode "25" ;
+  autoins:officialDescription "Modified accelerator systems" ;
+  autoins:practicalMeaning "You may only drive a vehicle with a modified accelerator (e.g., left-foot accelerator or hand-operated accelerator ring)" ;
+  autoins:insuranceImpact "Medium risk - requires specialist accelerator systems" ;
+  autoins:legalRequirement "Mandatory - can only drive vehicles with specified accelerator modifications" ;
+  autoins:category autoins:VehicleModificationRestriction ;
+  autoins:commonality "Rare" ;
+  autoins:displayOrder "25" .
+
+autoins:Code30 a autoins:DVLARestrictionCode ;
+  rdfs:label "Code 30 - Combined Braking and Accelerator Systems" ;
+  autoins:restrictionCode "30" ;
+  autoins:officialDescription "Modified combined braking and accelerator systems" ;
+  autoins:practicalMeaning "You may only drive a vehicle with a combined braking and accelerator system, often a single hand control for both functions" ;
+  autoins:insuranceImpact "High risk - requires highly specialized vehicle controls" ;
+  autoins:legalRequirement "Mandatory - can only drive vehicles with specified combined control systems" ;
+  autoins:category autoins:VehicleModificationRestriction ;
+  autoins:commonality "Very Rare" ;
+  autoins:displayOrder "30" .
+
+autoins:Code35 a autoins:DVLARestrictionCode ;
+  rdfs:label "Code 35 - Modified Control Layouts" ;
+  autoins:restrictionCode "35" ;
+  autoins:officialDescription "Modified control layouts" ;
+  autoins:practicalMeaning "You may only drive a vehicle where the primary controls (indicators, lights, wipers) have been moved for accessibility" ;
+  autoins:insuranceImpact "Medium risk - requires modified vehicle controls" ;
+  autoins:legalRequirement "Mandatory - can only drive vehicles with specified control layout modifications" ;
+  autoins:category autoins:VehicleModificationRestriction ;
+  autoins:commonality "Rare" ;
+  autoins:displayOrder "35" .
+
+autoins:Code40 a autoins:DVLARestrictionCode ;
+  rdfs:label "Code 40 - Modified Steering" ;
+  autoins:restrictionCode "40" ;
+  autoins:officialDescription "Modified steering" ;
+  autoins:practicalMeaning "You may only drive a vehicle with modified steering (e.g., steering ball or reduced-effort power steering)" ;
+  autoins:insuranceImpact "Medium risk - requires specialist steering modifications" ;
+  autoins:legalRequirement "Mandatory - can only drive vehicles with specified steering modifications" ;
+  autoins:category autoins:VehicleModificationRestriction ;
+  autoins:commonality "Uncommon" ;
+  autoins:displayOrder "40" .
+
+autoins:Code42 a autoins:DVLARestrictionCode ;
+  rdfs:label "Code 42 - Modified Rear View Mirrors" ;
+  autoins:restrictionCode "42" ;
+  autoins:officialDescription "Modified rear view mirrors" ;
+  autoins:practicalMeaning "You may only drive a vehicle fitted with additional or specially adapted mirrors (e.g., wide-angle or panoramic mirrors)" ;
+  autoins:insuranceImpact "Low risk - safety enhancement, may reduce premiums" ;
+  autoins:legalRequirement "Mandatory - must use specified mirror configuration" ;
+  autoins:category autoins:VehicleModificationRestriction ;
+  autoins:commonality "Uncommon" ;
+  autoins:displayOrder "42" .
+
+autoins:Code43 a autoins:DVLARestrictionCode ;
+  rdfs:label "Code 43 - Modified Driving Seat" ;
+  autoins:restrictionCode "43" ;
+  autoins:officialDescription "Modified driving seat" ;
+  autoins:practicalMeaning "You may only drive a vehicle with an adapted driver's seat (e.g., special orthopaedic seat)" ;
+  autoins:insuranceImpact "Low risk - medical accommodation, neutral impact" ;
+  autoins:legalRequirement "Mandatory - must use specified seat modifications" ;
+  autoins:category autoins:VehicleModificationRestriction ;
+  autoins:commonality "Rare" ;
+  autoins:displayOrder "43" .
+
+# Motorcycle Restrictions
+autoins:Code44 a autoins:DVLARestrictionCode ;
+  rdfs:label "Code 44 - Motorcycle Modifications" ;
+  autoins:restrictionCode "44" ;
+  autoins:officialDescription "Motorcycle modifications" ;
+  autoins:practicalMeaning "You may only ride a motorcycle with specific modifications (e.g., thumb-operated brake lever)" ;
+  autoins:insuranceImpact "Medium risk - requires specialist motorcycle modifications" ;
+  autoins:legalRequirement "Mandatory - can only ride motorcycles with specified modifications" ;
+  autoins:category autoins:MotorcycleRestriction ;
+  autoins:commonality "Rare" ;
+  autoins:displayOrder "44" .
+
+autoins:Code45 a autoins:DVLARestrictionCode ;
+  rdfs:label "Code 45 - Motorcycle Restricted to Sidecar" ;
+  autoins:restrictionCode "45" ;
+  autoins:officialDescription "Motorcycle restricted to sidecar" ;
+  autoins:practicalMeaning "You may only ride a motorcycle if it has a sidecar fitted. You cannot ride a solo motorcycle" ;
+  autoins:insuranceImpact "High risk - significant riding restriction, may increase premiums" ;
+  autoins:legalRequirement "Mandatory - cannot legally ride solo motorcycles" ;
+  autoins:category autoins:MotorcycleRestriction ;
+  autoins:commonality "Very Rare" ;
+  autoins:displayOrder "45" .
+
+# Administrative Codes
+autoins:Code70 a autoins:DVLARestrictionCode ;
+  rdfs:label "Code 70 - Exchange of Licence" ;
+  autoins:restrictionCode "70" ;
+  autoins:officialDescription "Exchange of licence" ;
+  autoins:practicalMeaning "Issued when you have exchanged a non-UK licence for a UK one" ;
+  autoins:insuranceImpact "Neutral - administrative code, no driving impact" ;
+  autoins:legalRequirement "Administrative - indicates licence exchange process completed" ;
+  autoins:category autoins:AdministrativeCode ;
+  autoins:commonality "Common" ;
+  autoins:displayOrder "70" .
+
+autoins:Code71 a autoins:DVLARestrictionCode ;
+  rdfs:label "Code 71 - Duplicate of Licence" ;
+  autoins:restrictionCode "71" ;
+  autoins:officialDescription "Duplicate of licence" ;
+  autoins:practicalMeaning "Issued to replace a lost, stolen, or damaged licence" ;
+  autoins:insuranceImpact "Neutral - administrative code, no driving impact" ;
+  autoins:legalRequirement "Administrative - indicates replacement licence issued" ;
+  autoins:category autoins:AdministrativeCode ;
+  autoins:commonality "Common" ;
+  autoins:displayOrder "71" .
+
+# Transmission Restrictions
+autoins:Code78 a autoins:DVLARestrictionCode ;
+  rdfs:label "Code 78 - Automatic Transmission Only" ;
+  autoins:restrictionCode "78" ;
+  autoins:officialDescription "Restricted to vehicles with automatic transmission" ;
+  autoins:practicalMeaning "If you passed your test in an automatic car, this code will be on your licence. You cannot legally drive a manual transmission car" ;
+  autoins:insuranceImpact "Low risk - very common restriction, neutral premium impact" ;
+  autoins:legalRequirement "Critical - driving a manual car with this code invalidates insurance and is illegal" ;
+  autoins:category autoins:TransmissionRestriction ;
+  autoins:commonality "Very Common" ;
+  autoins:displayOrder "78" ;
+  autoins:insuranceCritical "true"^^xsd:boolean ;
+  autoins:warningText "CRITICAL: If you have this code and crash while driving a manual car, your insurer will void your policy because you were driving illegally" .
+
+# Medical Report Restrictions
+autoins:Code79 a autoins:DVLARestrictionCode ;
+  rdfs:label "Code 79 - Medical Report Restrictions" ;
+  autoins:restrictionCode "79" ;
+  autoins:officialDescription "Restricted to vehicles in accordance with a medical report" ;
+  autoins:practicalMeaning "You can only drive a vehicle that meets specific specifications detailed in a medical report provided to the DVLA" ;
+  autoins:insuranceImpact "Variable - depends on specific medical restrictions, may increase premiums" ;
+  autoins:legalRequirement "Mandatory - must comply with all medical report specifications" ;
+  autoins:category autoins:MedicalRestriction ;
+  autoins:commonality "Uncommon" ;
+  autoins:displayOrder "79" ;
+  autoins:requiresDetails "true"^^xsd:boolean ;
+  autoins:detailsRequired "Specific medical restrictions must be declared to insurance company" .
+
+############################################################
+## RESTRICTION CATEGORIES
+############################################################
+
+autoins:VisionRestriction a autoins:RestrictionCategory ;
+  rdfs:label "Vision-Related Restrictions" ;
+  autoins:description "Restrictions related to eyesight and vision correction" ;
+  autoins:insuranceRisk "Low" ;
+  autoins:commonExamples "Glasses, contact lenses, special mirrors" .
+
+autoins:SensoryRestriction a autoins:RestrictionCategory ;
+  rdfs:label "Sensory-Related Restrictions" ;
+  autoins:description "Restrictions related to hearing or other senses" ;
+  autoins:insuranceRisk "Low" ;
+  autoins:commonExamples "Hearing aids, communication devices" .
+
+autoins:VehicleModificationRestriction a autoins:RestrictionCategory ;
+  rdfs:label "Vehicle Modification Restrictions" ;
+  autoins:description "Restrictions requiring specific vehicle modifications" ;
+  autoins:insuranceRisk "Medium to High" ;
+  autoins:commonExamples "Modified controls, steering, brakes, accelerator" .
+
+autoins:MotorcycleRestriction a autoins:RestrictionCategory ;
+  rdfs:label "Motorcycle-Specific Restrictions" ;
+  autoins:description "Restrictions specific to motorcycle operation" ;
+  autoins:insuranceRisk "Medium to High" ;
+  autoins:commonExamples "Sidecar requirements, modified controls" .
+
+autoins:TransmissionRestriction a autoins:RestrictionCategory ;
+  rdfs:label "Transmission-Related Restrictions" ;
+  autoins:description "Restrictions on transmission type" ;
+  autoins:insuranceRisk "Low" ;
+  autoins:commonExamples "Automatic only" ;
+  autoins:insuranceCritical "true"^^xsd:boolean .
+
+autoins:MedicalRestriction a autoins:RestrictionCategory ;
+  rdfs:label "Medical Report-Based Restrictions" ;
+  autoins:description "Restrictions based on medical conditions and reports" ;
+  autoins:insuranceRisk "Variable" ;
+  autoins:commonExamples "Alcohol interlock, daylight driving only, distance limits" .
+
+autoins:AdministrativeCode a autoins:RestrictionCategory ;
+  rdfs:label "Administrative Codes" ;
+  autoins:description "Administrative codes with no driving restrictions" ;
+  autoins:insuranceRisk "None" ;
+  autoins:commonExamples "Licence exchange, duplicate issue" .
+
+############################################################
+## COMMON "OTHER" RESTRICTION SCENARIOS
+############################################################
+
+# Medical Condition-Related Restrictions (Code 79 variants)
+autoins:AlcoholInterlockRestriction a autoins:DVLARestrictionCode ;
+  rdfs:label "Alcohol Interlock Device Required" ;
+  autoins:restrictionCode "79" ;
+  autoins:specificRestriction "Alcohol Interlock" ;
+  autoins:officialDescription "Restricted to driving vehicles fitted with an alcohol interlock device" ;
+  autoins:practicalMeaning "You must pass a breathalyser test built into the car to start the engine" ;
+  autoins:insuranceImpact "Very High risk - significant premium increase, specialist insurance required" ;
+  autoins:legalRequirement "Court-ordered - failure to comply is criminal offence" ;
+  autoins:category autoins:MedicalRestriction ;
+  autoins:commonality "Rare" ;
+  autoins:courtOrdered "true"^^xsd:boolean ;
+  autoins:criminalBackground "true"^^xsd:boolean .
+
+autoins:DaylightDrivingOnly a autoins:DVLARestrictionCode ;
+  rdfs:label "Daylight Driving Only" ;
+  autoins:restrictionCode "79" ;
+  autoins:specificRestriction "Daylight Hours Only" ;
+  autoins:officialDescription "Restricted to driving only during daylight hours" ;
+  autoins:practicalMeaning "You cannot legally drive between sunset and sunrise due to vision condition" ;
+  autoins:insuranceImpact "Medium risk - time-based restriction, may affect premium" ;
+  autoins:legalRequirement "Mandatory - driving outside permitted hours invalidates insurance" ;
+  autoins:category autoins:MedicalRestriction ;
+  autoins:commonality "Uncommon" ;
+  autoins:timeRestricted "true"^^xsd:boolean .
+
+autoins:DistanceRestriction a autoins:DVLARestrictionCode ;
+  rdfs:label "Distance-Limited Driving" ;
+  autoins:restrictionCode "79" ;
+  autoins:specificRestriction "Distance Limitation" ;
+  autoins:officialDescription "Restricted to driving within a specified radius of home address" ;
+  autoins:practicalMeaning "You can only drive within a specific distance from your home (e.g., 10 miles)" ;
+  autoins:insuranceImpact "Medium risk - geographical restriction affects risk assessment" ;
+  autoins:legalRequirement "Mandatory - driving outside permitted area invalidates insurance" ;
+  autoins:category autoins:MedicalRestriction ;
+  autoins:commonality "Rare" ;
+  autoins:geographicallyRestricted "true"^^xsd:boolean .
+
+# Licence Type and Test Pass Restrictions
+autoins:AgriculturalTractorRestriction a autoins:DVLARestrictionCode ;
+  rdfs:label "Agricultural Use Only" ;
+  autoins:restrictionCode "F" ;
+  autoins:specificRestriction "Agricultural Tractor" ;
+  autoins:officialDescription "Restricted to use in connection with agriculture, forestry or horticulture" ;
+  autoins:practicalMeaning "You cannot use this licence on public roads for general travel - only for agricultural work" ;
+  autoins:insuranceImpact "Specialist insurance required for agricultural use" ;
+  autoins:legalRequirement "Cannot be used for general road travel" ;
+  autoins:category autoins:VehicleTypeRestriction ;
+  autoins:commonality "Uncommon" ;
+  autoins:commercialUse "true"^^xsd:boolean .
+
+autoins:MopedSpeedRestriction a autoins:DVLARestrictionCode ;
+  rdfs:label "Moped Speed Limitation" ;
+  autoins:restrictionCode "AM" ;
+  autoins:specificRestriction "Speed Limited Moped" ;
+  autoins:officialDescription "Restricted to vehicles with design speed not exceeding 45 km/h" ;
+  autoins:practicalMeaning "If you passed your car test before 1 February 2001, you can ride a moped without L plates, but speed is limited" ;
+  autoins:insuranceImpact "Low risk - speed limitation reduces risk" ;
+  autoins:legalRequirement "Cannot exceed 45 km/h design speed" ;
+  autoins:category autoins:VehicleTypeRestriction ;
+  autoins:commonality "Common" ;
+  autoins:speedLimited "true"^^xsd:boolean .
+
+############################################################
+## INSURANCE GUIDANCE PROPERTIES
+############################################################
+
+# Insurance Risk Assessment Properties
+autoins:insuranceRisk a owl:DatatypeProperty ;
+  rdfs:domain autoins:DVLARestrictionCode ;
+  rdfs:range xsd:string ;
+  rdfs:label "Insurance Risk Level" ;
+  rdfs:comment "Risk level for insurance purposes: Low, Medium, High, Very High" .
+
+autoins:insuranceImpact a owl:DatatypeProperty ;
+  rdfs:domain autoins:DVLARestrictionCode ;
+  rdfs:range xsd:string ;
+  rdfs:label "Insurance Impact Description" ;
+  rdfs:comment "Detailed description of how this restriction affects insurance" .
+
+autoins:insuranceCritical a owl:DatatypeProperty ;
+  rdfs:domain autoins:DVLARestrictionCode ;
+  rdfs:range xsd:boolean ;
+  rdfs:label "Insurance Critical" ;
+  rdfs:comment "Whether this restriction is critical for insurance validity" .
+
+autoins:warningText a owl:DatatypeProperty ;
+  rdfs:domain autoins:DVLARestrictionCode ;
+  rdfs:range xsd:string ;
+  rdfs:label "Insurance Warning" ;
+  rdfs:comment "Critical warning text for insurance implications" .
+
+############################################################
+## VALIDATION AND HELP TEXT
+############################################################
+
+autoins:RestrictionValidationGuide a owl:Class ;
+  rdfs:label "Restriction Validation Guide" ;
+  autoins:howToFind "Look at your photocard licence section 12, or use GOV.UK 'View driving licence' service" ;
+  autoins:whereToLook "Section 12 of your photocard licence shows restriction codes" ;
+  autoins:onlineCheck "Use the government's 'View driving licence' service on GOV.UK for full explanations" ;
+  autoins:insuranceImportance "Declaring restrictions correctly is crucial - failure to declare can void your insurance policy" ;
+  autoins:legalImportance "Driving outside your restrictions is illegal and invalidates insurance" ;
+  autoins:commonMistakes "Not declaring Code 78 (automatic only) when driving manual cars is the most common error" .
+
+############################################################
+## AI VALIDATION PROMPTS FOR "OTHER" RESTRICTIONS
+############################################################
+
+autoins:RestrictionOtherValidationPrompt a owl:Class ;
+  rdfs:label "AI Validation Prompt for Other Restrictions" ;
+  autoins:validationPrompt """You are an insurance underwriter specializing in DVLA licence restrictions. The user has selected 'Other' for licence restrictions. 
+
+CRITICAL VALIDATION REQUIREMENTS:
+1. Must include specific DVLA restriction code numbers (e.g., 01, 78, 79)
+2. Must explain what the restriction means practically for driving
+3. Must indicate if it's a medical restriction (Code 79) with specific details
+4. Must not be vague responses like 'some restrictions' or 'medical reasons'
+
+COMMON VALID RESPONSES:
+- 'Code 79 - Restricted to driving vehicles fitted with alcohol interlock device due to previous drink driving conviction'
+- 'Code 01 and 42 - Must wear glasses and use wide-angle mirrors due to peripheral vision loss'
+- 'Code 78 - Automatic transmission only, passed test in automatic car'
+
+REJECT INVALID RESPONSES:
+- Vague: 'some medical restrictions', 'doctor said I need restrictions'
+- Non-specific: 'DVLA restrictions apply', 'check my licence'
+- Nonsensical: 'fish and chips', 'personal reasons'
+
+ASK FOR CLARIFICATION:
+1. What is the exact restriction code number?
+2. What does this restriction mean for your driving?
+3. Is this a medical restriction requiring specific vehicle modifications?
+4. Have you declared this to your current insurance company?
+
+Insurance companies need precise restriction details for accurate risk assessment and legal compliance.""" .
+
+############################################################
+## SHACL VALIDATION RULES
+############################################################
+
+autoins:RestrictionCodeValidationShape a sh:NodeShape ;
+  sh:targetClass autoins:DVLARestrictionCode ;
+  rdfs:label "Restriction Code Validation" ;
+  sh:property [
+    sh:path autoins:restrictionCode ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Restriction code is required"
+  ] ;
+  sh:property [
+    sh:path autoins:practicalMeaning ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 20 ;
+    sh:message "Practical meaning must be detailed (minimum 20 characters)"
+  ] ;
+  sh:property [
+    sh:path autoins:insuranceImpact ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Insurance impact assessment is required"
+  ] .

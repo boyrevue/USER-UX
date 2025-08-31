@@ -1,0 +1,341 @@
+@prefix autoins: <http://example.org/auto-insurance#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+############################################################
+## LICENCE REFUSAL REASONS ONTOLOGY
+## Comprehensive guide for DVLA licence refusal reasons and their implications
+## Links to main driver form for "Other" refusal details
+############################################################
+
+# Base Classes
+autoins:RefusalReason a owl:Class ;
+  rdfs:label "DVLA Licence Refusal Reason" ;
+  rdfs:comment "Official reasons why DVLA may refuse a driving licence application" .
+
+autoins:RefusalCategory a owl:Class ;
+  rdfs:label "Refusal Category" ;
+  rdfs:comment "Categories of licence refusal for insurance assessment" .
+
+############################################################
+## STANDARD DVLA REFUSAL REASONS
+############################################################
+
+# Age-Related Refusal
+autoins:AgeRequirementNotMet a autoins:RefusalReason ;
+  rdfs:label "Age Requirement Not Met" ;
+  autoins:refusalReason "Age Requirement Not Met" ;
+  autoins:officialDescription "Applicant does not meet minimum age requirements for licence category" ;
+  autoins:commonCauses "Applying for car licence under 17, motorcycle licence under 16, lorry licence under 18/21" ;
+  autoins:dvlaProcess "Automatic refusal based on date of birth verification" ;
+  autoins:insuranceImpact "No risk - legitimate age restriction" ;
+  autoins:resolutionProcess "Wait until minimum age reached, then reapply" ;
+  autoins:timeframe "Can reapply immediately upon reaching minimum age" ;
+  autoins:appealProcess "No appeal - statutory age requirements" ;
+  autoins:category autoins:EligibilityRefusal ;
+  autoins:severity "None" ;
+  autoins:prevalence "Common" ;
+  autoins:displayOrder "1" ;
+  autoins:legitimateRefusal "true"^^xsd:boolean .
+
+# Medical Condition Refusal
+autoins:MedicalConditionRefusal a autoins:RefusalReason ;
+  rdfs:label "Medical Condition" ;
+  autoins:refusalReason "Medical Condition" ;
+  autoins:officialDescription "Licence refused due to medical condition that affects driving safety" ;
+  autoins:commonCauses "Epilepsy, severe diabetes, significant vision problems, serious heart conditions, severe mental health conditions" ;
+  autoins:dvlaProcess "Medical assessment by DVLA medical advisers based on medical reports" ;
+  autoins:insuranceImpact "High risk - medical condition affects driving safety" ;
+  autoins:resolutionProcess "Medical treatment and clearance required. May need specialist medical reports." ;
+  autoins:timeframe "Can reapply when medical condition controlled or resolved" ;
+  autoins:appealProcess "Can appeal with additional medical evidence" ;
+  autoins:category autoins:MedicalRefusal ;
+  autoins:severity "Medium to High" ;
+  autoins:prevalence "Common" ;
+  autoins:displayOrder "2" .
+
+# Failed Theory Test
+autoins:FailedTheoryTest a autoins:RefusalReason ;
+  rdfs:label "Failed Theory Test" ;
+  autoins:refusalReason "Failed Theory Test" ;
+  autoins:officialDescription "Licence refused due to failure to pass theory test within required timeframe" ;
+  autoins:commonCauses "Multiple theory test failures, not booking theory test, theory test certificate expired" ;
+  autoins:dvlaProcess "Cannot proceed to practical test without valid theory test pass" ;
+  autoins:insuranceImpact "Low risk - indicates learning process, not safety concern" ;
+  autoins:resolutionProcess "Must pass theory test before practical test application" ;
+  autoins:timeframe "Can retake theory test after waiting period (usually 3 working days)" ;
+  autoins:appealProcess "No appeal - must pass required tests" ;
+  autoins:category autoins:TestFailureRefusal ;
+  autoins:severity "Low" ;
+  autoins:prevalence "Very Common" ;
+  autoins:displayOrder "3" ;
+  autoins:testRelated "true"^^xsd:boolean .
+
+# Failed Practical Test
+autoins:FailedPracticalTest a autoins:RefusalReason ;
+  rdfs:label "Failed Practical Test" ;
+  autoins:refusalReason "Failed Practical Test" ;
+  autoins:officialDescription "Licence refused due to failure to pass practical driving test" ;
+  autoins:commonCauses "Dangerous faults, serious faults, accumulating minor faults, not demonstrating safe driving" ;
+  autoins:dvlaProcess "Examiner assessment of driving competency during practical test" ;
+  autoins:insuranceImpact "Low to Medium risk - indicates need for further training" ;
+  autoins:resolutionProcess "Additional driving lessons and retaking practical test" ;
+  autoins:timeframe "Can retake practical test after waiting period (usually 10 working days)" ;
+  autoins:appealProcess "Limited appeal for procedural errors only" ;
+  autoins:category autoins:TestFailureRefusal ;
+  autoins:severity "Low" ;
+  autoins:prevalence "Very Common" ;
+  autoins:displayOrder "4" ;
+  autoins:testRelated "true"^^xsd:boolean .
+
+# Eyesight Test Failure
+autoins:EyesightTestFailure a autoins:RefusalReason ;
+  rdfs:label "Eyesight Test Failure" ;
+  autoins:refusalReason "Eyesight Test Failure" ;
+  autoins:officialDescription "Licence refused due to failure to meet minimum eyesight standards" ;
+  autoins:commonCauses "Poor vision, not wearing prescribed glasses, eye conditions, failing number plate test" ;
+  autoins:dvlaProcess "Eyesight test at start of practical test or separate medical assessment" ;
+  autoins:insuranceImpact "Medium risk - vision is critical for safe driving" ;
+  autoins:resolutionProcess "Eye test, corrective lenses if needed, meet DVLA vision standards" ;
+  autoins:timeframe "Can reapply immediately once vision standards met" ;
+  autoins:appealProcess "Can request re-test with corrective lenses" ;
+  autoins:category autoins:MedicalRefusal ;
+  autoins:severity "Medium" ;
+  autoins:prevalence "Common" ;
+  autoins:displayOrder "5" .
+
+# Criminal Record Check
+autoins:CriminalRecordIssue a autoins:RefusalReason ;
+  rdfs:label "Criminal Record Issue" ;
+  autoins:refusalReason "Criminal Record Issue" ;
+  autoins:officialDescription "Licence refused due to serious criminal convictions affecting driving eligibility" ;
+  autoins:commonCauses "Serious driving offences, fraud convictions, violent crimes, recent disqualifications" ;
+  autoins:dvlaProcess "Criminal record check and assessment of risk to public safety" ;
+  autoins:insuranceImpact "Very High risk - criminal background affects insurance significantly" ;
+  autoins:resolutionProcess "Time passage, rehabilitation evidence, character references may be required" ;
+  autoins:timeframe "Varies depending on offence severity - may be several years" ;
+  autoins:appealProcess "Can appeal with evidence of rehabilitation" ;
+  autoins:category autoins:CriminalRefusal ;
+  autoins:severity "High to Extreme" ;
+  autoins:prevalence "Uncommon" ;
+  autoins:displayOrder "6" ;
+  autoins:criminalBackground "true"^^xsd:boolean .
+
+# Identity Verification Issues
+autoins:IdentityVerificationFailure a autoins:RefusalReason ;
+  rdfs:label "Identity Verification Failure" ;
+  autoins:refusalReason "Identity Verification Failure" ;
+  autoins:officialDescription "Licence refused due to inability to verify applicant's identity" ;
+  autoins:commonCauses "Insufficient identity documents, fraudulent documents, name/address discrepancies, immigration status issues" ;
+  autoins:dvlaProcess "Document verification process and identity checks" ;
+  autoins:insuranceImpact "Medium to High risk - identity issues may indicate fraud risk" ;
+  autoins:resolutionProcess "Provide acceptable identity documents, resolve name/address issues" ;
+  autoins:timeframe "Can reapply immediately once identity verified" ;
+  autoins:appealProcess "Can appeal with additional identity evidence" ;
+  autoins:category autoins:DocumentationRefusal ;
+  autoins:severity "Medium" ;
+  autoins:prevalence "Common" ;
+  autoins:displayOrder "7" .
+
+# Residency Requirements
+autoins:ResidencyRequirementNotMet a autoins:RefusalReason ;
+  rdfs:label "Residency Requirement Not Met" ;
+  autoins:refusalReason "Residency Requirement Not Met" ;
+  autoins:officialDescription "Licence refused due to not meeting UK residency requirements" ;
+  autoins:commonCauses "Insufficient time in UK, no permanent address, temporary visa status, non-EU citizens without proper documentation" ;
+  autoins:dvlaProcess "Verification of residency status and immigration documentation" ;
+  autoins:insuranceImpact "Low to Medium risk - administrative issue rather than safety concern" ;
+  autoins:resolutionProcess "Establish UK residency, obtain appropriate visa status, provide residency evidence" ;
+  autoins:timeframe "Can reapply once residency requirements met" ;
+  autoins:appealProcess "Can appeal with residency evidence" ;
+  autoins:category autoins:EligibilityRefusal ;
+  autoins:severity "Low" ;
+  autoins:prevalence "Common" ;
+  autoins:displayOrder "8" .
+
+# Previous Licence Issues
+autoins:PreviousLicenceIssues a autoins:RefusalReason ;
+  rdfs:label "Previous Licence Issues" ;
+  autoins:refusalReason "Previous Licence Issues" ;
+  autoins:officialDescription "Licence refused due to issues with previous UK or international driving licences" ;
+  autoins:commonCauses "Previous licence revoked for fraud, outstanding disqualifications, invalid foreign licence exchange" ;
+  autoins:dvlaProcess "Check of previous licence history and international licence validity" ;
+  autoins:insuranceImpact "High risk - previous licence problems indicate potential ongoing issues" ;
+  autoins:resolutionProcess "Resolve previous licence issues, may need to start from provisional licence" ;
+  autoins:timeframe "Varies depending on previous issues - may be several years" ;
+  autoins:appealProcess "Can appeal if previous issues resolved or disputed" ;
+  autoins:category autoins:HistoricalRefusal ;
+  autoins:severity "Medium to High" ;
+  autoins:prevalence "Uncommon" ;
+  autoins:displayOrder "9" .
+
+# Incomplete Application
+autoins:IncompleteApplication a autoins:RefusalReason ;
+  rdfs:label "Incomplete Application" ;
+  autoins:refusalReason "Incomplete Application" ;
+  autoins:officialDescription "Licence refused due to incomplete application or missing required information" ;
+  autoins:commonCauses "Missing documents, incorrect forms, unpaid fees, missing signatures, incomplete medical information" ;
+  autoins:dvlaProcess "Application processing checks for completeness and accuracy" ;
+  autoins:insuranceImpact "No risk - administrative issue" ;
+  autoins:resolutionProcess "Complete application with all required information and documents" ;
+  autoins:timeframe "Can reapply immediately once application completed" ;
+  autoins:appealProcess "No appeal needed - just complete application" ;
+  autoins:category autoins:AdministrativeRefusal ;
+  autoins:severity "None" ;
+  autoins:prevalence "Common" ;
+  autoins:displayOrder "10" ;
+  autoins:administrativeIssue "true"^^xsd:boolean .
+
+############################################################
+## REFUSAL CATEGORIES
+############################################################
+
+autoins:MedicalRefusal a autoins:RefusalCategory ;
+  rdfs:label "Medical-Related Refusals" ;
+  autoins:description "Refusals due to medical conditions or failed medical assessments" ;
+  autoins:insuranceRisk "Medium to High" ;
+  autoins:commonCharacteristics "Safety-focused, may be temporary, requires medical resolution" ;
+  autoins:resolutionLikelihood "Medium - depends on medical treatment success" .
+
+autoins:TestFailureRefusal a autoins:RefusalCategory ;
+  rdfs:label "Test Failure Refusals" ;
+  autoins:description "Refusals due to failing theory or practical driving tests" ;
+  autoins:insuranceRisk "Low" ;
+  autoins:commonCharacteristics "Competency-based, normal part of learning process" ;
+  autoins:resolutionLikelihood "High - with additional training and practice" .
+
+autoins:CriminalRefusal a autoins:RefusalCategory ;
+  rdfs:label "Criminal Record Refusals" ;
+  autoins:description "Refusals due to serious criminal convictions" ;
+  autoins:insuranceRisk "Very High" ;
+  autoins:commonCharacteristics "Safety and trust concerns, long-term implications" ;
+  autoins:resolutionLikelihood "Low to Medium - requires time and rehabilitation evidence" .
+
+autoins:DocumentationRefusal a autoins:RefusalCategory ;
+  rdfs:label "Documentation-Related Refusals" ;
+  autoins:description "Refusals due to identity or document verification issues" ;
+  autoins:insuranceRisk "Medium" ;
+  autoins:commonCharacteristics "Administrative but may indicate fraud risk" ;
+  autoins:resolutionLikelihood "High - with proper documentation" .
+
+autoins:EligibilityRefusal a autoins:RefusalCategory ;
+  rdfs:label "Eligibility-Related Refusals" ;
+  autoins:description "Refusals due to not meeting basic eligibility requirements" ;
+  autoins:insuranceRisk "Low" ;
+  autoins:commonCharacteristics "Statutory requirements, legitimate restrictions" ;
+  autoins:resolutionLikelihood "High - once requirements met" .
+
+autoins:HistoricalRefusal a autoins:RefusalCategory ;
+  rdfs:label "Historical Issue Refusals" ;
+  autoins:description "Refusals due to previous licence or driving history problems" ;
+  autoins:insuranceRisk "High" ;
+  autoins:commonCharacteristics "Past behaviour indicators, trust implications" ;
+  autoins:resolutionLikelihood "Medium - requires resolving past issues" .
+
+autoins:AdministrativeRefusal a autoins:RefusalCategory ;
+  rdfs:label "Administrative Refusals" ;
+  autoins:description "Refusals due to administrative or procedural issues" ;
+  autoins:insuranceRisk "None" ;
+  autoins:commonCharacteristics "Process-related, no safety implications" ;
+  autoins:resolutionLikelihood "Very High - easily corrected" .
+
+############################################################
+## INSURANCE IMPLICATIONS OF REFUSAL
+############################################################
+
+autoins:RefusalInsuranceImpact a owl:Class ;
+  rdfs:label "Insurance Impact of Licence Refusal" ;
+  autoins:generalImpact "Most refusals have minimal insurance impact as no licence means no driving" ;
+  autoins:medicalRefusal "Medical refusals may indicate ongoing health risks that affect future insurance" ;
+  autoins:criminalRefusal "Criminal-related refusals significantly impact future insurance eligibility and premiums" ;
+  autoins:testFailures "Test failures generally have no insurance impact - normal learning process" ;
+  autoins:fraudRefusal "Identity/fraud-related refusals may indicate dishonesty, affecting future insurance" ;
+  autoins:declarationRequirement "Must declare refusal reasons when eventually obtaining licence and insurance" ;
+  autoins:futureImpact "Some refusal reasons continue to affect insurance even after licence obtained" .
+
+############################################################
+## RESOLUTION AND REAPPLICATION GUIDANCE
+############################################################
+
+autoins:RefusalResolution a owl:Class ;
+  rdfs:label "Licence Refusal Resolution Process" ;
+  autoins:medicalRefusal "Obtain medical treatment, specialist reports, demonstrate condition control" ;
+  autoins:testFailure "Additional training, practice, retake tests after waiting period" ;
+  autoins:criminalRefusal "Time passage, rehabilitation evidence, character references, legal clearance" ;
+  autoins:identityIssues "Provide acceptable identity documents, resolve discrepancies" ;
+  autoins:residencyIssues "Establish UK residency, obtain appropriate visa status" ;
+  autoins:historicalIssues "Resolve previous licence problems, may need to start from beginning" ;
+  autoins:administrativeIssues "Complete application properly with all required information" ;
+  autoins:timeframes "Vary from immediate (administrative) to several years (serious criminal issues)" ;
+  autoins:costs "May involve medical assessments, additional training, legal fees" .
+
+############################################################
+## AI VALIDATION PROMPTS FOR "OTHER" REFUSAL REASONS
+############################################################
+
+autoins:RefusalOtherValidationPrompt a owl:Class ;
+  rdfs:label "AI Validation Prompt for Other Refusal Reasons" ;
+  autoins:validationPrompt """You are an insurance underwriter specializing in DVLA licence refusals. The user has selected 'Other' for licence refusal reason.
+
+CRITICAL VALIDATION REQUIREMENTS:
+1. Must include specific DVLA reason for refusal
+2. Must provide approximate date of refusal
+3. Must explain what stage of application was refused (theory, practical, medical, etc.)
+4. Must indicate current status (reapplied, resolved, still refused)
+5. Must not be vague responses like 'didn't pass' or 'DVLA refused'
+
+COMMON VALID RESPONSES:
+- 'Medical refusal 2019 due to epilepsy, required 2 years seizure-free, reapplied successfully 2021 with medical clearance'
+- 'Identity verification failure 2020 due to name change documentation issues, resolved with deed poll and reapplied successfully'
+- 'Criminal record check refusal 2018 due to fraud conviction, had to wait 5 years, reapplied successfully 2023'
+
+REJECT INVALID RESPONSES:
+- Vague: 'didn't pass test', 'DVLA said no', 'medical reasons'
+- Non-specific: 'application problems', 'paperwork issues', 'complications'
+- Nonsensical: 'fish and chips', 'personal reasons', 'don't remember'
+
+ASK FOR CLARIFICATION:
+1. What specific reason did DVLA give for refusing your application?
+2. At what stage was your application refused (theory, practical, medical assessment, etc.)?
+3. When did this refusal occur?
+4. What steps did you take to resolve the issue?
+5. What is your current licence status?
+
+Licence refusal history can impact insurance risk assessment, especially for medical or criminal-related refusals.""" .
+
+############################################################
+## SHACL VALIDATION RULES
+############################################################
+
+autoins:RefusalReasonValidationShape a sh:NodeShape ;
+  sh:targetClass autoins:RefusalReason ;
+  rdfs:label "Refusal Reason Validation" ;
+  sh:property [
+    sh:path autoins:refusalReason ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Refusal reason is required"
+  ] ;
+  sh:property [
+    sh:path autoins:officialDescription ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 30 ;
+    sh:message "Official description must be detailed (minimum 30 characters)"
+  ] ;
+  sh:property [
+    sh:path autoins:insuranceImpact ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Insurance impact assessment is required"
+  ] ;
+  sh:property [
+    sh:path autoins:severity ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:in ("None" "Low" "Medium" "High" "Extreme") ;
+    sh:message "Severity must be specified as None, Low, Medium, High, or Extreme"
+  ] .

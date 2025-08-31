@@ -1,54 +1,48 @@
 
 // Core data types for CLIENT-UX application
 
+export interface OntologyField {
+  property: string;
+  label: string;
+  type: string;
+  required: boolean;
+  helpText?: string;
+  validationPattern?: string;
+  enumerationValues?: string[];
+  conditionalDisplay?: string;
+  conditionalRequirement?: string;
+  isMultiSelect?: boolean;
+  formType?: string;
+  options?: Array<{
+    value: string;
+    label: string;
+  }>;
+  formInfoText?: string;
+  defaultValue?: string;
+  formSection?: string;
+  requiresAIValidation?: boolean;
+  aiValidationPrompt?: string;
+  minInclusive?: number;
+  maxInclusive?: number;
+}
+
+export interface OntologySection {
+  id: string;
+  title: string;
+  icon: string;
+  fields: OntologyField[];
+}
+
 export interface OntologyResponse {
-  drivers: {
-    label: string;
-    fields: Array<{
-      property: string;
-      label: string;
-      type: string;
-      required: boolean;
-      helpText?: string;
-      validationPattern?: string;
-      enumerationValues?: string[];
-    }>;
-  };
-  vehicles: {
-    label: string;
-    fields: Array<{
-      property: string;
-      label: string;
-      type: string;
-      required: boolean;
-      helpText?: string;
-      validationPattern?: string;
-      enumerationValues?: string[];
-    }>;
-  };
-  claims: {
-    label: string;
-    fields: Array<{
-      property: string;
-      label: string;
-      type: string;
-      required: boolean;
-      helpText?: string;
-      validationPattern?: string;
-      enumerationValues?: string[];
-    }>;
-  };
-  settings: {
-    label: string;
-    fields: Array<{
-      property: string;
-      label: string;
-      type: string;
-      required: boolean;
-      helpText?: string;
-      validationPattern?: string;
-      enumerationValues?: string[];
-    }>;
+  status: string;
+  categories?: Record<string, any>;
+  sections: {
+    drivers: OntologySection;
+    vehicles: OntologySection;
+    claims: OntologySection;
+    settings: OntologySection;
+    documents: OntologySection;
+    policy?: OntologySection;
   };
 }
 
@@ -222,6 +216,7 @@ export interface Document {
   size: number;
   uploadedAt: string;
   processed: boolean;
+  fieldName?: string;
   extractedData?: Record<string, any>;
   confidence?: number;
   imagePaths?: {

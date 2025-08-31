@@ -1,0 +1,473 @@
+@prefix autoins: <https://autoins.example/ontology#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix dct:    <http://purl.org/dc/terms/> .
+
+############################################################
+## UK INSURANCE DRIVER LICENCE SCHEMA ONTOLOGY
+############################################################
+
+autoins:DriverLicenceSchemaModule a owl:Ontology ;
+  rdfs:label "UK Insurance Driver Licence Schema Module" ;
+  owl:versionInfo "v1.0.0-2025-01-24" ;
+  dct:creator "CLIENT-UX" ;
+  dct:description "Comprehensive UK insurance compliant driver licence ontology with JSON Schema validation" ;
+  autoins:gdprCompliant "true"^^xsd:boolean ;
+  autoins:ukInsuranceCompliant "true"^^xsd:boolean ;
+  autoins:jsonSchemaCompliant "true"^^xsd:boolean .
+
+############################################################
+## CORE LICENCE PROPERTIES
+############################################################
+
+autoins:licenceType a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:string ;
+  rdfs:label "Licence Type" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("FULL_UK" "PROVISIONAL_UK" "EU_EEA" "INTERNATIONAL" "OTHER_FOREIGN") ;
+  autoins:formType "select" ;
+  autoins:defaultValue "FULL_UK" ;
+  autoins:formHelpText "Type of driving licence you hold" ;
+  autoins:displayOrder "1.0" ;
+  autoins:formSection "licence_core" ;
+  autoins:jsonSchemaType "string" ;
+  autoins:jsonSchemaEnum "FULL_UK,PROVISIONAL_UK,EU_EEA,INTERNATIONAL,OTHER_FOREIGN" ;
+  autoins:dataClassification autoins:PersonalData ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:retentionPeriod "P7Y" .
+
+autoins:licenceCategory a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:string ;
+  rdfs:label "Licence Categories" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:isMultiSelect "true"^^xsd:boolean ;
+  autoins:enumerationValues ("B" "B1" "A" "AM" "Q" "C" "C1" "D" "D1" "BE" "C1E" "CE" "D1E" "DE") ;
+  autoins:defaultValue "B" ;
+  autoins:formHelpText "DVLA categories on your licence (B is standard for cars)" ;
+  autoins:displayOrder "1.1" ;
+  autoins:formSection "licence_core" ;
+  autoins:jsonSchemaType "array" ;
+  autoins:jsonSchemaItems "string" ;
+  autoins:minItems 1 ;
+  autoins:uniqueItems "true"^^xsd:boolean ;
+  autoins:dataClassification autoins:PersonalData ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:retentionPeriod "P7Y" .
+
+autoins:manualOrAuto a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:string ;
+  rdfs:label "Transmission Entitlement" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("MANUAL" "AUTOMATIC" "BOTH") ;
+  autoins:formType "radio" ;
+  autoins:defaultValue "BOTH" ;
+  autoins:formHelpText "What type of transmission are you entitled to drive?" ;
+  autoins:displayOrder "1.2" ;
+  autoins:formSection "licence_core" ;
+  autoins:jsonSchemaType "string" ;
+  autoins:jsonSchemaEnum "MANUAL,AUTOMATIC" ;
+  autoins:dataClassification autoins:PersonalData ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:retentionPeriod "P7Y" .
+
+autoins:dateFirstIssued a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:date ;
+  rdfs:label "Date First Issued" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formType "date" ;
+  autoins:formHelpText "Date your full licence was first issued (dd/mm/yyyy)" ;
+  autoins:displayOrder "1.3" ;
+  autoins:formSection "licence_core" ;
+  autoins:jsonSchemaType "string" ;
+  autoins:jsonSchemaPattern "^\\d{2}/\\d{2}/\\d{4}$" ;
+  autoins:dataClassification autoins:PersonalData ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:retentionPeriod "P7Y" .
+
+autoins:yearsHeldFull a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:integer ;
+  rdfs:label "Years Held Full Licence" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formType "number" ;
+  autoins:formHelpText "Calculated or self-declared years holding FULL licence" ;
+  autoins:minInclusive 0 ;
+  autoins:maxInclusive 80 ;
+  autoins:displayOrder "1.4" ;
+  autoins:formSection "licence_core" ;
+  autoins:jsonSchemaType "integer" ;
+  autoins:jsonSchemaMinimum 0 ;
+  autoins:jsonSchemaMaximum 80 ;
+  autoins:dataClassification autoins:PersonalData ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:retentionPeriod "P7Y" .
+
+autoins:countryOfIssue a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:string ;
+  rdfs:label "Licence - Country of Issue" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:formType "select" ;
+  autoins:enumerationValues ("UK" "Ireland" "France" "Germany" "Spain" "Italy" "Netherlands" "Belgium" "Other_EU_EEA" "USA" "Canada" "Australia" "Other") ;
+  autoins:defaultValue "UK" ;
+  autoins:formHelpText "Country that issued your driving licence" ;
+  autoins:displayOrder "1.5" ;
+  autoins:formSection "licence_core" ;
+  autoins:jsonSchemaType "string" ;
+  autoins:jsonSchemaMinLength 2 ;
+  autoins:dataClassification autoins:PersonalData ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:retentionPeriod "P7Y" .
+
+############################################################
+## CONDITIONAL LICENCE PROPERTIES
+############################################################
+
+autoins:exchangedToUK a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:string ;
+  rdfs:label "Exchanged To UK Licence?" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:conditionalDisplay "licenceType=EU_EEA OR licenceType=INTERNATIONAL OR licenceType=OTHER_FOREIGN" ;
+  autoins:enumerationValues ("YES" "NO") ;
+  autoins:formType "radio" ;
+  autoins:formHelpText "If non-UK licence, has it been exchanged to a UK licence?" ;
+  autoins:displayOrder "1.6" ;
+  autoins:formSection "licence_core" ;
+  autoins:jsonSchemaType "string" ;
+  autoins:jsonSchemaEnum "YES,NO" ;
+  autoins:dataClassification autoins:PersonalData ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:retentionPeriod "P7Y" .
+
+# ENDORSEMENTS & PENALTY POINTS definitions moved to AI_Driver_Details.ttl to avoid duplication
+
+############################################################
+## DISQUALIFICATIONS
+############################################################
+
+autoins:hasDisqualifications a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:string ;
+  rdfs:label "Any Disqualifications?" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("YES" "NO") ;
+  autoins:formType "radio" ;
+  autoins:defaultValue "NO" ;
+  autoins:triggerSection "disqualifications" ;
+  autoins:sectionCollapsible "true"^^xsd:boolean ;
+  autoins:sectionDefaultClosed "true"^^xsd:boolean ;
+  autoins:formHelpText "Have you ever been disqualified from driving?" ;
+  autoins:displayOrder "3.0" ;
+  autoins:formSection "disqualifications_history" ;
+  autoins:jsonSchemaType "string" ;
+  autoins:jsonSchemaEnum "YES,NO" ;
+  autoins:dataClassification autoins:SensitivePersonalData ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:retentionPeriod "P7Y" .
+
+autoins:disqualificationFrom a owl:DatatypeProperty ;
+  rdfs:domain autoins:Disqualification ;
+  rdfs:range xsd:date ;
+  rdfs:label "Disqualification Start Date" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:conditionalDisplay "hasDisqualifications=YES" ;
+  autoins:formType "date" ;
+  autoins:formHelpText "Start date of disqualification period" ;
+  autoins:displayOrder "3.1" ;
+  autoins:formSection "disqualifications" ;
+  autoins:jsonSchemaType "string" ;
+  autoins:jsonSchemaPattern "^\\d{4}-\\d{2}-\\d{2}$" ;
+  autoins:dataClassification autoins:SensitivePersonalData ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:retentionPeriod "P7Y" .
+
+autoins:disqualificationTo a owl:DatatypeProperty ;
+  rdfs:domain autoins:Disqualification ;
+  rdfs:range xsd:date ;
+  rdfs:label "Disqualification End Date" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:conditionalDisplay "hasDisqualifications=YES" ;
+  autoins:formType "date" ;
+  autoins:formHelpText "End date of disqualification period" ;
+  autoins:displayOrder "3.2" ;
+  autoins:formSection "disqualifications" ;
+  autoins:jsonSchemaType "string" ;
+  autoins:jsonSchemaPattern "^\\d{4}-\\d{2}-\\d{2}$" ;
+  autoins:dataClassification autoins:SensitivePersonalData ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:retentionPeriod "P7Y" .
+
+autoins:disqualificationReason a owl:DatatypeProperty ;
+  rdfs:domain autoins:Disqualification ;
+  rdfs:range xsd:string ;
+  rdfs:label "Reason For Disqualification" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:conditionalDisplay "hasDisqualifications=YES" ;
+  autoins:formType "text" ;
+  autoins:formHelpText "Reason for disqualification (max 200 characters)" ;
+  autoins:maxLength 200 ;
+  autoins:displayOrder "3.3" ;
+  autoins:formSection "disqualifications" ;
+  autoins:jsonSchemaType "string" ;
+  autoins:jsonSchemaMaxLength 200 ;
+  autoins:dataClassification autoins:SensitivePersonalData ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:retentionPeriod "P7Y" .
+
+############################################################
+## MEDICAL CONDITIONS & VISION
+############################################################
+
+autoins:hasMedicalConditions a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:string ;
+  rdfs:label "Any Medical Conditions?" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("YES" "NO") ;
+  autoins:formType "radio" ;
+  autoins:defaultValue "NO" ;
+  autoins:triggerSection "medical" ;
+  autoins:sectionCollapsible "true"^^xsd:boolean ;
+  autoins:sectionDefaultClosed "true"^^xsd:boolean ;
+  autoins:formHelpText "Do you have any medical conditions that affect your driving?" ;
+  autoins:displayOrder "4.0" ;
+  autoins:formSection "medical_history" ;
+  autoins:jsonSchemaType "string" ;
+  autoins:jsonSchemaEnum "YES,NO" ;
+  autoins:dataClassification autoins:SensitivePersonalData ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:retentionPeriod "P7Y" .
+
+autoins:medicalDeclaredToDVLA a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:string ;
+  rdfs:label "Medical Conditions Declared To DVLA?" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:conditionalDisplay "hasMedicalConditions=YES" ;
+  autoins:enumerationValues ("YES" "NO") ;
+  autoins:formType "radio" ;
+  autoins:formHelpText "If medical conditions exist, have they been notified to DVLA?" ;
+  autoins:displayOrder "4.1" ;
+  autoins:formSection "medical" ;
+  autoins:jsonSchemaType "string" ;
+  autoins:jsonSchemaEnum "YES,NO" ;
+  autoins:dataClassification autoins:SensitivePersonalData ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:retentionPeriod "P7Y" .
+
+autoins:visionCorrectionRequired a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:string ;
+  rdfs:label "Vision Correction Required?" ;
+  autoins:isRequired "true"^^xsd:boolean ;
+  autoins:enumerationValues ("YES" "NO") ;
+  autoins:formType "radio" ;
+  autoins:defaultValue "NO" ;
+  autoins:formHelpText "Are glasses or contact lenses required when driving?" ;
+  autoins:displayOrder "4.2" ;
+  autoins:formSection "medical_history" ;
+  autoins:jsonSchemaType "string" ;
+  autoins:jsonSchemaEnum "YES,NO" ;
+  autoins:dataClassification autoins:SensitivePersonalData ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:retentionPeriod "P7Y" .
+
+############################################################
+## OPTIONAL LICENCE NUMBER
+############################################################
+
+autoins:licenceNumber a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:string ;
+  rdfs:label "Licence Number" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:formType "text" ;
+  autoins:formHelpText "Optional: Your DVLA licence number (16 characters)" ;
+  autoins:displayOrder "5.0" ;
+  autoins:formSection "licence_optional" ;
+  autoins:jsonSchemaType "string" ;
+  autoins:jsonSchemaPattern "^[A-Z9]{5}\\d{6}[A-Z9]{2}\\d{2}$" ;
+  autoins:dataClassification autoins:PersonalData ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:retentionPeriod "P7Y" .
+
+############################################################
+## PENDING PROSECUTIONS
+############################################################
+
+autoins:pendingProsecutions a owl:DatatypeProperty ;
+  rdfs:domain autoins:Driver ;
+  rdfs:range xsd:string ;
+  rdfs:label "Any Pending Prosecutions?" ;
+  autoins:isRequired "false"^^xsd:boolean ;
+  autoins:enumerationValues ("YES" "NO") ;
+  autoins:formType "radio" ;
+  autoins:defaultValue "NO" ;
+  autoins:formHelpText "Do you have any pending driving prosecutions?" ;
+  autoins:displayOrder "6.0" ;
+  autoins:formSection "legal_status" ;
+  autoins:jsonSchemaType "string" ;
+  autoins:jsonSchemaEnum "YES,NO" ;
+  autoins:dataClassification autoins:SensitivePersonalData ;
+  autoins:consentRequired "true"^^xsd:boolean ;
+  autoins:retentionPeriod "P7Y" .
+
+############################################################
+## SHACL VALIDATION SHAPES
+############################################################
+
+# Core Licence Validation Shape
+autoins:LicenceValidationShape a sh:NodeShape ;
+  sh:targetClass autoins:Driver ;
+  rdfs:label "Driver Licence Validation Shape" ;
+  
+  # Licence Type is required
+  sh:property [
+    sh:path autoins:licenceType ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in ("FULL_UK" "PROVISIONAL_UK" "EU_EEA" "INTERNATIONAL" "OTHER_FOREIGN") ;
+    sh:message "Licence type is required and must be one of: FULL_UK, PROVISIONAL_UK, EU_EEA, INTERNATIONAL, OTHER_FOREIGN"
+  ] ;
+  
+  # Licence Category is required (at least one)
+  sh:property [
+    sh:path autoins:licenceCategory ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:in ("B" "B1" "A" "AM" "Q" "C" "C1" "D" "D1" "BE" "C1E" "CE" "D1E" "DE") ;
+    sh:message "At least one licence category is required"
+  ] ;
+  
+  # Manual/Auto is required
+  sh:property [
+    sh:path autoins:manualOrAuto ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:in ("MANUAL" "AUTOMATIC" "BOTH") ;
+    sh:message "Transmission entitlement is required"
+  ] ;
+  
+  # Date first issued is required
+  sh:property [
+    sh:path autoins:dateFirstIssued ;
+    sh:datatype xsd:date ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "Date first issued is required"
+  ] ;
+  
+  # Country of issue is required
+  sh:property [
+    sh:path autoins:countryOfIssue ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:minLength 2 ;
+    sh:message "Licence - country of issue is required (minimum 2 characters)"
+  ] .
+
+# Conditional Validation: UK Licence must have UK country
+autoins:UKLicenceCountryShape a sh:NodeShape ;
+  sh:targetClass autoins:Driver ;
+  rdfs:label "UK Licence Country Validation" ;
+  sh:condition [
+    sh:property [
+      sh:path autoins:licenceType ;
+      sh:hasValue "FULL_UK"
+    ]
+  ] ;
+  sh:property [
+    sh:path autoins:countryOfIssue ;
+    sh:hasValue "UK" ;
+    sh:message "UK licence must have UK as country of issue"
+  ] .
+
+# Conditional Validation: Non-UK licences require exchangedToUK
+autoins:NonUKLicenceExchangeShape a sh:NodeShape ;
+  sh:targetClass autoins:Driver ;
+  rdfs:label "Non-UK Licence Exchange Validation" ;
+  sh:condition [
+    sh:property [
+      sh:path autoins:licenceType ;
+      sh:in ("EU_EEA" "INTERNATIONAL" "OTHER_FOREIGN")
+    ]
+  ] ;
+  sh:property [
+    sh:path autoins:exchangedToUK ;
+    sh:minCount 1 ;
+    sh:in ("YES" "NO") ;
+    sh:message "Non-UK licences must specify if exchanged to UK licence"
+  ] .
+
+# Conditional Validation: Endorsements details required if hasEndorsements=YES
+autoins:EndorsementsConditionalShape a sh:NodeShape ;
+  sh:targetClass autoins:Driver ;
+  rdfs:label "Endorsements Conditional Validation" ;
+  sh:condition [
+    sh:property [
+      sh:path autoins:hasEndorsements ;
+      sh:hasValue "YES"
+    ]
+  ] ;
+  sh:property [
+    sh:path autoins:endorsementCode ;
+    sh:minCount 1 ;
+    sh:message "Endorsement details required when hasEndorsements is YES"
+  ] .
+
+# Conditional Validation: Disqualification details required if hasDisqualifications=YES
+autoins:DisqualificationsConditionalShape a sh:NodeShape ;
+  sh:targetClass autoins:Driver ;
+  rdfs:label "Disqualifications Conditional Validation" ;
+  sh:condition [
+    sh:property [
+      sh:path autoins:hasDisqualifications ;
+      sh:hasValue "YES"
+    ]
+  ] ;
+  sh:property [
+    sh:path autoins:disqualificationFrom ;
+    sh:minCount 1 ;
+    sh:message "Disqualification details required when hasDisqualifications is YES"
+  ] .
+
+# Conditional Validation: Medical DVLA declaration required if hasMedicalConditions=YES
+autoins:MedicalDVLAConditionalShape a sh:NodeShape ;
+  sh:targetClass autoins:Driver ;
+  rdfs:label "Medical DVLA Declaration Validation" ;
+  sh:condition [
+    sh:property [
+      sh:path autoins:hasMedicalConditions ;
+      sh:hasValue "YES"
+    ]
+  ] ;
+  sh:property [
+    sh:path autoins:medicalDeclaredToDVLA ;
+    sh:minCount 1 ;
+    sh:in ("YES" "NO") ;
+    sh:message "Medical DVLA declaration required when hasMedicalConditions is YES"
+  ] .
+
+# Licence Number Pattern Validation (if provided)
+autoins:LicenceNumberPatternShape a sh:NodeShape ;
+  sh:targetClass autoins:Driver ;
+  rdfs:label "Licence Number Pattern Validation" ;
+  sh:property [
+    sh:path autoins:licenceNumber ;
+    sh:pattern "^[A-Z9]{5}\\d{6}[A-Z9]{2}\\d{2}$" ;
+    sh:message "Licence number must match DVLA pattern: 5 letters/9s, 6 digits, 2 letters/9s, 2 digits"
+  ] .
+
+############################################################
+## END OF UK DRIVER LICENCE SCHEMA MODULE
+############################################################

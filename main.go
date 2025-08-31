@@ -15,6 +15,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,72 +24,57 @@ import (
 	"github.com/gorilla/sessions"
 
 	apihandlers "client-ux/internal/api/handlers"
+	ai_validation "client-ux/internal/services/ai_validation"
 	"client-ux/internal/services/market_adapter"
 )
 
-// Category represents an ontology category
-type Category struct {
-	ID     string                 `json:"id"`
-	Name   string                 `json:"name"`
-	Fields map[string]interface{} `json:"fields"`
-	Order  int                    `json:"order"`
-}
-
-// OntologyData represents the loaded ontology structure
-type OntologyData struct {
-	Sections   map[string]interface{} `json:"sections"`
-	Categories []Category             `json:"categories"`
-	Fields     map[string]interface{} `json:"fields"`
-	Subforms   map[string]interface{} `json:"subforms"`
-}
-
-// QuoteSession represents a user's quote session
-type QuoteSession struct {
-	ID           string                 `json:"id"`
-	Data         map[string]interface{} `json:"data"`
-	CreatedAt    time.Time              `json:"createdAt"`
-	UpdatedAt    time.Time              `json:"updatedAt"`
-	Language     string                 `json:"language"`
-	Drivers      []Driver               `json:"drivers"`
-	Progress     map[string]interface{} `json:"progress"`
-	FormData     map[string]interface{} `json:"formData"`
-	LastAccessed time.Time              `json:"lastAccessed"`
-}
-
-// Driver represents driver information
-type Driver struct {
-	ID             string `json:"id"`
-	FirstName      string `json:"firstName"`
-	LastName       string `json:"lastName"`
-	DateOfBirth    string `json:"dateOfBirth"`
-	LicenceType    string `json:"licenceType"`
-	LicenceNumber  string `json:"licenceNumber"`
-	Classification string `json:"classification"`
-}
-
-// ValidationError represents a validation error
-type ValidationError struct {
-	Field   string `json:"field"`
-	Message string `json:"message"`
-	Code    string `json:"code"`
-}
-
-// ValidationResult represents validation results
-type ValidationResult struct {
-	Valid  bool              `json:"valid"`
-	Errors []ValidationError `json:"errors"`
-}
-
-// OCRResult represents OCR processing results
-type OCRResult struct {
-	Text       string  `json:"text"`
-	Confidence float64 `json:"confidence"`
-}
-
 type App struct {
-	Ontology *OntologyData
-	Sessions map[string]*QuoteSession
-	Store    *sessions.CookieStore
+	Ontology   *OntologyData
+	Sessions   map[string]*QuoteSession
+	Store      *sessions.CookieStore
+	SessionsMu sync.RWMutex
+}
+
+// AI validation request/response (mirror frontend types)
+type AIValidationRequest struct {
+	FieldName        string `json:"fieldName"`
+	UserInput        string `json:"userInput"`
+	ValidationPrompt string `json:"validationPrompt"`
+}
+
+type AIValidationResponse struct {
+	IsValid      bool   `json:"isValid"`
+	Message      string `json:"message"`
+	Suggestions  string `json:"suggestions,omitempty"`
+	RequiredInfo string `json:"requiredInfo,omitempty"`
+}
+
+func (app *App) handleAIValidateInput(w http.ResponseWriter, r *http.Request) {
+	var req AIValidationRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	svc := ai_validation.NewService()
+	res, err := svc.ValidateUserInput(ai_validation.ValidationRequest{
+		FieldName:        req.FieldName,
+		UserInput:        req.UserInput,
+		ValidationPrompt: req.ValidationPrompt,
+	})
+	if err != nil {
+		http.Error(w, fmt.Sprintf("AI validation error: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	out := AIValidationResponse{
+		IsValid:      res.IsValid,
+		Message:      res.Message,
+		Suggestions:  res.Suggestions,
+		RequiredInfo: res.RequiredInfo,
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(out)
 }
 
 func main() {
@@ -103,7 +89,106 @@ func main() {
 		SameSite: http.SameSiteStrictMode,
 	}
 
+	// Load ontology from TTL files
+	fmt.Println("🔧 Loading ontology from TTL files...")
+	ontologyData, err := ParseTTLOntology()
+	if err != nil {
+		fmt.Printf("❌ Failed to load TTL ontology: %v\n", err)
+		fmt.Println("🔄 Falling back to hardcoded ontology...")
+		ontologyData = createHardcodedOntology()
+		fmt.Printf("✅ Created %d hardcoded ontology sections\n", len(ontologyData))
+	} else {
+		fmt.Printf("✅ Successfully parsed TTL files - loaded %d ontology sections\n", len(ontologyData))
+		// Print section details for debugging
+		for sectionID, section := range ontologyData {
+			fmt.Printf("  📋 Section '%s': %s (%d fields)\n", sectionID, section.Label, len(section.Fields))
+		}
+	}
+
+	// Convert to the expected format
+	ontology := &OntologyData{
+		Categories: make(map[string]Category),
+		Fields:     make(map[string][]Field),
+		Subforms:   make(map[string]Subform),
+		Schemes:    make(map[string]ConceptScheme),
+	}
+
+	// Convert ontology sections to categories
+	for sectionID, section := range ontologyData {
+		category := Category{
+			ID:          sectionID,
+			Title:       section.Label,
+			Icon:        "📋", // Default icon
+			Section:     sectionID,
+			Order:       len(ontology.Categories) + 1,
+			Description: section.Label,
+		}
+
+		ontology.Categories[sectionID] = category
+
+		// Convert OntologyField to Field
+		fields := make([]Field, len(section.Fields))
+		for i, ontField := range section.Fields {
+			// Convert FieldOption to Option
+			options := make([]Option, len(ontField.Options))
+			for j, opt := range ontField.Options {
+				options[j] = Option{
+					Value: opt.Value,
+					Label: opt.Label,
+				}
+			}
+
+			fields[i] = Field{
+				Property:             ontField.Property,
+				Label:                ontField.Label,
+				Type:                 ontField.Type,
+				Required:             ontField.Required,
+				HelpText:             ontField.HelpText,
+				Options:              options,
+				ConditionalDisplay:   ontField.ConditionalDisplay,
+				IsMultiSelect:        ontField.IsMultiSelect,
+				FormType:             ontField.FormType,
+				EnumerationValues:    ontField.EnumerationValues,
+				ArrayItemStructure:   ontField.ArrayItemStructure,
+				FormSection:          ontField.FormSection,
+				FormInfoText:         ontField.FormInfoText,
+				DefaultValue:         ontField.DefaultValue,
+				RequiresAIValidation: ontField.RequiresAIValidation,
+				AIValidationPrompt:   ontField.AIValidationPrompt,
+			}
+
+			// Debug output for specific fields
+			if ontField.Property == "isMainDriver" || ontField.Property == "manualOrAuto" || ontField.Property == "automaticOnly" {
+				fmt.Printf("DEBUG CONVERSION: %s - OntField.DefaultValue: '%s' -> Field.DefaultValue: '%s'\n",
+					ontField.Property, ontField.DefaultValue, fields[i].DefaultValue)
+			}
+		}
+		ontology.Fields[sectionID] = fields
+	}
+
+	// Ensure we have document fields - add hardcoded ones if missing
+	fmt.Printf("🔍 Checking documents section: %d fields found\n", len(ontology.Fields["documents"]))
+	if len(ontology.Fields["documents"]) == 0 {
+		fmt.Println("⚠️  No document fields found in TTL, adding hardcoded document matrix...")
+		documentFields := []Field{
+			{Property: "drivingLicence", Label: "Driving Licence", Type: "file", Required: true, HelpText: "Upload your driving licence"},
+			{Property: "passport", Label: "Passport", Type: "file", Required: false, HelpText: "Upload your passport"},
+			{Property: "utilityBill", Label: "Utility Bill", Type: "file", Required: false, HelpText: "Upload a recent utility bill"},
+			{Property: "bankStatement", Label: "Bank Statement", Type: "file", Required: false, HelpText: "Upload a recent bank statement"},
+			{Property: "payslip", Label: "Payslip", Type: "file", Required: false, HelpText: "Upload a recent payslip"},
+			{Property: "p60", Label: "P60", Type: "file", Required: false, HelpText: "Upload your P60"},
+			{Property: "medicalCertificate", Label: "Medical Certificate", Type: "file", Required: false, HelpText: "Upload medical certificate if applicable"},
+			{Property: "insuranceCertificate", Label: "Insurance Certificate", Type: "file", Required: false, HelpText: "Upload previous insurance certificate"},
+			{Property: "vehicleRegistration", Label: "Vehicle Registration", Type: "file", Required: false, HelpText: "Upload vehicle registration document"},
+		}
+		ontology.Fields["documents"] = documentFields
+		fmt.Printf("✅ Added %d hardcoded document fields\n", len(documentFields))
+	}
+
+	fmt.Printf("🎯 Final ontology has %d categories\n", len(ontology.Categories))
+
 	app := &App{
+		Ontology: ontology,
 		Sessions: make(map[string]*QuoteSession),
 		Store:    store,
 	}
@@ -175,6 +260,8 @@ func main() {
 
 	// API
 	api := r.PathPrefix("/api").Subrouter()
+	// AI input validation endpoint (used by assistant dialog)
+	api.HandleFunc("/validate-ai-input", app.handleAIValidateInput).Methods("POST")
 	api.HandleFunc("/category/list", app.handleCategoryList).Methods("GET")
 	api.HandleFunc("/category/{category}", app.handleCategory).Methods("GET")
 	api.HandleFunc("/drivers/add", app.handleAddDriver).Methods("POST")
@@ -200,6 +287,8 @@ func main() {
 
 	// TTL Ontology API routes
 	api.HandleFunc("/ontology", app.HandleOntologyAPI).Methods("GET")
+	api.HandleFunc("/ocr/extract", app.HandleOCRExtraction).Methods("POST")
+	api.HandleFunc("/ontology/store-document-data", app.HandleStoreDocumentData).Methods("POST")
 
 	// Grounded AI and semantic processing endpoints
 	groundedHandler := apihandlers.NewGroundedAIHandler()
@@ -393,13 +482,14 @@ func (app *App) sessionMiddleware(next http.Handler) http.Handler {
 			cookieSession.Values["id"] = sessionID
 			_ = cookieSession.Save(r, w)
 		}
+		app.SessionsMu.Lock()
 		if _, ok := app.Sessions[sessionID]; !ok {
 			app.Sessions[sessionID] = &QuoteSession{
 				ID:           sessionID,
 				Language:     "en",
 				Drivers:      []Driver{},
-				Progress:     make(map[string]interface{}),
-				FormData:     make(map[string]interface{}),
+				Progress:     make(map[string]bool),
+				FormData:     make(map[string]map[string]interface{}),
 				CreatedAt:    time.Now(),
 				LastAccessed: time.Now(),
 			}
@@ -407,6 +497,7 @@ func (app *App) sessionMiddleware(next http.Handler) http.Handler {
 		} else {
 			app.Sessions[sessionID].LastAccessed = time.Now()
 		}
+		app.SessionsMu.Unlock()
 		r.Header.Set("X-Session-ID", sessionID)
 		next.ServeHTTP(w, r)
 	})
@@ -613,7 +704,7 @@ func (app *App) handleSave(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if s.FormData == nil {
-		s.FormData = make(map[string]interface{})
+		s.FormData = make(map[string]map[string]interface{})
 	}
 	s.FormData[req.Category] = req.Fields
 	s.Progress[req.Category] = true
@@ -652,7 +743,6 @@ func (app *App) validateCategory(category string, data map[string]interface{}) V
 			result.Errors = append(result.Errors, ValidationError{
 				Field:   fieldName,
 				Message: "This field is required",
-				Code:    "REQUIRED_FIELD",
 			})
 		}
 	}
@@ -693,8 +783,8 @@ func (app *App) handleNewSession(w http.ResponseWriter, r *http.Request) {
 		ID:           id,
 		Language:     "en",
 		Drivers:      []Driver{},
-		Progress:     make(map[string]interface{}),
-		FormData:     make(map[string]interface{}),
+		Progress:     make(map[string]bool),
+		FormData:     make(map[string]map[string]interface{}),
 		CreatedAt:    time.Now(),
 		LastAccessed: time.Now(),
 	}
@@ -879,13 +969,11 @@ func (app *App) handleDebugOCRTest(w http.ResponseWriter, r *http.Request) {
 		// File exists, try OCR - use passport text OCR for page2_upper images
 		var ocrResult *OCRResult
 		var err error
-		var ocrRes OCRResult
 		if strings.Contains(imagePath, "page2_upper") {
-			ocrRes, err = ocrWithTesseractPassportText(fullPath)
+			ocrResult, err = ocrWithTesseractPassportText(fullPath)
 		} else {
-			ocrRes, err = ocrWithTesseract(fullPath)
+			ocrResult, err = ocrWithTesseract(fullPath)
 		}
-		ocrResult = &ocrRes
 
 		if err == nil {
 			result["ocrSuccess"] = true
@@ -935,33 +1023,267 @@ func (app *App) ValidateDocumentHandler(w http.ResponseWriter, r *http.Request) 
 
 // HandleOntologyAPI handles ontology API requests
 func (app *App) HandleOntologyAPI(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("🔥 HandleOntologyAPI called!")
 	w.Header().Set("Content-Type", "application/json")
-	response := map[string]interface{}{
-		"status":   "success",
-		"ontology": "BiPRO compliant ontology loaded",
-		"sections": map[string]interface{}{
-			"driver":   "AI_Driver_Details.ttl",
-			"vehicle":  "AI_Vehicle_Details.ttl",
-			"policy":   "AI_Policy_Details.ttl",
-			"claims":   "AI_Claims_History.ttl",
-			"payments": "AI_Insurance_Payments.ttl",
-			"bipro":    "BiPRO_Compliance.ttl",
-		},
+
+	if app.Ontology == nil {
+		fmt.Println("❌ Ontology is nil in HandleOntologyAPI")
+		http.Error(w, "Ontology not loaded", http.StatusInternalServerError)
+		return
 	}
+
+	// Convert the ontology data to the format expected by the frontend
+	sections := make(map[string]interface{})
+	for categoryID, category := range app.Ontology.Categories {
+		fmt.Printf("API DEBUG: Processing category %s\n", categoryID)
+		fields := make([]map[string]interface{}, 0)
+
+		// Convert Field structs to maps for JSON serialization
+		if categoryFields, exists := app.Ontology.Fields[categoryID]; exists {
+			fmt.Printf("API DEBUG: Category %s has %d fields\n", categoryID, len(categoryFields))
+			for _, field := range categoryFields {
+				// Debug output for specific fields
+				if field.Property == "disabilityTypes" || field.Property == "automaticOnly" || field.Property == "adaptationTypes" {
+					fmt.Printf("API DEBUG: Found field %s - IsMultiSelect: %v, FormType: '%s', EnumValues: %v\n", field.Property, field.IsMultiSelect, field.FormType, field.EnumerationValues)
+				}
+
+				fieldMap := map[string]interface{}{
+					"property":             field.Property,
+					"label":                field.Label,
+					"type":                 field.Type,
+					"required":             field.Required,
+					"conditionalDisplay":   field.ConditionalDisplay,
+					"isMultiSelect":        field.IsMultiSelect,
+					"formType":             field.FormType,
+					"enumerationValues":    field.EnumerationValues,
+					"arrayItemStructure":   field.ArrayItemStructure,
+					"formSection":          field.FormSection,
+					"defaultValue":         field.DefaultValue,
+					"formInfoText":         field.FormInfoText,
+					"requiresAIValidation": field.RequiresAIValidation,
+					"aiValidationPrompt":   field.AIValidationPrompt,
+				}
+
+				// Fields should now be properly populated from ontology conversion
+
+				// Debug output for specific fields
+				if field.Property == "automaticOnly" {
+					fmt.Printf("FIELDMAP DEBUG: %s = %+v\n", field.Property, fieldMap)
+				}
+
+				if field.HelpText != "" {
+					fieldMap["helpText"] = field.HelpText
+				}
+
+				if len(field.Options) > 0 {
+					options := make([]map[string]interface{}, len(field.Options))
+					for i, opt := range field.Options {
+						options[i] = map[string]interface{}{
+							"value": opt.Value,
+							"label": opt.Label,
+						}
+					}
+					fieldMap["options"] = options
+				}
+
+				fields = append(fields, fieldMap)
+			}
+		}
+
+		sections[categoryID] = map[string]interface{}{
+			"id":     category.ID,
+			"title":  category.Title,
+			"icon":   category.Icon,
+			"fields": fields,
+		}
+	}
+
+	response := map[string]interface{}{
+		"status":     "success",
+		"categories": app.Ontology.Categories,
+		"sections":   sections,
+	}
+
+	fmt.Printf("✅ Returning ontology with %d categories and %d sections\n", len(app.Ontology.Categories), len(sections))
+
+	// Debug: print the response structure for automaticOnly
+	if driversSection, ok := sections["drivers"].(map[string]interface{}); ok {
+		if fields, ok := driversSection["fields"].([]map[string]interface{}); ok {
+			for _, field := range fields {
+				if field["property"] == "automaticOnly" {
+					fmt.Printf("RESPONSE DEBUG: automaticOnly field = %+v\n", field)
+				}
+			}
+		}
+	}
+
 	json.NewEncoder(w).Encode(response)
 }
 
 // OCR utility functions (stubs for BiPRO compliance)
-func ocrWithTesseractPassportText(imagePath string) (OCRResult, error) {
-	return OCRResult{Text: "Mock OCR result", Confidence: 0.95}, nil
+
+// createHardcodedOntology creates a working ontology structure for all forms
+func createHardcodedOntology() map[string]OntologySection {
+	return map[string]OntologySection{
+		"drivers": {
+			ID:    "drivers",
+			Label: "Driver Details",
+			Fields: []OntologyField{
+				{Property: "firstName", Label: "First Name", Type: "text", Required: true},
+				{Property: "lastName", Label: "Last Name", Type: "text", Required: true},
+				{Property: "dateOfBirth", Label: "Date of Birth", Type: "date", Required: true},
+				{Property: "email", Label: "Email", Type: "email", Required: true},
+				{Property: "phone", Label: "Phone", Type: "tel", Required: true},
+				{Property: "licenceNumber", Label: "Licence Number", Type: "text", Required: true},
+				{Property: "licenceType", Label: "Licence Type", Type: "select", Required: true, Options: []FieldOption{
+					{Value: "FULL_UK", Label: "Full UK Licence"},
+					{Value: "PROVISIONAL", Label: "Provisional"},
+					{Value: "INTERNATIONAL", Label: "International"},
+				}},
+			},
+		},
+		"vehicle": {
+			ID:    "vehicle",
+			Label: "Vehicle Details",
+			Fields: []OntologyField{
+				{Property: "registrationNumber", Label: "Registration Number", Type: "text", Required: true},
+				{Property: "make", Label: "Make", Type: "text", Required: true},
+				{Property: "model", Label: "Model", Type: "text", Required: true},
+				{Property: "year", Label: "Year", Type: "number", Required: true},
+				{Property: "mileage", Label: "Annual Mileage", Type: "number", Required: true},
+				{Property: "value", Label: "Vehicle Value", Type: "number", Required: true},
+				{Property: "overnightLocation", Label: "Overnight Location", Type: "select", Required: true, Options: []FieldOption{
+					{Value: "GARAGE", Label: "Garage"},
+					{Value: "DRIVEWAY", Label: "Driveway"},
+					{Value: "STREET", Label: "Street"},
+					{Value: "CAR_PARK", Label: "Car Park"},
+				}},
+			},
+		},
+		"claims": {
+			ID:    "claims",
+			Label: "Claims History",
+			Fields: []OntologyField{
+				{Property: "hasClaims", Label: "Any previous claims?", Type: "radio", Required: true, Options: []FieldOption{
+					{Value: "NO", Label: "No"},
+					{Value: "YES", Label: "Yes"},
+				}},
+				{Property: "hasConvictions", Label: "Any convictions?", Type: "radio", Required: true, Options: []FieldOption{
+					{Value: "NO", Label: "No"},
+					{Value: "YES", Label: "Yes"},
+				}},
+			},
+		},
+		"policy": {
+			ID:    "policy",
+			Label: "Policy Details",
+			Fields: []OntologyField{
+				{Property: "coverType", Label: "Cover Type", Type: "select", Required: true, Options: []FieldOption{
+					{Value: "COMPREHENSIVE", Label: "Comprehensive"},
+					{Value: "TPFT", Label: "Third Party Fire & Theft"},
+					{Value: "TP", Label: "Third Party"},
+				}},
+				{Property: "startDate", Label: "Start Date", Type: "date", Required: true},
+				{Property: "voluntaryExcess", Label: "Voluntary Excess", Type: "select", Required: true, Options: []FieldOption{
+					{Value: "0", Label: "£0"},
+					{Value: "100", Label: "£100"},
+					{Value: "250", Label: "£250"},
+					{Value: "500", Label: "£500"},
+				}},
+			},
+		},
+		"documents": {
+			ID:    "documents",
+			Label: "Documents",
+			Fields: []OntologyField{
+				{Property: "drivingLicence", Label: "Driving Licence", Type: "file", Required: true},
+				{Property: "passport", Label: "Passport", Type: "file", Required: false},
+				{Property: "proofOfAddress", Label: "Proof of Address", Type: "file", Required: true},
+			},
+		},
+	}
 }
 
-func ocrWithTesseract(imagePath string) (OCRResult, error) {
-	return OCRResult{Text: "Mock OCR result", Confidence: 0.95}, nil
+// OCR Extraction Handler
+func (app *App) HandleOCRExtraction(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	// Parse multipart form
+	err := r.ParseMultipartForm(10 << 20) // 10 MB max
+	if err != nil {
+		http.Error(w, "Failed to parse form", http.StatusBadRequest)
+		return
+	}
+
+	// Get uploaded file
+	file, header, err := r.FormFile("document")
+	if err != nil {
+		http.Error(w, "No file uploaded", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	// Process with OCR (using existing OCR functionality)
+	extractedData, confidence, err := processGenericDocument(file, header.Filename)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("OCR processing failed: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Extract text from the result
+	extractedText := ""
+	if text, ok := extractedData["text"].(string); ok {
+		extractedText = text
+	}
+
+	// Return extracted text and data
+	response := map[string]interface{}{
+		"text":          extractedText,
+		"extractedData": extractedData,
+		"confidence":    confidence,
+		"filename":      header.Filename,
+		"success":       true,
+	}
+
+	json.NewEncoder(w).Encode(response)
 }
 
-func extractIssueDateFromText(text string) string {
-	return "2020-01-01" // Mock date
+// Store Document Data Handler
+func (app *App) HandleStoreDocumentData(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	var request struct {
+		DocumentType  string                 `json:"documentType"`
+		ExtractedData map[string]interface{} `json:"extractedData"`
+		Timestamp     string                 `json:"timestamp"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	// Store in ontology format (this would typically go to a database)
+	// For now, just log the data
+	fmt.Printf("📄 Storing document data:\n")
+	fmt.Printf("   Type: %s\n", request.DocumentType)
+	fmt.Printf("   Timestamp: %s\n", request.Timestamp)
+	fmt.Printf("   Data: %+v\n", request.ExtractedData)
+
+	// In a real implementation, you would:
+	// 1. Validate the data against the ontology
+	// 2. Store in a database with proper relationships
+	// 3. Update the user's session with the extracted data
+	// 4. Trigger any business logic (e.g., auto-fill forms)
+
+	response := map[string]interface{}{
+		"success":      true,
+		"message":      "Document data stored successfully",
+		"documentType": request.DocumentType,
+		"fieldsStored": len(request.ExtractedData),
+	}
+
+	json.NewEncoder(w).Encode(response)
 }
 
 // Utility

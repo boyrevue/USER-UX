@@ -1,0 +1,26 @@
+# CLIENT-UX Static File Configuration
+# Ensures proper MIME types and prevents static/static nesting
+
+# Set correct MIME types
+AddType text/css .css
+AddType application/javascript .js
+AddType application/json .json
+AddType image/png .png
+AddType image/jpeg .jpg .jpeg
+AddType image/svg+xml .svg
+AddType image/x-icon .ico
+
+# Cache static assets
+<FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg)$">
+    ExpiresActive On
+    ExpiresDefault "access plus 1 year"
+    Header set Cache-Control "public, immutable"
+</FilesMatch>
+
+# Prevent directory listing
+Options -Indexes
+
+# Security headers
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options DENY
+Header always set X-XSS-Protection "1; mode=block"
